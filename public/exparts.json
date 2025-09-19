@@ -1,0 +1,16 @@
+[
+  { "id": 1,  "name": "Olivia Martinez",    "position": "Career Coach",            "image": "https://www.resumebuilder.com/wp-content/uploads/2024/05/Expert-2.png" },
+  { "id": 2,  "name": "Ethan Brooks",       "position": "Resume Strategist",       "image": "https://www.resumebuilder.com/wp-content/uploads/2024/05/Expert-4.png" },
+  { "id": 3,  "name": "Sophia Nguyen",      "position": "HR Consultant",           "image": "https://www.resumebuilder.com/wp-content/uploads/2024/05/Expert-7.png" },
+  { "id": 4,  "name": "Liam Patel",         "position": "Interview Specialist",    "image": "https://www.resumebuilder.com/wp-content/uploads/2024/05/Expert-9.png" },
+  { "id": 5,  "name": "Anna Berentson",     "position": "Senior Editor",           "image": "https://www.resumebuilder.com/wp-content/uploads/2024/06/Anna-Berentson.png" },
+  { "id": 7,  "name": "Professional Badge", "position": "Certification Badge",     "image": "https://www.resumebuilder.com/wp-content/uploads/2024/06/Badge-2024Asset-6.png" },
+  { "id": 8,  "name": "Carolyn Kleiman",    "position": "Career Expert",           "image": "https://www.resumebuilder.com/wp-content/uploads/2024/06/Carolyn-Kleiman.png" },
+  { "id": 9,  "name": "David Pratt",        "position": "Recruitment Advisor",     "image": "https://www.resumebuilder.com/wp-content/uploads/2024/06/David-Pratt.png" },
+  { "id": 10, "name": "David Pratt",        "position": "Recruitment Advisor",     "image": "https://www.resumebuilder.com/wp-content/uploads/2024/06/David-PrattAsset-39@2x.png" },
+  { "id": 11, "name": "Erica Pizem",        "position": "Talent Acquisition Lead", "image": "https://www.resumebuilder.com/wp-content/uploads/2024/06/Erica-Pizem.png" },
+  { "id": 12, "name": "Benjamin Lee",       "position": "Career Strategist",       "image": "https://www.resumebuilder.com/wp-content/uploads/2024/06/Expert-1-1.png" },
+  { "id": 13, "name": "Linda Conte",        "position": "Workforce Analyst",       "image": "https://www.resumebuilder.com/wp-content/uploads/2024/06/Linda-Conte.png" },
+  { "id": 14, "name": "Rebecca Finney",     "position": "Job Market Researcher",   "image": "https://www.resumebuilder.com/wp-content/uploads/2024/06/Rebecca-Finney.png" },
+  { "id": 15, "name": "Stacie Haller",      "position": "Chief Career Advisor",    "image": "https://www.resumebuilder.com/wp-content/uploads/2024/06/Stacie-Haller.png" }
+]
