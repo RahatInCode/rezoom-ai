@@ -15,7 +15,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #ededed;
     --foreground: #ededed;
   }
 }
@@ -24,4 +24,197 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+.button2 {
+  background: transparent;
+  position: relative;
+  padding: 5px 15px;
+  display: flex;
+  align-items: center;
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid rgb(54, 99, 196);
+  border-radius: 25px;
+  outline: none;
+  overflow: hidden;
+  color: rgb(54, 99, 196);
+  transition: color 0.3s 0.1s ease-out;
+  text-align: center;
+  
+}
+
+.button2 span {
+  margin: auto;
+   padding: 10px;
+}
+
+.button2::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  content: '';
+  border-radius: 50%;
+  display: block;
+  width: 30em;
+  height: 20em;
+  left: -5em;
+  text-align: center;
+  transition: box-shadow 0.5s ease-out;
+  z-index: -1;
+}
+
+.button2:hover {
+  color: #fff;
+  border: 1px solid rgb(54, 99, 196);
+}
+
+.button2:hover::before {
+  box-shadow: inset 0 0 0 10em rgb(54, 99, 196);
+}
+
+
+.button1 {
+  background: transparent;
+  position: relative;
+  padding: 5px 15px;
+  display: flex;
+  align-items: center;
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid rgb(255, 0, 0);
+  border-radius: 25px;
+  outline: none;
+  overflow: hidden;
+  color: rgb(255, 0, 0);
+  transition: color 0.3s 0.1s ease-out;
+  text-align: center;
+  margin-left: auto;
+}
+
+.button1 span {
+  margin: auto;
+  padding: 10px;
+}
+
+.button1::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  content: '';
+  border-radius: 50%;
+  display: block;
+  width: 30em;
+  height: 20em;
+  left: -5em;
+  text-align: center;
+  transition: box-shadow 0.5s ease-out;
+  z-index: -1;
+}
+
+.button1:hover {
+  color: #fff;
+  border: 1px solid rgb(255,0,0);
+}
+
+.button1:hover::before {
+  box-shadow: inset 0 0 0 10em rgb(255, 0, 0);
+}
+
+.button3 {
+  background: transparent;
+  position: relative;
+  padding: 5px 15px;
+  display: flex;
+  align-items: center;
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid rgb(54, 99, 196);
+  border-radius: 25px;
+  outline: none;
+  overflow: hidden;
+  color: rgb(54, 99, 196);
+  transition: color 0.3s 0.1s ease-out;
+  text-align: center;
+  
+}
+
+.button3 span {
+  margin: auto;
+   padding: 10px;
+}
+
+.button3::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  content: '';
+  border-radius: 50%;
+  display: block;
+  width: 50em;
+  height: 20em;
+  left: -5em;
+  text-align: center;
+  transition: box-shadow 0.5s ease-out;
+  z-index: -1;
+}
+
+.button3:hover {
+  color: #fff;
+  border: 1px solid rgb(54, 99, 196);
+}
+
+.button3:hover::before {
+  box-shadow: inset 0 0 0 10em rgb(54, 99, 196);
+}
+
+
+
+.form{
+    position: relative;
+}
+.textbox{
+    border: 2px solid rgb(124, 115, 115);
+    padding: 9px;
+    border-radius: 5px;
+    outline: none;
+    background:none;
+    color: white;
+    z-index: 0;
+}
+.label-box{
+    position: absolute;
+    top: 7px;
+    left: 12px;
+    transition: top 5ms ease-in, font-size 5ms ease-in;
+}
+.textbox:focus{
+    border: 2px solid orange;
+    
+}
+
+.textbox:focus ~ .label-box,
+.textbox:not(:placeholder-shown):not(:focus) ~ .label-box {
+    top: -10px;
+    background: white;
+    border-radius: 6px;
+    padding-right: 4px;
+    padding-left: 4px;
+    font-size: 16px;
+    color: orange;
+    border: 2px solid orange;
 }
