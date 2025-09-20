@@ -11,6 +11,7 @@ export default function Home() {
       <HeroSection />
       <TemplateSlider/>
       <AIChatSection/>
+      
     </main>
   );
 }
