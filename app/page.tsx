@@ -1,3 +1,4 @@
+import AIChatSection from "./Components/AIChatSection/AIChatSection";
 import HeroSection from "./Components/HeroSection/HeroSection";
 import TemplateSlider from "./Components/TemplateSlider/TemplateSlider";
 
@@ -9,6 +10,7 @@ export default function Home() {
     <main>
       <HeroSection />
       <TemplateSlider/>
+      <AIChatSection/>
     </main>
   );
 }
