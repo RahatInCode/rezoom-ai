@@ -353,7 +353,7 @@ const TemplateSlider: React.FC = () => {
                                 ×
                             </button>
                         </div>
-                        <Image
+                        <img
                             src={selectedTemplate.imgUrl}
                             alt={selectedTemplate.title}
                             className="w-full h-xl object-cover rounded-xl mb-4  overflow-y-auto"
