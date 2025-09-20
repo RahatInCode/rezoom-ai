@@ -176,9 +176,9 @@ const NavigationMenuLink: React.FC<NavigationMenuLinkProps> = ({ href, className
 const navigationLinks = [
   { href: "/ResumeExamples", label: "Resume Examples" },
   { href: "/resume-templates", label: "Resume Templates" },
-  { href: "/career-center", label: "Career Center" },
+  { href: "/Career", label: "Career Center" },
   { href: "/mock-interview", label: "Mock Interview" },
-  { href: "/my-account", label: "My Account" },
+  { href: "/createAccount/signIn", label: "My Account" },
 ];
 
 
