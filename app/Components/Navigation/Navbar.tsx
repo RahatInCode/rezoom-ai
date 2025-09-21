@@ -1,10 +1,6 @@
-
-
 'use client';
-
 import Link from 'next/link';
 import React, { useState, useId } from 'react';
-
 import BuildButton from '../../Elements/BuildButton';
 
 // Type definitions
@@ -176,9 +172,9 @@ const NavigationMenuLink: React.FC<NavigationMenuLinkProps> = ({ href, className
 const navigationLinks = [
   { href: "/ResumeExamples", label: "Resume Examples" },
   { href: "/resume-templates", label: "Resume Templates" },
-  { href: "/career-center", label: "Career Center" },
+  { href: "/Career", label: "Career Center" },
   { href: "/mock-interview", label: "Mock Interview" },
-  { href: "/my-account", label: "My Account" },
+  { href: "/createAccount/signIn", label: "My Account" },
 ];
 
 
@@ -207,7 +203,7 @@ function Navbar() {
                   <NavigationMenuItem key={index}>
                     <NavigationMenuLink
                       href={link.href}
-                      className="text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white font-medium relative group transition-all duration-300"
+                      className="text-gray-700 text-sm dark:text-gray-200 hover:text-gray-900 dark:hover:text-white font-medium relative group transition-all duration-300"
                     >
                       {link.label}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all duration-300 group-hover:w-full"></span>
@@ -223,7 +219,12 @@ function Navbar() {
 
             {/* CTA Button */}
             <div  className=" sm:flex">
-             <BuildButton />
+             <BuildButton buttonName={"ResumeBuild"} />
+            </div>
+
+            {/* Signup button design here */}
+            <div  className=" sm:flex">
+             <BuildButton buttonName={"RegisterButton"}/>
             </div>
 
             {/* Mobile menu button */}
