@@ -12,14 +12,14 @@ const TopResume = () => {
         </h1>
 
         {/* Paragraph */}
-        <p className="text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl">
+        <p className="text-gray-700 text-lg dark:text-gray-300 leading-relaxed max-w-3xl">
           Choose from tailored resume examples for every profession and experience level. 
           Click on any category to explore resumes designed to showcase your skills and 
           land your dream job.
         </p>
 
         {/* Resume Options */}
-        <div className="mt-6">
+        <div className="mt-5">
           <ResumeOptions />
 
           {/* Button */}
