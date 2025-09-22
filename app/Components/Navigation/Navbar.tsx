@@ -64,23 +64,7 @@ const MenuIcon: React.FC = () => (
   </svg>
 );
 
-const SearchIcon: React.FC<{ size?: number; className?: string }> = ({ size = 16, className = '' }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
+
 
 // UI Components
 const Logo: React.FC = () => (
@@ -163,10 +147,14 @@ const NavigationMenuItem: React.FC<NavigationMenuItemProps> = ({ children, class
 );
 
 const NavigationMenuLink: React.FC<NavigationMenuLinkProps> = ({ href, className = '', children }) => (
-  <a href={href} className={`block px-3 py-2 transition-all duration-300 ${className}`}>
+  <Link
+    href={href}
+    className={`block px-3 py-2 transition-all duration-300 ${className}`}
+  >
     {children}
-  </a>
+  </Link>
 );
+
 
 // Main  Header Component
 const navigationLinks = [
@@ -174,8 +162,15 @@ const navigationLinks = [
   { href: "/resume-templates", label: "Resume Templates" },
   { href: "/Career", label: "Career Center" },
   { href: "/mock-interview", label: "Mock Interview" },
+
   { href: "/createAccount/signIn", label: "My Account" },
+<<<<<<< HEAD
   
+=======
+
+  { href: "/createAccount", label: "My Account" },
+
+>>>>>>> 232ca99b2ad3572f01007e5910b6d0036a6f78f2
 ];
 
 
@@ -191,9 +186,9 @@ function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <a href="#" className="text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300">
+           
               <Logo />
-            </a>
+            
           </div>
 
           {/* Desktop Navigation */}
@@ -248,13 +243,13 @@ function Navbar() {
           <div className="md:hidden p-2">
             <div className="px-2 pt-2 pb-2 space-y-1 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-xl border border-gray-200 dark:border-gray-600">
               {navigationLinks.map((link, index) => (
-                <a
+                <Link
                   key={index}
                   href={link.href}
                   className="block px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-300"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
              
             </div>
