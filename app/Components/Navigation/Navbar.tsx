@@ -164,13 +164,9 @@ const navigationLinks = [
   { href: "/mock-interview", label: "Mock Interview" },
 
   { href: "/createAccount/signIn", label: "My Account" },
-<<<<<<< HEAD
-  
-=======
 
   { href: "/createAccount", label: "My Account" },
 
->>>>>>> 232ca99b2ad3572f01007e5910b6d0036a6f78f2
 ];
 
 
