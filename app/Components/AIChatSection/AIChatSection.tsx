@@ -26,7 +26,7 @@ const AIChatSection: React.FC = () => {
                         <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto lg:mx-0 rounded-full"></div>
                     </div>
 
-                    <p className="text-white text-lg sm:text-xl">
+                    <p className="text-dark text-lg sm:text-xl">
                         Get instant feedback, personalized tips, and guidance from your AI-powered chat assistant. Improve your resume, mock interview answers, and career knowledge anytime, anywhere.
                     </p>
 
@@ -37,8 +37,8 @@ const AIChatSection: React.FC = () => {
                                 <li key={index} className="flex items-start gap-4">
                                     <div className="text-purple-600 text-3xl mt-1"><Icon /></div>
                                     <div>
-                                        <h3 className="text-xl font-semibold text-white">{feature.title}</h3>
-                                        <p className="text-gray-300">{feature.description}</p>
+                                        <h3 className="text-xl font-semibold text-dark">{feature.title}</h3>
+                                        <p className="text-gray-600">{feature.description}</p>
                                     </div>
                                 </li>
                             );

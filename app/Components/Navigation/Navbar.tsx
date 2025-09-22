@@ -1,10 +1,6 @@
-
-
 'use client';
-
 import Link from 'next/link';
 import React, { useState, useId } from 'react';
-
 import BuildButton from '../../Elements/BuildButton';
 
 // Type definitions
@@ -68,23 +64,7 @@ const MenuIcon: React.FC = () => (
   </svg>
 );
 
-const SearchIcon: React.FC<{ size?: number; className?: string }> = ({ size = 16, className = '' }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
+
 
 // UI Components
 const Logo: React.FC = () => (
@@ -167,18 +147,26 @@ const NavigationMenuItem: React.FC<NavigationMenuItemProps> = ({ children, class
 );
 
 const NavigationMenuLink: React.FC<NavigationMenuLinkProps> = ({ href, className = '', children }) => (
-  <a href={href} className={`block px-3 py-2 transition-all duration-300 ${className}`}>
+  <Link
+    href={href}
+    className={`block px-3 py-2 transition-all duration-300 ${className}`}
+  >
     {children}
-  </a>
+  </Link>
 );
+
 
 // Main  Header Component
 const navigationLinks = [
   { href: "/ResumeExamples", label: "Resume Examples" },
   { href: "/resume-templates", label: "Resume Templates" },
-  { href: "/career-center", label: "Career Center" },
+  { href: "/Career", label: "Career Center" },
   { href: "/mock-interview", label: "Mock Interview" },
-  { href: "/my-account", label: "My Account" },
+
+  { href: "/createAccount/signIn", label: "My Account" },
+
+  { href: "/createAccount", label: "My Account" },
+
 ];
 
 
@@ -194,9 +182,9 @@ function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <a href="#" className="text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300">
+           
               <Logo />
-            </a>
+            
           </div>
 
           {/* Desktop Navigation */}
@@ -207,7 +195,7 @@ function Navbar() {
                   <NavigationMenuItem key={index}>
                     <NavigationMenuLink
                       href={link.href}
-                      className="text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white font-medium relative group transition-all duration-300"
+                      className="text-gray-700 text-sm dark:text-gray-200 hover:text-gray-900 dark:hover:text-white font-medium relative group transition-all duration-300"
                     >
                       {link.label}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all duration-300 group-hover:w-full"></span>
@@ -223,7 +211,12 @@ function Navbar() {
 
             {/* CTA Button */}
             <div  className=" sm:flex">
-             <BuildButton />
+             <BuildButton buttonName={"ResumeBuild"} />
+            </div>
+
+            {/* Signup button design here */}
+            <div  className=" sm:flex">
+             <BuildButton buttonName={"RegisterButton"}/>
             </div>
 
             {/* Mobile menu button */}
@@ -246,13 +239,13 @@ function Navbar() {
           <div className="md:hidden p-2">
             <div className="px-2 pt-2 pb-2 space-y-1 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-xl border border-gray-200 dark:border-gray-600">
               {navigationLinks.map((link, index) => (
-                <a
+                <Link
                   key={index}
                   href={link.href}
                   className="block px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-300"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
              
             </div>
