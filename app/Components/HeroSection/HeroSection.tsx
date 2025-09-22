@@ -16,12 +16,12 @@ const HeroSection: React.FC = () => {
                         Build Your Perfect Resume <br /> & Ace Your <span className="block text-blue-600 dark:text-blue-400">Interviews</span>
                     </h1>
                     <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto lg:mx-0 rounded-full"></div>
-                    <p className="text-lg sm:text-xl text-gray-100">
+                    <p className="text-lg sm:text-xl text-gray-700">
                         Create professional resumes in minutes with AI-powered tools, expert guidance, and customizable templates.
                     </p>
 
                     {/* Benefits Points */}
-                    <ul className="space-y-2 text-gray-200">
+                    <ul className="space-y-2 text-gray-700">
                         <li>• ATS-Friendly Templates to get noticed by recruiters</li>
                         <li>• Professional designs & expert tips included</li>
                         <li>• Mock Interview Simulator for real-time practice</li>
