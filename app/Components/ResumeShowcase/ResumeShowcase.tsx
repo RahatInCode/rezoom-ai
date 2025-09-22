@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import Image from "next/image";
 
 const resumeData = [
     { id: 1, sector: "Nursing", resume: "https://i.ibb.co.com/8nTbfBFL/Black-and-White-Simple-Bordered-Nurse-Resume.png" },
@@ -35,7 +36,7 @@ const ResumeShowcase: React.FC = () => {
     useEffect(() => {
         if (imgRef.current) {
             setImageLoading(true);
-            
+
             // Fade out current image
             gsap.to(imgRef.current, {
                 opacity: 0,
@@ -45,16 +46,16 @@ const ResumeShowcase: React.FC = () => {
                 onComplete: () => {
                     // After fade out, fade in new image
                     gsap.fromTo(imgRef.current,
-                        { 
-                            opacity: 0, 
+                        {
+                            opacity: 0,
                             scale: 0.9,
-                            y: 20 
+                            y: 20
                         },
-                        { 
-                            opacity: 1, 
+                        {
+                            opacity: 1,
                             scale: 1,
                             y: 0,
-                            duration: 0.6, 
+                            duration: 0.6,
                             ease: "back.out(1.7)",
                             onComplete: () => setImageLoading(false)
                         }
@@ -67,7 +68,7 @@ const ResumeShowcase: React.FC = () => {
     // Title animation on mount
     useEffect(() => {
         const titleElements = document.querySelectorAll('.title-animate');
-        gsap.fromTo(titleElements, 
+        gsap.fromTo(titleElements,
             { opacity: 0, y: 30 },
             { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power3.out" }
         );
@@ -86,12 +87,12 @@ const ResumeShowcase: React.FC = () => {
     };
 
     return (
-        <section className="py-8 sm:py-12 lg:py-16 xl:py-20 bg-gradient-to-br from-indigo-50 via-white to-blue-100 dark:from-gray-900 dark:to-gray-800 min-h-screen"> 
+        <section className="py-8 sm:py-12 lg:py-16 xl:py-20 bg-gradient-to-br from-indigo-50 via-white to-blue-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="text-center lg:text-left mb-8 lg:mb-12">
                     <h2 className="title-animate text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-                        Find the Right Resume for  
+                        Find the Right Resume for
                         <span className="title-animate block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">Your Career</span>
                     </h2>
                     <div className="title-animate w-16 sm:w-20 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto lg:mx-0 rounded-full"></div>
@@ -99,13 +100,13 @@ const ResumeShowcase: React.FC = () => {
 
                 {/* Main Content */}
                 <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden">
-                    
+
                     {/* Mobile Dropdown for sectors */}
                     <div className="lg:hidden p-4 border-b border-gray-200 dark:border-gray-700">
                         <label htmlFor="sector-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Select Sector:
                         </label>
-                        <select 
+                        <select
                             id="sector-select"
                             value={activeId}
                             onChange={(e) => handleSectorClick(Number(e.target.value))}
@@ -134,11 +135,10 @@ const ResumeShowcase: React.FC = () => {
                                         <li
                                             key={item.id}
                                             onClick={() => handleSectorClick(item.id)}
-                                            className={`cursor-pointer px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-300 transform hover:scale-105 ${
-                                                activeId === item.id
+                                            className={`cursor-pointer px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-300 transform hover:scale-105 ${activeId === item.id
                                                     ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold shadow-lg"
                                                     : "bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-500 hover:shadow-md"
-                                            }`}
+                                                }`}
                                         >
                                             <span className="text-sm sm:text-base">{item.sector}</span>
                                         </li>
@@ -159,9 +159,9 @@ const ResumeShowcase: React.FC = () => {
                                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
                                         </div>
                                     )}
-                                    
+
                                     <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
-                                        <img
+                                        {/* <img
                                             ref={imgRef}
                                             src={activeResume.resume}
                                             alt={`${activeResume.sector} resume template - Professional resume design`}
@@ -169,6 +169,16 @@ const ResumeShowcase: React.FC = () => {
                                             onLoad={handleImageLoad}
                                             onError={() => setImageLoading(false)}
                                             loading="eager"
+                                        /> */}
+                                        <Image
+                                            ref={imgRef}
+                                            src={activeResume.resume}
+                                            alt={`${activeResume.sector} resume template - Professional resume design`}
+                                            fill
+                                            className="object-contain rounded-lg shadow-lg"
+                                            onLoad={handleImageLoad}
+                                            onError={() => setImageLoading(false)}
+                                            priority
                                         />
 
                                         {/* Overlay Button */}
