@@ -2,7 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
-import ExpartsCard from '../components/ExpartsCard';
+import ExpartsCard from '../Components/ExpartsCard';
+import Image from 'next/image';
+
 const page = () => {
     const [peoples, setPeople] = useState([])
      const [openToc, setOpenToc] = useState(false);
@@ -49,7 +51,7 @@ const handleScrollTo = (id) => {
                     <div className='flex gap-2 items-center '>
                         <div className="avatar">
                             <div className="w-14 rounded-full">
-                                <img src="https://img.daisyui.com/images/profile/demo/yellingcat@192.webp" className='rounded-full' />
+                                <Image alt='person' src="https://img.daisyui.com/images/profile/demo/yellingcat@192.webp" className='rounded-full' />
                             </div>
                         </div>
                         <p className='text-sm font-normal  text-black'>By <span className='text-yellow-400 font-semibold'>Frank Hackett</span>, Certified Professional Resume Writer (CPRW)</p>

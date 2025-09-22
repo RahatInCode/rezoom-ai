@@ -1,6 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react';
 import TemplateCard from '../Components/ResumeTemplateCard/TemplateCard';
+import Image from 'next/image';
 const Page = () => {
     const [templates , setTemplates] = useState([])
     useEffect( ()=>{
@@ -17,7 +18,7 @@ const Page = () => {
         
         <div className='w-full flex mt-5'>
             <div className='max-w-32'>
-                <img src="./resume_template-page-top-mini-image.png" alt="" />
+                <Image  src="./resume_template-page-top-mini-image.png" alt="" />
             </div>
             <div className='w-full flex flex-col items-start justify-center space-y-3'>
                     <p className='text-sm md:text-md lg:text-[18px]'>Crafting a standout resume is key to landing your next dream job offer. With our customizable resume templates and expert content from Certified Professional Resume Writers (CPRW), you can easily create a polished resume and download it in your preferred format. Whether you’re an experienced professional or just starting your career, we have a template that suits your needs and helps you catch the attention of employers for better results.</p>
