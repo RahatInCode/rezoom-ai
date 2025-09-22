@@ -20,7 +20,7 @@ export default function SignIn(){
                </div>
                <div className="flex flex-col gap-2">
                    <button className=" transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500  p-2 rounded-2xl">Register</button>
-                   <button className="flex justify-center items-center button3 absolute gap-2"><FcGoogle size={20} />Continue with google</button>
+                   <button className="flex justify-center items-center hover:text-black button3 absolute gap-2"><FcGoogle size={20} />Continue with google</button>
                </div>
            </div>
            <p className="text-center font-bold text-gray-400">I am a new user <Link href={'/createAccount/signUp'}><span className="text-orange-500 ">Register</span></Link></p>
