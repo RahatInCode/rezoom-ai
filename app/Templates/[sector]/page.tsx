@@ -3,13 +3,12 @@ import Image from "next/image";
 import { FaArrowRight, FaUpload } from "react-icons/fa";
 import { resumeOptions, ResumeOption } from "../../ResumeExamplesSection/ResumeOptions";
 
-// Proper typing for Next.js 15 page props
-type Props = {
+// No PageProps type in Next.js, type params inline
+export default async function SectorPage({
+  params,
+}: {
   params: { sector: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-};
-
-export default async function SectorPage({ params }: Props) {
+}) {
   const sectorName = decodeURIComponent(params.sector);
 
   const option: ResumeOption | undefined = resumeOptions.find(
@@ -73,6 +72,7 @@ export default async function SectorPage({ params }: Props) {
     </div>
   );
 }
+
 
 
 
