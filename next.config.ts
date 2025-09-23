@@ -4,8 +4,9 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
+        
         protocol: 'https',
-        hostname: 'i.ibb.co.com', // <-- your host
+        hostname: 'i.ibb.co', // <-- your host
         pathname: '/**',           // allow all paths
       },
     ],
