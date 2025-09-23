@@ -27,7 +27,11 @@ const features: Feature[] = [
         description:
             "Pass through Applicant Tracking Systems effortlessly with our professionally designed, ATS-optimized resume templates. Each template is carefully structured to highlight your skills, experience, and achievements while ensuring maximum readability for automated systems. This increases your chances of getting noticed by recruiters and landing interviews faster.",
         buttonText: "Explore Templates",
+
         image: "https://i.ibb.co/zHLfd8cz/Gray-Simple-Digital-Marketing-Resume.png",
+
+     
+
         icon: FaShieldAlt,
         gradient: "from-blue-500 to-indigo-600",
         bgColor: "bg-gradient-to-br from-blue-50 to-indigo-100",
@@ -39,7 +43,11 @@ const features: Feature[] = [
         description:
             "Choose from hundreds of professionally designed resume templates created by career experts and graphic designers. Our templates are modern, elegant, and tailored for various industries. They help you make a strong first impression and effectively communicate your expertise to potential employers, ensuring your resume stands out from the competition.",
         buttonText: "Browse Designs",
+
         image: "https://i.ibb.co/ZzXMx3Lj/Blue-and-Brown-Clean-Modern-High-School-Resume.png",
+
+     
+
         icon: MdDesignServices,
         gradient: "from-emerald-500 to-teal-600",
         bgColor: "bg-gradient-to-br from-emerald-50 to-teal-100",
@@ -51,7 +59,10 @@ const features: Feature[] = [
         description:
             "Leverage advanced AI technology to create the perfect resume effortlessly. Our AI analyzes your target job description and suggests personalized content, keywords, and formatting to maximize your chances of getting noticed. It eliminates writer's block, saves time, and ensures your resume is optimized for each specific role.",
         buttonText: "Start Building",
+
         image: "https://i.ibb.co/cS7vJYjX/Paster-Purple-and-Blue-Cute-Modern-Content-Writer-CV-Resume.png",
+
+
         icon: MdSmartToy,
         gradient: "from-purple-500 to-pink-600",
         bgColor: "bg-gradient-to-br from-purple-50 to-pink-100",
@@ -63,7 +74,11 @@ const features: Feature[] = [
         description:
             "Get actionable career advice from industry experts to enhance your resume, LinkedIn profile, and interview performance. Our tips include insights on structuring your experience, highlighting key achievements, and using the right language to impress recruiters. Stay ahead of the competition with personalized guidance tailored to your career goals.",
         buttonText: "Learn More",
+
         image: "https://i.ibb.co/XfM9GxcD/Blue-and-White-Nurse-Resume.png",
+
+     
+
         icon: FaUsers,
         gradient: "from-cyan-500 to-blue-600",
         bgColor: "bg-gradient-to-br from-cyan-50 to-blue-100",
@@ -75,7 +90,11 @@ const features: Feature[] = [
         description:
             "Prepare for real-world interviews with our AI-powered mock interview simulator. Practice answering industry-specific questions, receive instant feedback, and improve your communication and confidence. This tool allows you to identify strengths and weaknesses, ensuring you are fully prepared for any interview scenario.",
         buttonText: "Practice Now",
+
         image: "https://i.ibb.co/TMnJN5vW/White-Yellow-and-Black-Modern-Professional-Resume.png",
+
+      
+
         icon: FaBolt,
         gradient: "from-orange-500 to-red-600",
         bgColor: "bg-gradient-to-br from-orange-50 to-red-100",
@@ -87,7 +106,11 @@ const features: Feature[] = [
         description:
             "Easily customize your resume with our intuitive tools, allowing you to adjust layouts, colors, fonts, and sections to reflect your unique personal brand. Once complete, download your resume in multiple formats like PDF, Word, or plain text. Every resume is optimized for online applications, ensuring maximum compatibility and ATS-readiness.",
         buttonText: "Download Options",
+
         image: "https://i.ibb.co/50GtT0G/White-and-Black-Modern-New-Graduate-Professional-Resume-1.png",
+
+       
+
         icon: FaDownload,
         gradient: "from-indigo-500 to-purple-600",
         bgColor: "bg-gradient-to-br from-indigo-50 to-purple-100",
@@ -99,7 +122,11 @@ const features: Feature[] = [
         description:
             "Get round-the-clock AI assistance to answer your career questions, provide instant feedback, and guide you through resume building and interview preparation. No matter when you need support, our intelligent AI assistant is available 24/7 to ensure you always have the help you need to advance your career.",
         buttonText: "Get Help",
+
         image: "https://i.ibb.co/50GtT0G/White-and-Black-Modern-New-Graduate-Professional-Resume-1.png",
+
+       
+
         icon: IoMdHelpCircle,
         gradient: "from-green-500 to-teal-600",
         bgColor: "bg-gradient-to-br from-green-50 to-teal-100",

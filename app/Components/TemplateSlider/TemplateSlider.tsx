@@ -380,6 +380,9 @@ const TemplateSlider: React.FC = () => {
                          <Image
                          src={selectedTemplate.imgUrl}
                             alt={selectedTemplate.title}
+
+                            fill
+
                             className='w-full h-xl object-cover rounded-xl mb-4  overflow-y-auto'
                          />
                         <p className="text-gray-600 mb-4">{selectedTemplate.description}</p>
