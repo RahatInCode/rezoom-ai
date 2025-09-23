@@ -1,6 +1,17 @@
+
 import React from 'react';
 
-const ExpartsCard = ({people}) => {
+type People = {
+    image: string;
+    name: string;
+    position: string;
+};
+
+type ExpartsCardProps = {
+    people: People;
+};
+
+const ExpartsCard: React.FC<ExpartsCardProps> = ({ people }) => {
     return (
         <div className="w-full hover:-translate-y-0.5 transition duration-300">
             <img className="rounded-4xl" src={people.image} alt="Person_Image" />

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
-import ExpartsCard from '../components/ExpartsCard';
+import ExpartsCard from '../Components/ExpartsCard';
 const page = () => {
     const [peoples, setPeople] = useState([])
      const [openToc, setOpenToc] = useState(false);
