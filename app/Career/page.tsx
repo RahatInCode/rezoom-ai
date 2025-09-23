@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { IoIosArrowRoundForward } from "react-icons/io";
 import { IoChevronDown, IoChevronUp } from "react-icons/io5";
 import ExpartsCard from "../Components/ExpartsCard";
 import Image from "next/image";
