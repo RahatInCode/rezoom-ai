@@ -3,13 +3,13 @@ import Image from "next/image";
 import { FaArrowRight, FaUpload } from "react-icons/fa";
 import { resumeOptions, ResumeOption } from "../../ResumeExamplesSection/ResumeOptions";
 
-interface SectorPageProps {
-  params: {
-    sector: string;
-  };
-}
+// Proper typing for Next.js 15 page props
+type Props = {
+  params: { sector: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+};
 
-const SectorPage = async ({ params }: SectorPageProps) => {
+export default async function SectorPage({ params }: Props) {
   const sectorName = decodeURIComponent(params.sector);
 
   const option: ResumeOption | undefined = resumeOptions.find(
@@ -21,7 +21,6 @@ const SectorPage = async ({ params }: SectorPageProps) => {
   return (
     <div className="max-w-6xl mx-auto py-16 px-5">
       <div className="flex flex-col lg:flex-row items-center gap-12">
-
         {/* Resume Image */}
         <div className="flex-shrink-0 w-full lg:w-1/2">
           <Image
@@ -35,7 +34,6 @@ const SectorPage = async ({ params }: SectorPageProps) => {
 
         {/* Text Section */}
         <div className="flex-1 flex flex-col gap-6">
-
           <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent animate-gradient-x">
             Resume for {option.sector}
           </h1>
@@ -74,9 +72,8 @@ const SectorPage = async ({ params }: SectorPageProps) => {
       </div>
     </div>
   );
-};
+}
 
-export default SectorPage;
 
 
 
