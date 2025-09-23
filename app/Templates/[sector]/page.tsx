@@ -4,18 +4,18 @@ import { FaArrowRight, FaUpload } from "react-icons/fa";
 import { resumeOptions, ResumeOption } from "../../ResumeExamplesSection/ResumeOptions";
 
 interface SectorPageProps {
-  params: { sector: string };
+  params: {
+    sector: string;
+  };
 }
 
 const SectorPage = async ({ params }: SectorPageProps) => {
   const sectorName = decodeURIComponent(params.sector);
 
-  // Find the resume option for this sector
   const option: ResumeOption | undefined = resumeOptions.find(
     (opt) => opt.sector.toLowerCase() === sectorName.toLowerCase()
   );
 
-  // If not found, show 404
   if (!option) return notFound();
 
   return (
@@ -36,17 +36,14 @@ const SectorPage = async ({ params }: SectorPageProps) => {
         {/* Text Section */}
         <div className="flex-1 flex flex-col gap-6">
 
-          {/* Sector Title */}
           <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent animate-gradient-x">
             Resume for {option.sector}
           </h1>
 
-          {/* Description */}
           <p className="text-gray-600 font-semibold dark:text-gray-200 text-lg leading-relaxed">
             {option.description}
           </p>
 
-          {/* Why Choose This */}
           <div>
             <h2 className="text-2xl font-semibold mb-2 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-400 bg-clip-text text-transparent">
               Why Choose This Template?
@@ -58,7 +55,6 @@ const SectorPage = async ({ params }: SectorPageProps) => {
             </ul>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 mt-6">
             <button className="relative inline-flex items-center justify-center px-8 py-4 rounded-full bg-gradient-to-r from-green-400 via-green-500 to-emerald-600 text-white font-bold shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-300">
               <span className="absolute inset-0 bg-white opacity-10 rounded-full blur-lg group-hover:opacity-20 transition-all duration-500"></span>
@@ -81,5 +77,6 @@ const SectorPage = async ({ params }: SectorPageProps) => {
 };
 
 export default SectorPage;
+
 
 
