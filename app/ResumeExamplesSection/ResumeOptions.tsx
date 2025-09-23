@@ -1,15 +1,15 @@
-// ResumeExamplesSection/ResumeOptions.tsx
+
 import React from "react";
 import Link from "next/link";
-// import SectorPage from "../Templates/[sector]/page";
+
 
 export interface ResumeOption {
   id: number;
   sector: string;
   resume: string;
   description: string;
-  experienceLevel: string; // Entry, Mid, Senior, Any
-  whyChoose: string[]; // Pros/advantages
+  experienceLevel: string; 
+  whyChoose: string[]; 
 }
 
 export const resumeOptions: ResumeOption[] = [

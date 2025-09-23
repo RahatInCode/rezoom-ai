@@ -1,0 +1,42 @@
+[
+    {
+        "id" : 1,
+        "image" : "/resume/template-1.jpeg"
+    },
+    {
+        "id" : 2,
+        "image" : "/resume/template-2.jpeg"
+    },
+    {
+        "id" : 3,
+        "image" : "/resume/template-3.jpeg"
+    },
+    {
+        "id" : 4,
+        "image" : "/resume/template-4.webp"
+    },
+    {
+        "id" : 5,
+        "image" : "/resume/template-5.jpeg"
+    },
+    {
+        "id" : 6,
+        "image" : "/resume/template-6.jpeg"
+    },
+    {
+        "id" : 7,
+        "image" : "/resume/template-7.jpeg"
+    },
+    {
+        "id" : 8,
+        "image" : "/resume/template-8.jpeg"
+    },
+    {
+        "id" : 9,
+        "image" : "/resume/template-9.jpeg"
+    },
+    {
+        "id" : 10,
+        "image" : "/resume/template-10.webp"
+    }
+]

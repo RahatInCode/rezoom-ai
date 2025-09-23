@@ -6,6 +6,7 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'i.ibb.co.com', // <-- your host
+         // <-- your host
         pathname: '/**',           // allow all paths
       },
     ],

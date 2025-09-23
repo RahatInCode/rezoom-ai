@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import { 
-    FaRocket, 
-    FaBrain, 
-    FaUsers, 
-    FaVideo, 
-    FaMicrophone, 
+import {
+    FaRocket,
+    FaBrain,
+    FaUsers,
+    FaVideo,
+    FaMicrophone,
     FaChartLine,
     FaShieldAlt,
     FaGlobe,
@@ -15,10 +15,11 @@ import {
     FaPlay,
     FaHeadset,
     FaLightbulb,
-     
+
     FaCertificate
 } from 'react-icons/fa';
 import { LuTarget } from "react-icons/lu";
+import Image from "next/image";
 
 const logos = [
     { name: "Wired", src: "https://i.ibb.co.com/Mk09sjXM/wired-logo-png-seeklogo-153317.png" },
@@ -116,25 +117,25 @@ const HeroMediaSection: React.FC = () => {
             { opacity: 0, y: 50, scale: 0.9 },
             { opacity: 1, y: 0, scale: 1, duration: 1, ease: "back.out(1.7)" }
         )
-        .fromTo(subtitleRef.current,
-            { opacity: 0, y: 30 },
-            { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
-            "-=0.5"
-        )
-        .fromTo(buttonRef.current,
-            { opacity: 0, y: 30, scale: 0.8 },
-            { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out(1.7)" },
-            "-=0.3"
-        );
+            .fromTo(subtitleRef.current,
+                { opacity: 0, y: 30 },
+                { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                "-=0.5"
+            )
+            .fromTo(buttonRef.current,
+                { opacity: 0, y: 30, scale: 0.8 },
+                { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out(1.7)" },
+                "-=0.3"
+            );
 
         // Features animation
         gsap.fromTo(".feature-card",
             { opacity: 0, y: 50, rotationX: -15 },
-            { 
-                opacity: 1, 
-                y: 0, 
+            {
+                opacity: 1,
+                y: 0,
                 rotationX: 0,
-                duration: 0.8, 
+                duration: 0.8,
                 stagger: 0.2,
                 ease: "power3.out",
                 scrollTrigger: {
@@ -148,10 +149,10 @@ const HeroMediaSection: React.FC = () => {
         // Stats animation
         gsap.fromTo(".stat-item",
             { opacity: 0, scale: 0.5 },
-            { 
-                opacity: 1, 
+            {
+                opacity: 1,
                 scale: 1,
-                duration: 0.6, 
+                duration: 0.6,
                 stagger: 0.1,
                 ease: "back.out(1.7)",
                 scrollTrigger: {
@@ -167,8 +168,8 @@ const HeroMediaSection: React.FC = () => {
         if (logoContainer) {
             gsap.fromTo(".logo-item",
                 { opacity: 0, y: 20 },
-                { 
-                    opacity: 1, 
+                {
+                    opacity: 1,
                     y: 0,
                     duration: 0.6,
                     stagger: 0.05,
@@ -225,7 +226,7 @@ const HeroMediaSection: React.FC = () => {
                 {/* Hero Content */}
                 <div className="text-center mb-16 sm:mb-20 lg:mb-24">
                     {/* Main Heading */}
-                    <h1 
+                    <h1
                         ref={titleRef}
                         className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 sm:mb-8 leading-tight"
                     >
@@ -238,7 +239,7 @@ const HeroMediaSection: React.FC = () => {
                     </h1>
 
                     {/* Subtitle */}
-                    <p 
+                    <p
                         ref={subtitleRef}
                         className="text-gray-600 dark:text-gray-300 text-base sm:text-lg md:text-xl lg:text-2xl mb-8 sm:mb-10 max-w-4xl mx-auto leading-relaxed px-4"
                     >
@@ -247,7 +248,7 @@ const HeroMediaSection: React.FC = () => {
 
                     {/* CTA Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-                        <button 
+                        <button
                             ref={buttonRef}
                             className="group relative bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 transform hover:scale-105 min-w-[200px]"
                         >
@@ -290,7 +291,7 @@ const HeroMediaSection: React.FC = () => {
                             Practice with our AI-powered mock interview system and get personalized feedback to boost your confidence
                         </p>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                         {interviewFeatures.map((feature, index) => (
                             <div key={index} className="interview-feature-card bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 group hover:transform hover:scale-105">
@@ -304,7 +305,7 @@ const HeroMediaSection: React.FC = () => {
                             </div>
                         ))}
                     </div>
-                    
+
                     {/* Interview CTA */}
                     <div className="text-center mt-8">
                         <button className="group bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 transform hover:scale-105">
@@ -321,8 +322,8 @@ const HeroMediaSection: React.FC = () => {
                     {stats.map((stat, index) => (
                         <div key={index} className="stat-item text-center p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 group">
                             <div className="flex justify-center mb-3">
-                                {React.cloneElement(stat.icon, { 
-                                    className: "w-6 h-6 sm:w-8 sm:h-8 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform duration-300" 
+                                {React.cloneElement(stat.icon, {
+                                    className: "w-6 h-6 sm:w-8 sm:h-8 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform duration-300"
                                 })}
                             </div>
                             <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">{stat.number}</div>
@@ -336,18 +337,26 @@ const HeroMediaSection: React.FC = () => {
                     <p className="text-gray-500 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base font-medium">
                         🏆 Featured in top publications worldwide
                     </p>
-                    
-                    <div 
+
+                    <div
                         ref={logosRef}
                         className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4 sm:gap-6 lg:gap-8 items-center justify-center max-w-6xl mx-auto"
                     >
                         {logos.map((logo, index) => (
-                            <div key={logo.name} className="logo-item group">
-                                <img
+                            // <div key={logo.name} className="logo-item group">
+                            //     <img
+                            //         src={logo.src}
+                            //         alt={`${logo.name} logo`}
+                            //         className="h-6 sm:h-8 lg:h-10 mx-auto object-contain filter grayscale hover:grayscale-0 transition-all duration-300 group-hover:scale-110"
+                            //         loading="lazy"
+                            //     />
+                            // </div>
+                            <div key={logo.name} className="logo-item group relative h-6 sm:h-8 lg:h-10 w-full">
+                                <Image
                                     src={logo.src}
                                     alt={`${logo.name} logo`}
-                                    className="h-6 sm:h-8 lg:h-10 mx-auto object-contain filter grayscale hover:grayscale-0 transition-all duration-300 group-hover:scale-110"
-                                    loading="lazy"
+                                    fill
+                                    className="object-contain mx-auto filter grayscale hover:grayscale-0 transition-all duration-300 group-hover:scale-110"
                                 />
                             </div>
                         ))}
