@@ -55,7 +55,7 @@ const Page = () => {
                     <div className='flex gap-2 items-center '>
                         <div className="avatar">
                             <div className="w-14 rounded-full">
-                                <Image alt='person' src="https://i.ibb.co.com/HDPL9jqZ/vutka-beda.jpg" width={"100"} height={"100"} className='rounded-full' />
+                                <Image alt='person' src="https://i.ibb.co.com/HDPL9jqZ/vutka-beda.jpg" width={100} height={100} className='rounded-full' />
                             </div>
                         </div>
                         <p className='text-sm font-normal  text-black'>By <span className='text-yellow-400 font-semibold'>Frank Hackett</span>, Certified Professional Resume Writer (CPRW)</p>

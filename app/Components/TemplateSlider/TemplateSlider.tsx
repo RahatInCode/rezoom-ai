@@ -126,8 +126,8 @@ const TemplateCard: React.FC<{ template: Template; onPreview: (template: Templat
             {/* Image Container */}
             <div className="relative overflow-hidden rounded-t-3xl bg-gray-100">
                 <Image
-                width={"100"}
-                height={"100"}
+                width={100}
+                height={100}
                     src={template.imgUrl}
                     alt={template.title}
                     className={`w-full h-64 object-cover transition-all duration-700 ${imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
@@ -356,8 +356,8 @@ const TemplateSlider: React.FC = () => {
                             </button>
                         </div>
                         <Image
-                        width={"100"}
-                        height={"100"}
+                        width={100}
+                        height={100}
                             src={selectedTemplate.imgUrl}
                             alt={selectedTemplate.title}
                             className="w-full h-xl object-cover rounded-xl mb-4  overflow-y-auto"

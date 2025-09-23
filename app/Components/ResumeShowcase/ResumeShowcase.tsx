@@ -163,8 +163,8 @@ const ResumeShowcase: React.FC = () => {
                                     
                                     <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
                                         <Image
-                                        width={"100"}
-                                        height={"100"}
+                                            width={100}
+                                            height={100}
                                             ref={imgRef}
                                             src={activeResume.resume}
                                             alt={`${activeResume.sector} resume template - Professional resume design`}
