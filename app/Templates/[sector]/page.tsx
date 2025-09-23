@@ -3,7 +3,11 @@ import Image from "next/image";
 import { FaArrowRight, FaUpload } from "react-icons/fa";
 import { resumeOptions, ResumeOption } from "../../ResumeExamplesSection/ResumeOptions";
 
-const SectorPage = async ({ params }: { params: { sector: string } }) => {
+interface SectorPageProps {
+  params: { sector: string };
+}
+
+const SectorPage = async ({ params }: SectorPageProps) => {
   const sectorName = decodeURIComponent(params.sector);
 
   // Find the resume option for this sector
@@ -77,4 +81,5 @@ const SectorPage = async ({ params }: { params: { sector: string } }) => {
 };
 
 export default SectorPage;
+
 
