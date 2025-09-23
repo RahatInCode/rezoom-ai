@@ -85,7 +85,7 @@ const FAQ: React.FC = () => {
             <div className="mb-6 lg:mb-8">
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
                 Here are some of the most common questions about our Resume Builder
-                and Mock Interview features. Can't find what you're looking for?{" "}
+                and Mock Interview features. Cant find what you are looking for?{" "}
                 <span className="text-blue-600 dark:text-blue-400 font-semibold cursor-pointer hover:underline">
                   Contact us
                 </span>

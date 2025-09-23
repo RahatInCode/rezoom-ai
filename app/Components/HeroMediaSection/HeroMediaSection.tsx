@@ -342,7 +342,7 @@ const HeroMediaSection: React.FC = () => {
                         ref={logosRef}
                         className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4 sm:gap-6 lg:gap-8 items-center justify-center max-w-6xl mx-auto"
                     >
-                        {logos.map((logo, index) => (
+                        {logos.map((logo) => (
                             // <div key={logo.name} className="logo-item group">
                             //     <img
                             //         src={logo.src}
