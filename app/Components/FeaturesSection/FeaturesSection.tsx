@@ -52,7 +52,7 @@ const features: Feature[] = [
     },
 ];
 
-const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({ feature, index }) => {
+const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({ feature }) => {
     return (
 
         <div

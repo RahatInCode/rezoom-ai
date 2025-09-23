@@ -6,7 +6,7 @@ import Image from "next/image";
 type Template = {
   id: number;
   image: string;
-  [key: string]: any; // add extra fields if needed
+  [key: string]: unknown; 
 };
 
 const Page = () => {
