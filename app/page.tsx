@@ -6,10 +6,6 @@ import HeroSection from "./Components/HeroSection/HeroSection";
 import ResumeShowcase from "./Components/ResumeShowcase/ResumeShowcase";
 import ReviewSection from "./Components/ReviewSection/ReviewSection";
 import TemplateSlider from "./Components/TemplateSlider/TemplateSlider";
-
-
-
-
 export default function Home() {
   return (
     <main>

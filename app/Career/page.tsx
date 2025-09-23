@@ -5,15 +5,19 @@ import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 import ExpartsCard from '../Components/ExpartsCard';
 import Image from 'next/image';
 
-const page = () => {
-    const [peoples, setPeople] = useState([])
+const Page = () => {
+    const [peoples, setPeople]  = useState([])
      const [openToc, setOpenToc] = useState(false);
 
     useEffect(() => {
         fetch('/exparts.json').then(res => res.json()).then(data => setPeople(data))
     }, [])
 
-      const tocItems = [
+    type tocItems = 
+        {
+            id: string, label: string
+        }
+    const tocItems:tocItems[]  = [
     { id: "featured", label: "Featured Advice" },
     { id: "resume-templates", label: "Resume Templates" },
     { id: "interview-advice", label: "Interview Advice" },
@@ -23,11 +27,11 @@ const page = () => {
     { id: "experts", label: "Meet Our Career Experts" },
   ];
 
-const handleScrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-    setOpenToc(false);
-  };
+    const handleScrollTo = (id:string) => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+        setOpenToc(false);
+    };
 
     return (
         <div  className='p-2 px-3 md:px-5  xl:px-16 '>
@@ -51,7 +55,7 @@ const handleScrollTo = (id) => {
                     <div className='flex gap-2 items-center '>
                         <div className="avatar">
                             <div className="w-14 rounded-full">
-                                <Image alt='person' src="https://img.daisyui.com/images/profile/demo/yellingcat@192.webp" className='rounded-full' />
+                                <Image alt='person' src="https://i.ibb.co.com/HDPL9jqZ/vutka-beda.jpg" width={"100"} height={"100"} className='rounded-full' />
                             </div>
                         </div>
                         <p className='text-sm font-normal  text-black'>By <span className='text-yellow-400 font-semibold'>Frank Hackett</span>, Certified Professional Resume Writer (CPRW)</p>
@@ -212,4 +216,4 @@ const handleScrollTo = (id) => {
     );
 };
 
-export default page;
+export default Page;

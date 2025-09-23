@@ -1,3 +1,4 @@
+"use client"
 import Image from 'next/image';
 import React from 'react';
 
@@ -11,8 +12,8 @@ const TemplateCard = ({template}) => {
                 </div>
         
                 {/* Back Side */}
-                <div className="absolute w-full h-full [backface-visibility:hidden] flex items-center bg-white justify-center rounded-md bg-transparent [transform:rotateY(180deg)]">
-                    <button className='btn btn-primary btn-sm lg:btn'>Use this template</button>
+                <div className="absolute w-full h-full [backface-visibility:hidden] flex items-center bg-white justify-center rounded-md  [transform:rotateY(180deg)]">
+                    <button className='btn text-white btn-primary btn-sm lg:btn'>Use this template</button>
                 </div>
             </div>
         </div>

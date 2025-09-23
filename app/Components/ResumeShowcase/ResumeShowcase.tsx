@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import Image from "next/image";
 
 const resumeData = [
     { id: 1, sector: "Nursing", resume: "https://i.ibb.co.com/8nTbfBFL/Black-and-White-Simple-Bordered-Nurse-Resume.png" },
@@ -161,7 +162,9 @@ const ResumeShowcase: React.FC = () => {
                                     )}
                                     
                                     <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
-                                        <img
+                                        <Image
+                                        width={"100"}
+                                        height={"100"}
                                             ref={imgRef}
                                             src={activeResume.resume}
                                             alt={`${activeResume.sector} resume template - Professional resume design`}
