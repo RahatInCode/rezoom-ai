@@ -5,7 +5,7 @@ import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 import ExpartsCard from '../Components/ExpartsCard';
 import Image from 'next/image';
 
-const page = () => {
+const Page = () => {
     const [peoples, setPeople] = useState([])
      const [openToc, setOpenToc] = useState(false);
 
@@ -43,7 +43,6 @@ const handleScrollTo = (id) => {
             {/* Main Section */}
 
             <section className='mt-20'>
-
                 {/* Heading part */}
                 <div className='space-y-4'>
                     <h1 className='text-4xl xl:text-5xl mb-12 font-semibold text-base-content'>Career Center</h1>
@@ -51,15 +50,12 @@ const handleScrollTo = (id) => {
                     <div className='flex gap-2 items-center '>
                         <div className="avatar">
                             <div className="w-14 rounded-full">
-                                <Image alt='person' src="https://img.daisyui.com/images/profile/demo/yellingcat@192.webp" className='rounded-full' />
+                                <Image alt='person' src="https://i.ibb.co.com/HDPL9jqZ/vutka-beda.jpg" fill className='rounded-full' />
                             </div>
                         </div>
                         <p className='text-sm font-normal  text-black'>By <span className='text-yellow-400 font-semibold'>Frank Hackett</span>, Certified Professional Resume Writer (CPRW)</p>
                     </div>
                 </div>
-
-
-
                 <div className='w-full pt-24  gap-4 flex '>
                     <div className=' w-1/4 min-h-fit hidden lg:block max-h-fit p-5 border-t-1 border-b-1 border-black  '>
                         <ul className="space-y-3 text-sm font-normal">
@@ -185,7 +181,6 @@ const handleScrollTo = (id) => {
             Table of Contents
             {openToc ? <IoChevronDown /> : <IoChevronUp />}
           </button>
-
           {/* Expandable list */}
           {openToc && (
             <ul className="max-h-64  overflow-y-auto  text-sm">
@@ -212,4 +207,4 @@ const handleScrollTo = (id) => {
     );
 };
 
-export default page;
+export default Page;

@@ -8,7 +8,7 @@ const Page = () => {
         fetch('./resume-templates.json')
         .then(res => res.json())
         .then(data => setTemplates(data || []))
-    } )
+    })
     return (
         <div className='p-5 w-full'>
             <p>Home / <span className='text-warning-content'>Resume Templates</span></p>
@@ -16,9 +16,9 @@ const Page = () => {
         <div className='w-full py-24'>
             <h1 className='text-3xl font-bold lg:text-5xl '>Resume Templates</h1>
         
-        <div className='w-full flex mt-5'>
-            <div className='max-w-32'>
-                <Image  src="./resume_template-page-top-mini-image.png" alt="" />
+        <div className='w-full flex mt-5 items-center gap-5 '>
+            <div className='max-w-36'>
+                <Image  src="https://i.ibb.co.com/WWg9tYY3/resume-template-page-top-mini-image.png"fill alt="mini_image" />
             </div>
             <div className='w-full flex flex-col items-start justify-center space-y-3'>
                     <p className='text-sm md:text-md lg:text-[18px]'>Crafting a standout resume is key to landing your next dream job offer. With our customizable resume templates and expert content from Certified Professional Resume Writers (CPRW), you can easily create a polished resume and download it in your preferred format. Whether you’re an experienced professional or just starting your career, we have a template that suits your needs and helps you catch the attention of employers for better results.</p>
@@ -29,8 +29,6 @@ const Page = () => {
             </div>
         </div>
         </div>
-        
-
 
         <div className='w-full min-h-96 bg-[#F6F8FC] mt-12 p-12'>
             <h1 className='text-center text-2xl md:text-3xl lg:text-4xl text-accent  font-extrabold'>Professional Resume Templates to Edit and Download</h1>
@@ -42,8 +40,6 @@ const Page = () => {
             </div>
         
         </div>
-        
-        
         </div>
     );
 };
