@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -68,11 +69,13 @@ const FAQ: React.FC = () => {
             </div>
             
             <div className="relative group">
-              <img
-                src="https://i.ibb.co.com/2Qd5Tg4/Whats-App-Image-2025-09-16-at-17-39-29-0d759561.jpg"
-                alt="FAQ Illustration"
-                className="w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto lg:mx-0 rounded-2xl shadow-2xl transform group-hover:scale-105 transition-transform duration-300"
-              />
+              <Image
+    src="https://i.ibb.co.com/2Qd5Tg4/Whats-App-Image-2025-09-16-at-17-39-29-0d759561.jpg"
+    alt="FAQ Illustration"
+    fill
+    className="object-cover transform group-hover:scale-105 transition-transform duration-300"
+  />
+
               <div className="absolute inset-0 bg-gradient-to-t from-blue-600/20 to-transparent rounded-2xl pointer-events-none"></div>
             </div>
           </div>
