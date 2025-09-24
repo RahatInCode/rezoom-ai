@@ -5,13 +5,12 @@ import { resumeOptions, ResumeOption } from "../../ResumeExamplesSection/ResumeO
 
 // ✅ Correct typing for Next.js dynamic routes
 interface PageProps {
-  params: {
-    sector: string;
-  };
+  params: Promise<{ sector: string }> 
 }
 
-export default function SectorPage({ params }: PageProps) {
-  const sectorName = decodeURIComponent(params.sector);
+export default async function SectorPage({ params }: PageProps) {
+  const sectorBranch = (await params).sector;
+  const sectorName = decodeURIComponent(sectorBranch);
 
   const option: ResumeOption | undefined = resumeOptions.find(
     (opt) => opt.sector.toLowerCase() === sectorName.toLowerCase()
