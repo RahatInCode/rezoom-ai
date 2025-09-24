@@ -162,9 +162,6 @@ const navigationLinks = [
   { href: "/resume-templates", label: "Resume Templates" },
   { href: "/Career", label: "Career Center" },
   { href: "/mock-interview", label: "Mock Interview" },
-
-  // { href: "/createAccount/signIn", label: "My Account" },
-
   { href: "/createAccount", label: "My Account" },
 ];
 
