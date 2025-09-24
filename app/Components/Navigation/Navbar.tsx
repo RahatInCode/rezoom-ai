@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import React, { useState, useId } from 'react';
+import React, { useState } from 'react';
 import BuildButton from '../../Elements/BuildButton';
 
 // Type definitions
@@ -162,18 +162,14 @@ const navigationLinks = [
   { href: "/resume-templates", label: "Resume Templates" },
   { href: "/Career", label: "Career Center" },
   { href: "/mock-interview", label: "Mock Interview" },
-
-  // { href: "/createAccount/signIn", label: "My Account" },
-
   { href: "/createAccount", label: "My Account" },
-
 ];
 
 
 
 
 function Navbar() {
-  const id = useId();
+  // const id = useId(); //jodi use koren tyle call koren nahole delete maren
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (

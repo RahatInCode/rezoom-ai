@@ -1,14 +1,16 @@
-import React from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { FaArrowRight, FaUpload } from "react-icons/fa";
 import { resumeOptions, ResumeOption } from "../../ResumeExamplesSection/ResumeOptions";
 
-interface Props {
-  params: { sector: string };
+// ✅ Correct typing for Next.js dynamic routes
+interface PageProps {
+  params: {
+    sector: string;
+  };
 }
 
-const SectorPage: React.FC<Props> = ({ params }) => {
+export default function SectorPage({ params }: PageProps) {
   const sectorName = decodeURIComponent(params.sector);
 
   const option: ResumeOption | undefined = resumeOptions.find(
@@ -35,21 +37,21 @@ const SectorPage: React.FC<Props> = ({ params }) => {
         <div className="flex-1 flex flex-col gap-6">
           {/* Sector Title */}
           <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent animate-gradient-x">
-          Resume for  {option.sector} 
+            Resume for {option.sector}
           </h1>
 
           {/* Description */}
-          <p className="text-gray-600 font-semibold dark:text-gry-200 text-lg leading-relaxed">
+          <p className="text-gray-600 font-semibold dark:text-gray-200 text-lg leading-relaxed">
             {option.description}
           </p>
 
           {/* Why Choose This */}
           <div>
-           <h2 className="text-2xl font-semibold mb-2 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-400 bg-clip-text text-transparent">
-  Why Choose This Template?
-</h2>
+            <h2 className="text-2xl font-semibold mb-2 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-400 bg-clip-text text-transparent">
+              Why Choose This Template?
+            </h2>
 
-            <ul className="list-disc text-xl font-semibold list-inside space-y-1 text-gray-700 dark:text-gay-300">
+            <ul className="list-disc text-xl font-semibold list-inside space-y-1 text-gray-700 dark:text-gray-300">
               {option.whyChoose.map((point, idx) => (
                 <li key={idx}>{point}</li>
               ))}
@@ -78,6 +80,9 @@ const SectorPage: React.FC<Props> = ({ params }) => {
       </div>
     </div>
   );
-};
+}
 
-export default SectorPage;
+
+
+
+

@@ -125,7 +125,7 @@ const TemplateCard: React.FC<{ template: Template; onPreview: (template: Templat
 
             {/* Image Container */}
             <div className="relative overflow-hidden rounded-t-3xl bg-gray-100">
-                <img
+                {/* <img
                     src={template.imgUrl}
                     alt={template.title}
                     className={`w-full h-64 object-cover transition-all duration-700 ${imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
@@ -143,8 +143,27 @@ const TemplateCard: React.FC<{ template: Template; onPreview: (template: Templat
             `)}`;
                         setImageLoaded(true);
                     }}
+                /> */}
+                <Image
+                    src={template.imgUrl}
+                    alt={template.title}
+                    fill
+                    className={`object-cover transition-all duration-700 ${imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
+                        } ${isHovered ? "scale-110" : "scale-100"}`}
+                    onLoadingComplete={() => setImageLoaded(true)}
+                    onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.src = `data:image/svg+xml,${encodeURIComponent(`
+        <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" fill="#f3f4f6"/>
+          <text x="50%" y="50%" text-anchor="middle" fill="#6b7280" font-size="16" font-family="Arial">
+            ${template.title} Preview
+          </text>
+        </svg>
+      `)}`;
+                        setImageLoaded(true);
+                    }}
                 />
-
                 {/* Overlay Actions */}
                 <div className={`absolute inset-0 bg-black/60 flex items-center justify-center gap-4 transition-all duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'
                     }`}>
@@ -263,7 +282,7 @@ const TemplateSlider: React.FC = () => {
                     </h2>
                     <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto lg:mx-0 rounded-full"></div>
                 </div>
-                
+
 
                 {/* Swiper */}
                 <Swiper
@@ -353,11 +372,17 @@ const TemplateSlider: React.FC = () => {
                                 ×
                             </button>
                         </div>
-                        <img
+                        {/* <img
                             src={selectedTemplate.imgUrl}
                             alt={selectedTemplate.title}
                             className="w-full h-xl object-cover rounded-xl mb-4  overflow-y-auto"
-                        />
+                        /> */}
+                         <Image
+                         src={selectedTemplate.imgUrl}
+                            alt={selectedTemplate.title}
+                            fill
+                            className='w-full h-xl object-cover rounded-xl mb-4  overflow-y-auto'
+                         />
                         <p className="text-gray-600 mb-4">{selectedTemplate.description}</p>
                         <button className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors duration-200">
                             Use This Template
