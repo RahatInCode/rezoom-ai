@@ -254,6 +254,7 @@ const HighlightFeature: React.FC = () => {
                                             alt={feature.title}
                                             fill   // parent div টা অবশ্যই relative হতে হবে
                                             className="object-cover rounded-2xl"
+                                             unoptimized
                                         />
                                         <div className="absolute bottom-6 left-6 right-6 z-20">
                                             <div

@@ -84,6 +84,7 @@ const FAQ: React.FC = () => {
                   alt="FAQ Illustration"
                   fill
                   className="object-cover transform group-hover:scale-105 transition-transform duration-300"
+                   unoptimized
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-blue-600/20 to-transparent rounded-2xl pointer-events-none"></div>
