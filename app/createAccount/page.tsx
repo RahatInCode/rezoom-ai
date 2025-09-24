@@ -4,7 +4,10 @@ import Lottie from "lottie-react";
 import createAccount from '../../public/lotties/createAccount.json'
 import Link from "next/link";
 
+
 export default function CreateAccount(){
+    
+   
     return <div className="text-black">
        <div className="w-[30%] m-auto p-4" >
          <div className="flex justify-center items-center flex-col">

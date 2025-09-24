@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata } from "next";
 import Navbar from "./Components/Navigation/Navbar";
 import Footer from "./Components/Footer/Footer";
+import { RootProvider } from "./Components/createContext";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -27,6 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
+    <RootProvider>
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="font-sans">
         <Navbar />
@@ -36,5 +38,6 @@ export default function RootLayout({
         <Footer />
       </body>
     </html>
+    </RootProvider>
   );
 }
