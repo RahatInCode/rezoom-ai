@@ -4,13 +4,13 @@ import { FaArrowRight, FaUpload } from "react-icons/fa";
 import { resumeOptions, ResumeOption } from "../../ResumeExamplesSection/ResumeOptions";
 
 // ✅ Correct typing for Next.js dynamic routes
-interface PageProps {
+interface SectorPageProps {
   params: {
     sector: string;
   };
 }
 
-export default function SectorPage({ params }: PageProps) {
+export default function SectorPage({ params }: SectorPageProps) {
   const sectorName = decodeURIComponent(params.sector);
 
   const option: ResumeOption | undefined = resumeOptions.find(
