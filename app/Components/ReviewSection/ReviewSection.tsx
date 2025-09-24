@@ -158,7 +158,7 @@ const ReviewCard: React.FC<{ review: Review }> = ({ review }) => {
   );
 };
 
-export default function ReviewSection(): JSX.Element {
+export default function ReviewSection() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 

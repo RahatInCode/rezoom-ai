@@ -111,7 +111,7 @@ export const resumeOptions: ResumeOption[] = [
   },
   {
     id: 9,
-    sector: "Information Technology",
+    sector: "IT",
     resume: "https://i.ibb.co.com/zhbtWjWX/Senior-Cybersecurity-Specialist-Resume-Example-Homepage-pdf.png",
     description: "Covers IT skills, certifications, technical experience, and projects.",
     experienceLevel: "Entry to Senior",
@@ -259,15 +259,15 @@ export const resumeOptions: ResumeOption[] = [
 
 const ResumeOptions: React.FC = () => {
   return (
-    <div className="w-full py-10">
+    <div className="w-full py-1">
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {resumeOptions.map((option) => (
           <li key={option.id}>
             <Link href={`/Templates/${encodeURIComponent(option.sector)}`}
               
-              className="block p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:border-transparent hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500 group"
+              className="block p-2 text-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:border-transparent hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500 group"
             >
-              <span className="text-lg font-semibold text-gray-800 dark:text-gray-200 group-hover:text-white transition-colors">
+              <span className=" font-semibold text-gray-800 dark:text-gray-200 group-hover:text-white transition-colors">
                 {option.sector}
               </span>
             </Link>

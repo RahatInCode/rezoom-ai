@@ -62,6 +62,7 @@ const Page = () => {
                   src="https://i.ibb.co/HDPL9jq/vutka-beda.jpg"
                   fill
                   className="rounded-full object-cover"
+                  unoptimized
                 />
               </div>
             </div>

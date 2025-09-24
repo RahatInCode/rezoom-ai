@@ -209,10 +209,13 @@ const HighlightFeature: React.FC = () => {
 
                             {features.map((feature, i) => (
                                 <div
-                                    key={feature.id}
-                                    ref={(el) => (imageRefs.current[i] = el)}
-                                    className="absolute inset-0 opacity-0"
-                                >
+  key={feature.id}
+  ref={(el) => {
+    imageRefs.current[i] = el;
+  }}
+  className="absolute inset-0 opacity-0"
+>
+
                                     <div
                                         className={`relative h-full rounded-2xl overflow-hidden shadow-2xl ${feature.bgColor} border border-white/50`}
                                     >
@@ -256,11 +259,14 @@ const HighlightFeature: React.FC = () => {
                     {/* Right - Content */}
                     <div className="lg:w-1/2 space-y-24">
                         {features.map((feature, i) => (
-                            <div
-                                key={feature.id}
-                                ref={(el) => (contentRefs.current[i] = el)}
-                                className="opacity-0 group"
-                            >
+                           <div
+  key={feature.id}
+  ref={(el) => {
+    contentRefs.current[i] = el;
+  }}
+  className="opacity-0 group"
+>
+
                                 <div className="space-y-6">
                                     <div className="flex items-start gap-4">
                                         <div

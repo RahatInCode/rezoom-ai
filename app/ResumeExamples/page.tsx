@@ -4,7 +4,7 @@ import TemplateExample from '../ResumeExamplesSection/TemplateExample';
 
 const ResumeExamples = () => {
     return (
-        <div className='w-full flex flex-col md:flex-row items-center  justify-center gap-10'>
+        <div className='h-fit w-11/12 mx-auto flex flex-col md:flex-row items-center  justify-center gap-10'>
       <TopResume></TopResume>
       <TemplateExample></TemplateExample>
         </div>
