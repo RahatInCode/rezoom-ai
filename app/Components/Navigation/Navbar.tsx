@@ -163,6 +163,7 @@ const navigationLinks = [
   { href: "/Career", label: "Career Center" },
   { href: "/mock-interview", label: "Mock Interview" },
   { href: "/createAccount", label: "My Account" },
+  { href: "/ats-checker", label: "ATS Checker" },
 ];
 
 

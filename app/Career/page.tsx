@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { IoChevronForward } from "react-icons/io5";
+import Image from "next/image";
 import ExpartsCard from "../Components/ExpartsCard";
-
 interface Expert {
   name: string;
   position: string;
