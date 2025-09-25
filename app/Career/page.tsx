@@ -1,8 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { IoChevronDown, IoChevronUp } from "react-icons/io5";
-import ExpartsCard from "../Components/ExpartsCard";
+
 import Image from "next/image";
+import ExpartsCard from "../Components/ExpartsCard";
 
 // Type for each expert
 interface Expert {
