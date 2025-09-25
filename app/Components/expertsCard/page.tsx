@@ -10,11 +10,11 @@ type Person = {
   image: string;
 };
 
-interface ExpartsCardProps {
+interface expertsCardProps {
   people: Person; // use the type here
 }
 
-const ExpartsCard: React.FC<ExpartsCardProps> = ({ people }) => {
+const expertsCard: React.FC<expertsCardProps> = ({ people }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -50,4 +50,4 @@ const ExpartsCard: React.FC<ExpartsCardProps> = ({ people }) => {
   );
 };
 
-export default ExpartsCard;
+export default expertsCard;

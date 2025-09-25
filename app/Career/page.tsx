@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { IoChevronForward } from "react-icons/io5";
-import ExpartsCard from "../Components/ExpartsCard";
+import ExpertsCard from "../Components/expertsCard/page";
 interface Expert {
   name: string;
   position: string;
@@ -165,7 +165,7 @@ const Page = () => {
           <div id="special-reports" className="space-y-4">
             <h1 className="text-[#A053CF] text-3xl font-semibold">Special Reports</h1>
             <p>
-              Even with a well-honed resume and cover letter, there’s a lot of uncertainty when applying for jobs. The below surveys and studies can give you a clearer view of trends in the overall job market, and the hiring conditions you’re likely to find in your target sector.
+              Even with a well-honed resume and cover letter, theres a lot of uncertainty when applying for jobs. The below surveys and studies can give you a clearer view of trends in the overall job market, and the hiring conditions you’re likely to find in your target sector.
             </p>
             <GradientLink text="2025 Job Market Report" href="https://example.com/reports" />
           </div>
@@ -175,7 +175,7 @@ const Page = () => {
             <h1 className="text-[#A053CF] text-3xl font-semibold">Meet Our Career Experts</h1>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
               {peoples.map((people, index) => (
-                <ExpartsCard key={index} people={people} />
+                <ExpertsCard key={index} people={people} />
               ))}
             </div>
           </div>
