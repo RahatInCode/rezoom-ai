@@ -34,6 +34,7 @@ const Page = () => {
               alt="mini_image"
               fill
               className="object-contain"
+              unoptimized
             />
           </div>
 

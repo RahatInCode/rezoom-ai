@@ -36,6 +36,7 @@ const ExpartsCard: React.FC<ExpartsCardProps> = ({ people }) => {
           alt={people.name}
           fill
           className="object-cover transform transition-transform duration-500 hover:scale-105"
+          unoptimized
         />
       </div>
 

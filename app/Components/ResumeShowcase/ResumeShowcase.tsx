@@ -179,12 +179,13 @@ const ResumeShowcase: React.FC = () => {
                                             onLoad={handleImageLoad}
                                             onError={() => setImageLoading(false)}
                                             priority
+                                            unoptimized
                                         />
 
                                         {/* Overlay Button */}
                                         <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                                             <button
-                                                className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300
+                                                className="opacity-0 group-hover:opacity-100  translate-y-4 group-hover:translate-y-0 transition-all duration-300
                                                          bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 
                                                          text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg 
                                                          text-sm sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105"

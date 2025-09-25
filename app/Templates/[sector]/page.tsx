@@ -29,6 +29,7 @@ export default async function SectorPage({ params }: PageProps) {
             width={500}
             height={650}
             className="rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 transition-transform transform hover:scale-105"
+            unoptimized
           />
         </div>
 
