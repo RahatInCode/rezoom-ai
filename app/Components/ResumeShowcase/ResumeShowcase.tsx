@@ -179,6 +179,7 @@ const ResumeShowcase: React.FC = () => {
                                             onLoad={handleImageLoad}
                                             onError={() => setImageLoading(false)}
                                             priority
+                                            unoptimized
                                         />
 
                                         {/* Overlay Button */}

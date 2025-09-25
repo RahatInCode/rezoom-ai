@@ -357,6 +357,7 @@ const HeroMediaSection: React.FC = () => {
                                     alt={`${logo.name} logo`}
                                     fill
                                     className="object-contain mx-auto filter grayscale hover:grayscale-0 transition-all duration-300 group-hover:scale-110"
+                                    unoptimized
                                 />
                             </div>
                         ))}

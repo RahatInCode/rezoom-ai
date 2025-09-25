@@ -148,6 +148,7 @@ const TemplateCard: React.FC<{ template: Template; onPreview: (template: Templat
                     src={template.imgUrl}
                     alt={template.title}
                     fill
+                    unoptimized
                     className={`object-cover transition-all duration-700 ${imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
                         } ${isHovered ? "scale-110" : "scale-100"}`}
                     onLoadingComplete={() => setImageLoaded(true)}
@@ -382,6 +383,7 @@ const TemplateSlider: React.FC = () => {
                             alt={selectedTemplate.title}
                             fill
                             className='w-full h-xl object-cover rounded-xl mb-4  overflow-y-auto'
+                            unoptimized
                          />
                         <p className="text-gray-600 mb-4">{selectedTemplate.description}</p>
                         <button className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors duration-200">
