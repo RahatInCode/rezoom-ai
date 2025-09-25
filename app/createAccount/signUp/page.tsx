@@ -8,6 +8,7 @@ import { FcGoogle } from "react-icons/fc";
 import Swal from "sweetalert2";
 import { useRootContext } from "../../Components/createContext";
 
+
 export default function SignUp() {
   const { signup,  sendVerificationEmail, googleLogin } = useRootContext();
   const [open, setOpen] = useState(false)
