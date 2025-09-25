@@ -1,26 +1,17 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { IoChevronForward } from "react-icons/io5";
-import ExpertsCard from "../Components/ExpertsCard";
+"use client"
+import React, { useEffect, useState } from 'react';
+import { IoIosArrowRoundForward } from "react-icons/io";
+import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
+import ExpartsCard from '../components/ExpartsCard';
+const page = () => {
+    const [peoples, setPeople] = useState([])
+     const [openToc, setOpenToc] = useState(false);
 
-interface Expert {
-  name: string;
-  position: string;
-  image: string;
-}
+    useEffect(() => {
+        fetch('/exparts.json').then(res => res.json()).then(data => setPeople(data))
+    }, [])
 
-const Page = () => {
-  const [peoples, setPeople] = useState<Expert[]>([]);
-  const [activeId, setActiveId] = useState<string>("");
-
-  useEffect(() => {
-    fetch("/exparts.json")
-      .then((res) => res.json())
-      .then((data) => setPeople(data || []));
-  }, []);
-
-  const tocItems = [
-    { id: "About", label: "About" },
+      const tocItems = [
     { id: "featured", label: "Featured Advice" },
     { id: "resume-templates", label: "Resume Templates" },
     { id: "interview-advice", label: "Interview Advice" },
@@ -30,160 +21,193 @@ const Page = () => {
     { id: "experts", label: "Meet Our Career Experts" },
   ];
 
-  const handleScrollTo = (id: string) => {
+const handleScrollTo = (id) => {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    setActiveId(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+    setOpenToc(false);
   };
 
-  // ✅ Gradient link component
-  const GradientLink = ({ text, href }: { text: string; href: string }) => {
     return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex justify-between items-center p-3 rounded-lg transition duration-300 shadow-md
-                   bg-white group hover:bg-gradient-to-r hover:from-pink-500 hover:via-purple-500 hover:to-blue-500"
-      >
-        <span className="font-medium bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent group-hover:text-white">
-          {text}
-        </span>
-        <IoChevronForward className="opacity-70 group-hover:opacity-100 text-gray-500 group-hover:text-white" />
-      </a>
-    );
-  };
+        <div  className='p-2 px-3 md:px-5  xl:px-16 '>
+            {/* Page path address */}
+            <div className='flex gap-2  text-xs'>
+                <p>Home</p>
+                /
+                <p>Resources</p>
+                /
+                <p className='text-blue-400'>Career Center</p>
+            </div>
 
-  return (
-    <div className="py-10 px-3 md:px-5 xl:px-16 text-black">
-      {/* ===== Page Title ===== */}
-      <div className="mt-8">
-        <h1 className="font-bold text-5xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
-          Career Center
-        </h1>
-      </div>
+            {/* Main Section */}
 
-      {/* ===== TOC for Small Screens (Top Bar) ===== */}
-      <div className="lg:hidden  top-16 z-20 bg-white shadow-md overflow-x-auto whitespace-nowrap flex gap-4 px-4 py-3 border-b">
-        {tocItems.map((item) => (
+            <section className='mt-20'>
+
+                {/* Heading part */}
+                <div className='space-y-4'>
+                    <h1 className='text-4xl xl:text-5xl mb-12 font-semibold text-base-content'>Career Center</h1>
+                    <p className='text-xs text-base-content'>Last Update: <span className='font-bold '>January 25 2025</span></p>
+                    <div className='flex gap-2 items-center '>
+                        <div className="avatar">
+                            <div className="w-14 rounded-full">
+                                <img src="https://img.daisyui.com/images/profile/demo/yellingcat@192.webp" className='rounded-full' />
+                            </div>
+                        </div>
+                        <p className='text-sm font-normal  text-black'>By <span className='text-yellow-400 font-semibold'>Frank Hackett</span>, Certified Professional Resume Writer (CPRW)</p>
+                    </div>
+                </div>
+
+
+
+                <div className='w-full pt-24  gap-4 flex '>
+                    <div className=' w-1/4 min-h-fit hidden lg:block max-h-fit p-5 border-t-1 border-b-1 border-black  '>
+                        <ul className="space-y-3 text-sm font-normal">
+                            <li className="font-semibold">Table of Contents</li>
+                            {tocItems.map((item) => (
+                                <li key={item.id}>
+                                    <a
+                                        href={`#${item.id}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            handleScrollTo(item.id);
+                                        }}
+                                    >
+                                        {item.label}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div className='w-full lg:w-3/4  text-sm lg:text-[19px] max-h-screen p-5 overflow-auto scroll-smooth'>
+                        <p className='mb-12'>Welcome to the Resume Builder Career Center, your one-stop shop for resume and cover letter writing, interview tips, and job search resources. Whether you’re looking for tools like a resume maker or resume editor, or seeking resume help from certified professionals, our Career Center has everything you need to create a standout resume.</p>
+                        <p className='mb-12'>Gain access to critical insights from our team of certified resume writers, career coaches, and recruiters to help you navigate all aspects of the job market landscape.</p>
+
+                        {/* Featured Advice Box */}
+                        <div id='featured' className='w-full space-y-10'>
+                            <h1 className='text-[#A053CF] text-5xl font-semibold '>Featured Advice</h1>
+                            <p>Get the information you need to impress the hiring manager and land your next big job opportunity. Our comprehensive guides cover everything from the basics of resume writing to job search strategies and interview preparation.</p>
+                            <div className='w-full p-5  rounded-3xl shadow-xl shadow-base-300'>
+                                <ul className='w-full text-[17px] px-3'>
+                                    <li className='flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between '> How To Make a Resume With Example and Guide <span className='flex items-center'>Learn More <IoIosArrowRoundForward /> </span> </li>
+                                    <li className='flex w-full flex-col md:flex-row hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white p-5 items-start justify-between '> Best Tresume Formats: Tips and Exmaples of 3 Common Resumes <span className='flex items-center'>Learn More <IoIosArrowRoundForward /> </span> </li>
+                                    <li className='flex w-full flex-col md:flex-row hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white p-5 items-start justify-between '> How To Write a Professional Resume Summary With Examples <span className='flex items-center'>Learn More <IoIosArrowRoundForward /> </span> </li>
+                                    <li className='flex w-full flex-col md:flex-row hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white p-5 items-start justify-between '>How To Choose Best Fonts For Your Resume <span className='flex items-center'>Learn More <IoIosArrowRoundForward /> </span></li>
+                                    <li className='flex w-full flex-col md:flex-row hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white p-5 items-start justify-between '> How To References on a Resume With Examples <span className='flex items-center'>Learn More <IoIosArrowRoundForward /> </span> </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div id='resume-templates' className='w-full mt-36 space-y-10'>
+                            <h1 className='text-[#A053CF] text-4xl lg:text-5xl font-semibold '>Resume Templates</h1>
+                            <p>Building your resume doesn’t need to be a difficult or time-consuming process. We offer hundreds of free, high-quality resume templates you can use to catch the attention of hiring managers, make a good first impression, and generate more interview callbacks.</p>
+                            <div className='w-full p-5  rounded-3xl shadow-xl '>
+                                <ul className="w-full text-[17px] px-3">
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Classic Resume Template <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Modern Resume Template <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Creative Resume Template <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div id='interview-advice' className='w-full mt-36 space-y-10'>
+                            <h1 className='text-[#A053CF] text-4xl lg:text-5xl font-semibold '>Interview Advice</h1>
+                            <p>Prepare with confidence and make a lasting impression. Learn how to answer tough questions, present yourself professionally, and follow up effectively after interviews.</p>
+                            <div className='w-full p-5  rounded-3xl shadow-xl '>
+                                <ul className="w-full text-[17px] px-3">
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Top 10 Common Interview Questions <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Mastering Behavioral Interviews <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> How to Follow Up After an Interview <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div id='jobs' className='w-full mt-36 space-y-10'>
+                            <h1 className='text-[#A053CF] text-4xl lg:text-5xl font-semibold '>Jobs</h1>
+                            <p>Explore strategies for finding job openings, networking effectively, and leveraging online tools to land your ideal position faster.</p>
+                            <div className='w-full p-5  rounded-3xl shadow-xl '>
+                                <ul className="w-full text-[17px] px-3">
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Best Job Search Websites in 2025 <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> How to Network Like a Pro <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Using Social Media to Find Jobs <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div id='careers' className='w-full mt-36 space-y-10'>
+                            <h1 className='text-[#A053CF] text-4xl lg:text-5xl font-semibold '>Careers</h1>
+                            <p>Plan a career path that matches your skills and passions. Learn how to switch industries, advance in your current role, and stay competitive in a changing job market.</p>
+                            <div className='w-full p-5  rounded-3xl shadow-xl '>
+                                <ul className="w-full text-[17px] px-3">
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Mapping Your Long-Term Career Goals <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Tips for Changing Careers Successfully <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Building Skills for Future Jobs <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div id='special-reports' className='w-full mt-36 space-y-10'>
+                            <h1 className='text-[#A053CF] text-4xl lg:text-5xl font-semibold '>Special Reports</h1>
+                            <p>Access in-depth analyses of employment trends, industry insights, and salary data to stay ahead in the competitive job market.</p>
+                            <div className='w-full p-5  rounded-3xl shadow-xl '>
+                                <ul className="w-full text-[17px] px-3">
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> 2025 Tech Industry Hiring Trends <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Salary Insights by Profession <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                    <li className="flex w-full flex-col md:flex-row p-5 hover:bg-linear-65 from-purple-500 to-pink-500 rounded-xl hover:text-white items-start justify-between"> Remote Work: The Future of Employment <span className="flex items-center">Learn More <IoIosArrowRoundForward /></span> </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div id='experts' className='w-full mt-36'>
+                            <h1 className='text-[#A053CF] text-4xl lg:text-5xl font-semibold '>Meet Our Career Exparts</h1>
+                        
+                            <div className='w-full  mt-8 grid grid-cols-1 md:grid-cols-2 justify-items-center lg:grid-cols-3 gap-4'>
+                                { peoples.map(( people , index) => <ExpartsCard key={index} people={people} ></ExpartsCard> ) }
+                            </div>
+                        
+                        </div>
+
+                    </div>
+                </div>
+
+
+
+            </section>
+
+            {/* ===== Bottom Expandable TOC for small/medium screens ===== */}
+      <div className="fixed bottom-5  p-10 rounded-2xl bg-base-100 left-0 right-0 z-50 lg:hidden">
+        <div className=" rounded-xl p-3  shadow-xl">
           <button
-            key={item.id}
-            onClick={() => handleScrollTo(item.id)}
-            className={`text-sm font-semibold px-3 py-1 rounded-full transition
-              bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent
-              ${activeId === item.id ? "underline underline-offset-4" : ""}`}
+            onClick={() => setOpenToc(!openToc)}
+            className="w-full flex justify-between items-center p-3 text-sm font-semibold"
           >
-            {item.label}
+            Table of Contents
+            {openToc ? <IoChevronDown /> : <IoChevronUp />}
           </button>
-        ))}
+
+          {/* Expandable list */}
+          {openToc && (
+            <ul className="max-h-64  overflow-y-auto  text-sm">
+              {tocItems.map((item) => (
+                <li
+                  key={item.id}
+                  className="px-4  py-2 "
+                >
+                  <button
+                    className="w-full text-left"
+                    onClick={() => handleScrollTo(item.id)}
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
-      <section className="mt-8 flex gap-6">
-        {/* ===== Left TOC (Sidebar for Large Screens) ===== */}
-        <aside className="hidden lg:block w-1/4 sticky top-24 h-fit bg-gray-100 p-5 rounded-lg shadow-md">
-          <ul className="space-y-4 text-lg font-semibold">
-            <li className="font-bold text-xl mb-3">Table of Contents</li>
-            {tocItems.map((item) => (
-              <li key={item.id}>
-                <button
-                  onClick={() => handleScrollTo(item.id)}
-                  className={`block w-full text-left transition duration-300
-                    bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent
-                    hover:opacity-80
-                    ${activeId === item.id ? "underline underline-offset-4" : ""}`}
-                >
-                  {item.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </aside>
 
-        {/* ===== Content Section ===== */}
-        <div className="w-full lg:w-3/4 text-sm lg:text-[19px] p-3 space-y-20 text-gray-600">
-          {/* Intro */}
-          <p id="About">
-            Welcome to the Rezoom-AI Career Center, your one-stop shop for resume and cover letter writing, interview tips, and job search resources. Whether you’re looking for tools like a resume maker or resume editor, or seeking resume help from certified professionals, our Career Center has everything you need to create a standout resume.
-            <br />
-            Gain access to critical insights from our team of certified resume writers, career coaches, and recruiters to help you navigate all aspects of the job market landscape.
-          </p>
-
-          {/* Featured Section */}
-          <div id="featured" className="space-y-4">
-            <h1 className="text-[#A053CF] text-3xl font-semibold">Featured Advice</h1>
-            <p>
-              Get the information you need to impress the hiring manager and land your next big job opportunity. Our comprehensive guides cover everything from the basics of resume writing to job search strategies and interview preparation.
-            </p>
-            <div className="space-y-2 ">
-              <GradientLink text="5 Resume Hacks You Must Know" href="https://example.com/resume-hacks" />
-              <GradientLink text="How to Write a Cover Letter That Gets Noticed" href="https://example.com/cover-letter" />
-            </div>
-          </div>
-
-          {/* Resume Templates */}
-          <div id="resume-templates" className="space-y-4">
-            <h1 className="text-[#A053CF] text-3xl font-semibold">Resume Templates</h1>
-            <p>
-              Building your resume doesn’t need to be a difficult or time-consuming process. We offer hundreds of free, high-quality resume templates you can use to catch the attention of hiring managers, make a good first impression, and generate more interview callbacks.
-            </p>
-            <div className="space-y-2">
-              <GradientLink text="Modern Resume Template" href="https://example.com/modern-template" />
-              <GradientLink text="Creative Resume Template" href="https://example.com/creative-template" />
-            </div>
-          </div>
-
-          {/* Interview Advice */}
-          <div id="interview-advice" className="space-y-4">
-            <h1 className="text-[#A053CF] text-3xl font-semibold">Interview Advice</h1>
-            <p>
-              Prepare for your next interview with these guides featuring insights from industry experts and sample interview questions. Obtain valuable tips on what to ask during the interview and how to follow up after your meeting.
-            </p>
-            <div className="space-y-2">
-              <GradientLink text="Top 10 Interview Questions" href="https://example.com/interview-questions" />
-              <GradientLink text="What to Wear for an Interview" href="https://example.com/interview-attire" />
-            </div>
-          </div>
-
-          {/* Jobs */}
-          <div id="jobs" className="space-y-4">
-            <h1 className="text-[#A053CF] text-3xl font-semibold">Jobs</h1>
-            <p>
-              Use these guides to learn more about organizing your job search and optimizing your application during the hiring process. Explore a wide range of expert insights, including job hunting strategies, formatting best practices, and career advice.
-            </p>
-            <GradientLink text="Explore Latest Jobs" href="https://example.com/jobs" />
-          </div>
-
-          {/* Careers */}
-          <div id="careers" className="space-y-4">
-            <h1 className="text-[#A053CF] text-3xl font-semibold">Careers</h1>
-            <p>
-              Find targeted advice to build your resume and land a great job, with state-specific career guides, specialized resources for diverse communities, and expert advice on resume writing and interviews to empower your job search and career development.
-            </p>
-            <GradientLink text="Career Growth Tips" href="https://example.com/career-growth" />
-          </div>
-
-          {/* Special Reports */}
-          <div id="special-reports" className="space-y-4">
-            <h1 className="text-[#A053CF] text-3xl font-semibold">Special Reports</h1>
-            <p>
-              Even with a well-honed resume and cover letter, theres a lot of uncertainty when applying for jobs. The below surveys and studies can give you a clearer view of trends in the overall job market, and the hiring conditions you’re likely to find in your target sector.
-            </p>
-            <GradientLink text="2025 Job Market Report" href="https://example.com/reports" />
-          </div>
-
-          {/* Experts */}
-          <div id="experts" className="space-y-4">
-            <h1 className="text-[#A053CF] text-3xl font-semibold">Meet Our Career Experts</h1>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-              {peoples.map((people, index) => (
-                <ExpertsCard key={index} people={people} />
-              ))}
-            </div>
-          </div>
         </div>
-      </section>
-    </div>
-  );
+    );
 };
 
-export default Page;
+export default page;
