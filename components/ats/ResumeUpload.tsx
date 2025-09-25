@@ -2,9 +2,10 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+
 import { motion } from 'framer-motion';
 import { Upload, FileText, AlertCircle } from 'lucide-react';
+import { useDropzone } from 'react-dropzone';
 
 interface ResumeUploadProps {
   onFileUpload: (file: File) => void;
