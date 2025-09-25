@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { IoChevronForward } from "react-icons/io5";
-import ExpertsCard from "../Components/expertsCard/page";
+import ExpertsCard from "../Components/ExpertsCard";
+
 interface Expert {
   name: string;
   position: string;

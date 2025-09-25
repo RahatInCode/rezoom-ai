@@ -3,18 +3,17 @@ import Image from "next/image";
 import React from "react";
 import { motion } from "framer-motion";
 
-// Define the type for a person
 type Person = {
   name: string;
   position: string;
   image: string;
 };
 
-interface expertsCardProps {
-  people: Person; // use the type here
+interface ExpertsCardProps {
+  people: Person;
 }
 
-const expertsCard: React.FC<expertsCardProps> = ({ people }) => {
+const ExpertsCard: React.FC<ExpertsCardProps> = ({ people }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -29,7 +28,6 @@ const expertsCard: React.FC<expertsCardProps> = ({ people }) => {
       whileTap={{ scale: 0.97 }}
       className="w-full p-4 rounded-xl bg-white shadow-md cursor-pointer"
     >
-      {/* Relative container for Next/Image fill */}
       <div className="relative w-full h-50 overflow-hidden rounded-lg">
         <Image
           src={people.image}
@@ -50,4 +48,4 @@ const expertsCard: React.FC<expertsCardProps> = ({ people }) => {
   );
 };
 
-export default expertsCard;
+export default ExpertsCard;
