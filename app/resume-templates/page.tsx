@@ -30,7 +30,7 @@ const Page = () => {
         <div className="w-full flex mt-5 items-center gap-5">
           <div className="relative max-w-36 h-24"> {/* relative + fixed height */}
             <Image
-              src="https://i.ibb.co/WWg9tYY/resume-template-page-top-mini-image.png"
+              src="https://i.ibb.co.com/WWg9tYY/resume-template-page-top-mini-image.png"
               alt="mini_image"
               fill
               className="object-contain"

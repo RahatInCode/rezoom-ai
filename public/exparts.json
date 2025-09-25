@@ -4,13 +4,13 @@
   { "id": 3,  "name": "Sophia Nguyen",      "position": "HR Consultant",           "image": "https://i.ibb.co.com/4ZQxwYzT/Linda-Conte.webp" },
   { "id": 4,  "name": "Liam Patel",         "position": "Interview Specialist",    "image": "https://i.ibb.co.com/v6H7THK2/Expert-9.webp" },
   { "id": 5,  "name": "Anna Berentson",     "position": "Senior Editor",           "image": "https://i.ibb.co.com/6hCQ2Rm/Expert-7.webp" },
-  { "id": 7,  "name": "Professional Badge", "position": "Certification Badge",     "image": "https://i.ibb.co.com/ymRCSz0k/Expert-4.webp" },
+ 
   { "id": 8,  "name": "Carolyn Kleiman",    "position": "Career Expert",           "image": "https://i.ibb.co.com/v6Tpdm9R/Expert-2.webp" },
   { "id": 9,  "name": "David Pratt",        "position": "Recruitment Advisor",     "image": "https://i.ibb.co.com/21QxZ8bt/Carolyn-Kleiman.png" },
   { "id": 10, "name": "David Pratt",        "position": "Recruitment Advisor",     "image": "https://i.ibb.co.com/ymRCSz0k/Expert-4.webp" },
-  { "id": 11, "name": "Erica Pizem",        "position": "Talent Acquisition Lead", "image": "https://i.ibb.co.com/21r69PJs/Badge-2024-Asset-6.webp" },
-  { "id": 12, "name": "Benjamin Lee",       "position": "Career Strategist",       "image": "https://i.ibb.co.com/21r69PJs/Badge-2024-Asset-6.webp" },
-  { "id": 13, "name": "Linda Conte",        "position": "Workforce Analyst",       "image": "https://i.ibb.co.com/6hCQ2Rm/Expert-7.webp" },
-  { "id": 14, "name": "Rebecca Finney",     "position": "Job Market Researcher",   "image": "https://i.ibb.co.com/21QxZ8bt/Carolyn-Kleiman.png" },
-  { "id": 15, "name": "Stacie Haller",      "position": "Chief Career Advisor",    "image": "https://i.ibb.co.com/21r69PJs/Badge-2024-Asset-6.webp" }
+  
+  { "id": 12, "name": "Benjamin Lee",       "position": "Career Strategist",       "image": "https://i.ibb.co.com/21r69PJs/Badge-2024-Asset-6.webp" }
+  
+ 
+
 ]
