@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Save, User, GraduationCap, Briefcase, Award 
 
 // Mock framer-motion for smooth transitions
 const motion = {
-  div: ({ children, className, initial, animate, exit, transition, ...props }) => (
+  div: ({ children, className, ...props }) => (
     <div className={`${className} transition-all duration-300`} {...props}>
       {children}
     </div>
@@ -99,7 +99,7 @@ const ResumeBuilder = () => {
   };
 
   const PersonalInfoForm = () => (
-    <motion.div className="space-y-6">
+    <motion.div className="space-y-6" initial="" animate="" exit="" transition={{}}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
@@ -155,7 +155,7 @@ const ResumeBuilder = () => {
   );
 
   const EducationForm = () => (
-    <motion.div className="space-y-6">
+    <motion.div className="space-y-6" initial="" animate="" exit="" transition={{}}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Degree</label>
@@ -202,7 +202,7 @@ const ResumeBuilder = () => {
   );
 
   const ExperienceForm = () => (
-    <motion.div className="space-y-6">
+    <motion.div className="space-y-6" initial="" animate="" exit="" transition={{}}>
       {resumeData.experience.map((exp, index) => (
         <div key={index} className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
