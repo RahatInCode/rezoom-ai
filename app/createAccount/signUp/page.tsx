@@ -6,7 +6,8 @@ import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Swal from "sweetalert2";
-import { useRootContext } from "../../Components/createContext";
+import { useRootContext } from "../../context/createContext";
+
 
 export default function SignUp() {
   const { signup,  sendVerificationEmail, googleLogin } = useRootContext();
