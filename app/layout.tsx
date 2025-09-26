@@ -1,23 +1,24 @@
 import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
-import Navbar from "./Components/Navigation/Navbar";
-import Footer from "./Components/Footer/Footer";
-import { RootProvider } from "./Components/createContext";
+import { RootProvider } from "./context/createContext";
+import Navbar from "./components/Navigation/Navbar";
+import Footer from './components/Footer/Footer'
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <RootProvider>
+   
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="font-sans">
         <Navbar />
+        <RootProvider>
         <main className="w-full min-h-screen">{children}</main>
+        </RootProvider>
         <Footer />
       </body>
     </html>
-    </RootProvider>
   );
 }
 
