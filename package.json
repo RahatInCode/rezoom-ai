@@ -6,15 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "backend": "ts-node -P tsconfig.backend.json Backend/server.ts"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "firebase": "^12.3.0",
     "framer-motion": "^12.23.22",
     "gsap": "^3.13.0",
-    "firebase": "^12.3.0",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.544.0",
+    "mongoose": "^8.18.2",
     "next": "15.5.3",
     "pdf-parse": "^1.1.1",
     "react": "19.1.0",
@@ -22,12 +27,14 @@
     "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
-    "swiper": "^12.0.2",
-    "sweetalert2": "^11.23.0"
+    "sweetalert2": "^11.23.0",
+    "swiper": "^12.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
     "@types/node": "^20.19.17",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19",
@@ -35,6 +42,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }
 }
