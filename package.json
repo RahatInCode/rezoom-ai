@@ -12,6 +12,7 @@
     "@monaco-editor/react": "^4.7.0",
     "framer-motion": "^12.23.22",
     "gsap": "^3.13.0",
+    "firebase": "^12.3.0",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.544.0",
     "next": "15.5.3",
@@ -21,7 +22,8 @@
     "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
-    "swiper": "^12.0.2"
+    "swiper": "^12.0.2",
+    "sweetalert2": "^11.23.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
