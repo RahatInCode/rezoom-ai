@@ -4,7 +4,6 @@ import { RootProvider } from "./context/createContext";
 import Navbar from "./Components/Navigation/Navbar";
 import Footer2 from "./Components/Footer/Footer";
 
-
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
