@@ -1,121 +1,146 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { FormEvent, useState, ChangeEvent } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
-export default function SignIn() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="flex w-full max-w-6xl flex-col md:flex-row rounded-lg shadow-md overflow-hidden bg-white">
-        {/* Left Image + Title (hidden on small) */}
-        <div className="relative hidden md:flex md:w-1/2">
-          <Image
-            src="/login-bg.jpg"
-            alt="Login background"
-            fill
-            className="object-cover"
-          />
-          <h1 className="absolute inset-0 flex items-center justify-center text-5xl font-extrabold text-white drop-shadow-lg">
-            Login
-          </h1>
-        </div>
+import Swal from "sweetalert2";
+import { useRootContext } from "../../context/createContext";
 
-        {/* Right Form Section */}
-        <div className="flex w-full md:w-1/2 flex-col justify-center p-8 sm:p-12 space-y-8">
-          {/* Welcome Text */}
-          <div className="space-y-2 text-center md:text-left">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-              Welcome Back
-            </h2>
-            <p className="text-gray-600">
-              Sign in to access your AI-powered resume builder and manage your saved resumes.
-            </p>
+
+export default function SignIn() {
+  const [open, setOpen] = useState(false);
+  const { resetPassword, login, googleLogin } = useRootContext();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      await login(email, password);
+      // setMessage("✅ Logged in successfully!");
+      Swal.fire({
+        position: "top-end",
+        title: "✅ Logged in successfully!",
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        setMessage(`❌ ${err.message}`);
+      } else {
+        setMessage("❌ Something went wrong.");
+      }
+    }
+  };
+
+  const handleForgetPassword = async () => {
+    if (!email) {
+      // setMessage("⚠️ Enter your email first to reset password.");
+      Swal.fire({
+        position: "top-end",
+        title: "⚠️ Enter your email first to reset password.",
+        showConfirmButton: false,
+        timer: 1500
+      });
+      return;
+    }
+    try {
+      await resetPassword(email);
+      // setMessage("📩 Password reset email sent!");
+      Swal.fire({
+        position: "top-end",
+        title: "📩 Password reset email sent!",
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        setMessage(`❌ ${err.message}`);
+      } else {
+        setMessage("❌ Something went wrong.");
+      }
+    }
+  };
+
+  return (
+    <div className="text-black w-[50%] space-y-12 p-8 m-auto mt-8">
+      <div>
+        <h1 className="text-3xl font-bold">Welcome,</h1>
+        <p className="font-bold text-gray-400">Sign in to continue!</p>
+      </div>
+
+      <div className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3">
+
+
+          <div className="form relative">
+            <input
+              type="email"
+              value={email}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
+              className="textbox w-full"
+              placeholder=""
+              required
+            />
+            <label className="label-box text-gray-400">Email</label>
           </div>
 
-          {/* Form */}
-          <form className="space-y-5">
-            <label className="input w-full flex items-center gap-2 rounded-md border px-3 py-2 focus-within:ring-2 focus-within:ring-primary">
-              <svg
-                className="h-5 w-5 opacity-60"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-              >
-                <g
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  strokeWidth="2"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <rect width="20" height="16" x="2" y="4" rx="2" />
-                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                </g>
-              </svg>
-              <input
-                type="email"
-                placeholder="mail@site.com"
-                className="w-full outline-none"
-                required
-              />
-            </label>
-
-            <label className="input w-full flex items-center gap-2 rounded-md border px-3 py-2 focus-within:ring-2 focus-within:ring-primary">
-              <svg
-                className="h-5 w-5 opacity-60"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-              >
-                <g
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  strokeWidth="2"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" />
-                  <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />
-                </g>
-              </svg>
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full outline-none"
-                required
-                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
-              />
-            </label>
-
+          <div className="form relative">
+            <input
+              type={open ? "text" : "password"}
+              value={password}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
+              placeholder=""
+              className="textbox w-full"
+              required
+            />
             <button
-              type="submit"
-              className="w-full rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 py-2 text-white font-semibold transition hover:opacity-90"
+              type="button" // ✅ prevent accidental form submit
+              onClick={() => setOpen(!open)}
+              className="btn btn-xs absolute top-4 right-5"
             >
-              Sign In
+              {open ? <FaEye /> : <FaEyeSlash />}
             </button>
-          </form>
+            <label className="label-box text-gray-400">Password</label>
+          </div>
 
-          {/* Google Sign-In */}
           <button
             type="button"
-            className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 py-2 text-gray-700 hover:bg-gray-100 transition"
+            onClick={handleForgetPassword}
+            className="w-full flex justify-end text-sm text-blue-600 mt-3 hover:underline"
           >
-            <FcGoogle size={20} />
-            Continue with Google
+            Forgot Password?
           </button>
+          {message && <p className="text-sm text-red-500">{message}</p>}
+          {/* ✅ Move login button INSIDE the form */}
+          <button
+            type="submit"
+            className="transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-2 rounded-2xl w-full text-white font-bold"
+          >
+            Log in
+          </button>
+        </form>
 
-          {/* Footer link */}
-          <p className="text-center text-gray-600">
-            New user?{" "}
-            <Link
-              href="/createAccount/signUp"
-              className="font-semibold text-indigo-600 hover:underline"
-            >
-              Register
-            </Link>
-          </p>
+        <div className="flex flex-col gap-2">
+          <button onClick={googleLogin} className="flex justify-center items-center gap-2 border p-2 rounded-xl hover:bg-gray-100">
+            <FcGoogle size={20} /> Continue with Google
+          </button>
         </div>
       </div>
+
+      <p className="text-center font-bold text-gray-400">
+        I am a new user{" "}
+        <Link href={"/createAccount/signUp"}>
+          <span className="text-orange-500">Register</span>
+        </Link>
+      </p>
     </div>
   );
 }
