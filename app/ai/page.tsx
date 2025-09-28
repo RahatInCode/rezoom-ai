@@ -44,7 +44,7 @@ const Page = () => {
         </div>
       </section>
 
-      {/* Divider */}
+     
       <div className="w-full h-px bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300" />
 
       {/* Section 2 - LinkedIn Summary */}
