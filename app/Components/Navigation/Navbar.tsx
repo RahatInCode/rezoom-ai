@@ -164,6 +164,7 @@ const navigationLinks = [
   { href: "/mock-interview", label: "Mock Interview" },
   { href: "/createAccount", label: "My Account" },
   { href: "/ats-checker", label: "ATS Checker" },
+  { href: "/ai", label: "AI" },
 ];
 
 
