@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Save, User, GraduationCap, Briefcase, Award } from 'lucide-react';
 
@@ -10,7 +11,7 @@ const motion = {
   )
 };
 
-const ResumeBuilder = () => {
+export default function ResumeBuild(){
   const [currentStep, setCurrentStep] = useState(0);
   const [resumeData, setResumeData] = useState({
     personal: {
@@ -589,4 +590,3 @@ const ResumeBuilder = () => {
   );
 };
 
-export default ResumeBuilder;
