@@ -11,7 +11,7 @@ const page = () => {
 
            <div className='max-w-7xl mx-auto px-4 md:px-10 py-10 grid md:grid-cols-2 gap-10 items-center text-center '>
             <CoverLetterGenerator></CoverLetterGenerator>
-                <Lottie animationData={coverLetter}  loop={true} />
+                <Lottie animationData={coverLetter} className='h-full' loop={true} />
            </div>
            <LinkedInSummaryGenerator></LinkedInSummaryGenerator>
 
