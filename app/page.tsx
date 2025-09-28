@@ -8,6 +8,7 @@ import ReviewSection from "./Components/ReviewSection/ReviewSection";
 import HeroMediaSection from "./Components/HeroMediaSection/HeroMediaSection";
 import FAQ from "./Components/FAQ/FAQ";
 
+
 export default function Home() {
   return (
     <main>
