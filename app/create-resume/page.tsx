@@ -1,592 +1,430 @@
 "use client"
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Save, User, GraduationCap, Briefcase, Award } from 'lucide-react';
+import { Link as LinkIcon, MoveRight } from 'lucide-react';
+import toast from 'react-hot-toast';
 
-// Mock framer-motion for smooth transitions
-const motion = {
-  div: ({ children, className, ...props }) => (
-    <div className={`${className} transition-all duration-300`} {...props}>
-      {children}
-    </div>
-  )
-};
+type PersonalInfo = {
+  FullName: string,
+  Designation: string,
+  Email: string,
+  PhoneNumber: string,
+  Location: string,
+  Links: { Platform: string, Link: string }[]
+}
 
-export default function ResumeBuild(){
+type EducationEntry = {
+  Degree: string,
+  Institute: string,
+  CGPA: string,
+  Location: string,
+  StartYear: string,
+  EndYear: string
+}
+
+type Skills = {
+  TechnicalSkills: string[],
+  SoftSkills: string[],
+  Tools: string[],
+}
+
+type ExperienceEntry = {
+  JobTitle: string,
+  Company: string,
+  Position: string,
+  StartDate: string,
+  EndDate: string
+}
+
+type ResumeData = {
+  PersonalInfo: PersonalInfo,
+  Education: EducationEntry[],
+  Skills: Skills,
+  Experience: ExperienceEntry[]
+}
+
+export default function ResumeBuild() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [resumeData, setResumeData] = useState({
-    personal: {
-      fullName: '',
-      email: '',
-      phone: '',
-      location: '',
-      summary: ''
+  const [resumeData, setResumeData] = useState<ResumeData>({
+    PersonalInfo: {
+      FullName: "",
+      Designation: "",
+      Email: "",
+      PhoneNumber: "",
+      Location: "",
+      Links: []
     },
-    education: {
-      degree: '',
-      school: '',
-      graduationYear: '',
-      gpa: ''
+    Education: [],
+    Skills: {
+      TechnicalSkills: [],
+      SoftSkills: [],
+      Tools: [],
     },
-    experience: [
-      {
-        jobTitle: '',
-        company: '',
-        startDate: '',
-        endDate: '',
-        description: ''
-      }
-    ],
-    skills: {
-      technical: [],
-      soft: []
-    }
-  });
-
-  const steps = [
-    { id: 'personal', title: 'Personal Info', icon: User },
-    { id: 'education', title: 'Education', icon: GraduationCap },
-    { id: 'experience', title: 'Experience', icon: Briefcase },
-    { id: 'skills', title: 'Skills', icon: Award }
-  ];
-
-  const updateResumeData = (section, field, value, index = null) => {
-    setResumeData(prev => {
-      if (index !== null && Array.isArray(prev[section])) {
-        const newArray = [...prev[section]];
-        newArray[index] = { ...newArray[index], [field]: value };
-        return { ...prev, [section]: newArray };
-      } else if (section === 'skills' && Array.isArray(value)) {
-        return { ...prev, [section]: { ...prev[section], [field]: value } };
-      } else {
-        return { ...prev, [section]: { ...prev[section], [field]: value } };
-      }
-    });
-  };
-
-  const addExperience = () => {
-    setResumeData(prev => ({
-      ...prev,
-      experience: [...prev.experience, {
-        jobTitle: '',
-        company: '',
-        startDate: '',
-        endDate: '',
-        description: ''
-      }]
-    }));
-  };
-
-  const addSkill = (category, skill) => {
-    if (skill.trim()) {
-      updateResumeData('skills', category, [...resumeData.skills[category], skill.trim()]);
-    }
-  };
-
-  const removeSkill = (category, index) => {
-    const newSkills = resumeData.skills[category].filter((_, i) => i !== index);
-    updateResumeData('skills', category, newSkills);
-  };
-
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const PersonalInfoForm = () => (
-    <motion.div className="space-y-6" initial="" animate="" exit="" transition={{}}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-          <input
-            type="text"
-            value={resumeData.personal.fullName}
-            onChange={(e) => updateResumeData('personal', 'fullName', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-            placeholder="John Doe"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-          <input
-            type="email"
-            value={resumeData.personal.email}
-            onChange={(e) => updateResumeData('personal', 'email', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-            placeholder="john@example.com"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-          <input
-            type="tel"
-            value={resumeData.personal.phone}
-            onChange={(e) => updateResumeData('personal', 'phone', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-            placeholder="+1 (555) 123-4567"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-          <input
-            type="text"
-            value={resumeData.personal.location}
-            onChange={(e) => updateResumeData('personal', 'location', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-            placeholder="New York, NY"
-          />
-        </div>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Professional Summary</label>
-        <textarea
-          value={resumeData.personal.summary}
-          onChange={(e) => updateResumeData('personal', 'summary', e.target.value)}
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors h-32 resize-none"
-          placeholder="Write a brief professional summary..."
-        />
-      </div>
-    </motion.div>
-  );
-
-  const EducationForm = () => (
-    <motion.div className="space-y-6" initial="" animate="" exit="" transition={{}}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Degree</label>
-          <input
-            type="text"
-            value={resumeData.education.degree}
-            onChange={(e) => updateResumeData('education', 'degree', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-            placeholder="Bachelor of Science in Computer Science"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">School</label>
-          <input
-            type="text"
-            value={resumeData.education.school}
-            onChange={(e) => updateResumeData('education', 'school', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-            placeholder="University of Technology"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Graduation Year</label>
-          <input
-            type="text"
-            value={resumeData.education.graduationYear}
-            onChange={(e) => updateResumeData('education', 'graduationYear', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-            placeholder="2024"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">GPA (Optional)</label>
-          <input
-            type="text"
-            value={resumeData.education.gpa}
-            onChange={(e) => updateResumeData('education', 'gpa', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-            placeholder="3.8"
-          />
-        </div>
-      </div>
-    </motion.div>
-  );
-
-  const ExperienceForm = () => (
-    <motion.div className="space-y-6" initial="" animate="" exit="" transition={{}}>
-      {resumeData.experience.map((exp, index) => (
-        <div key={index} className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
-              <input
-                type="text"
-                value={exp.jobTitle}
-                onChange={(e) => updateResumeData('experience', 'jobTitle', e.target.value, index)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                placeholder="Software Engineer"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Company</label>
-              <input
-                type="text"
-                value={exp.company}
-                onChange={(e) => updateResumeData('experience', 'company', e.target.value, index)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                placeholder="Tech Corp"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-              <input
-                type="month"
-                value={exp.startDate}
-                onChange={(e) => updateResumeData('experience', 'startDate', e.target.value, index)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-              <input
-                type="month"
-                value={exp.endDate}
-                onChange={(e) => updateResumeData('experience', 'endDate', e.target.value, index)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                placeholder="Leave empty if current"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea
-              value={exp.description}
-              onChange={(e) => updateResumeData('experience', 'description', e.target.value, index)}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors h-24 resize-none"
-              placeholder="Describe your responsibilities and achievements..."
-            />
-          </div>
-        </div>
-      ))}
-      <button
-        onClick={addExperience}
-        className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-indigo-300 hover:text-indigo-600 transition-colors"
-      >
-        + Add Another Experience
-      </button>
-    </motion.div>
-  );
-
-  const SkillsForm = () => {
-    const [newTechnicalSkill, setNewTechnicalSkill] = useState('');
-    const [newSoftSkill, setNewSoftSkill] = useState('');
-
-    return (
-      <motion.div className="space-y-8">
-        <div>
-          <label className="block text-lg font-medium text-gray-900 mb-4">Technical Skills</label>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {resumeData.skills.technical.map((skill, index) => (
-              <span
-                key={index}
-                className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800"
-              >
-                {skill}
-                <button
-                  onClick={() => removeSkill('technical', index)}
-                  className="ml-2 text-indigo-600 hover:text-indigo-800"
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newTechnicalSkill}
-              onChange={(e) => setNewTechnicalSkill(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  addSkill('technical', newTechnicalSkill);
-                  setNewTechnicalSkill('');
-                }
-              }}
-              className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-              placeholder="JavaScript, React, Node.js..."
-            />
-            <button
-              onClick={() => {
-                addSkill('technical', newTechnicalSkill);
-                setNewTechnicalSkill('');
-              }}
-              className="px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              Add
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-lg font-medium text-gray-900 mb-4">Soft Skills</label>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {resumeData.skills.soft.map((skill, index) => (
-              <span
-                key={index}
-                className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-teal-100 text-teal-800"
-              >
-                {skill}
-                <button
-                  onClick={() => removeSkill('soft', index)}
-                  className="ml-2 text-teal-600 hover:text-teal-800"
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newSoftSkill}
-              onChange={(e) => setNewSoftSkill(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  addSkill('soft', newSoftSkill);
-                  setNewSoftSkill('');
-                }
-              }}
-              className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-              placeholder="Leadership, Communication, Problem Solving..."
-            />
-            <button
-              onClick={() => {
-                addSkill('soft', newSoftSkill);
-                setNewSoftSkill('');
-              }}
-              className="px-4 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-            >
-              Add
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
-
-  const ResumePreview = () => (
-    <div className="bg-white p-8 shadow-lg rounded-lg h-full overflow-y-auto">
-      <div className="max-w-none">
-        {/* Header */}
-        <div className="text-center mb-8 pb-6 border-b border-gray-200">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {resumeData.personal.fullName || 'Your Name'}
-          </h1>
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
-            {resumeData.personal.email && <span>{resumeData.personal.email}</span>}
-            {resumeData.personal.phone && <span>{resumeData.personal.phone}</span>}
-            {resumeData.personal.location && <span>{resumeData.personal.location}</span>}
-          </div>
-        </div>
-
-        {/* Summary */}
-        {resumeData.personal.summary && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-3 border-b border-gray-200 pb-1">
-              Professional Summary
-            </h2>
-            <p className="text-gray-700 leading-relaxed">{resumeData.personal.summary}</p>
-          </div>
-        )}
-
-        {/* Education */}
-        {(resumeData.education.degree || resumeData.education.school) && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-3 border-b border-gray-200 pb-1">
-              Education
-            </h2>
-            <div className="mb-4">
-              <h3 className="text-lg font-medium text-gray-900">
-                {resumeData.education.degree || 'Your Degree'}
-              </h3>
-              <p className="text-gray-700">{resumeData.education.school}</p>
-              <div className="flex gap-4 text-sm text-gray-600">
-                {resumeData.education.graduationYear && <span>Graduated: {resumeData.education.graduationYear}</span>}
-                {resumeData.education.gpa && <span>GPA: {resumeData.education.gpa}</span>}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Experience */}
-        {resumeData.experience.some(exp => exp.jobTitle || exp.company) && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-3 border-b border-gray-200 pb-1">
-              Work Experience
-            </h2>
-            {resumeData.experience.map((exp, index) => (
-              (exp.jobTitle || exp.company) && (
-                <div key={index} className="mb-6">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {exp.jobTitle || 'Job Title'}
-                  </h3>
-                  <p className="text-gray-700 font-medium">{exp.company}</p>
-                  {(exp.startDate || exp.endDate) && (
-                    <p className="text-sm text-gray-600 mb-2">
-                      {exp.startDate} - {exp.endDate || 'Present'}
-                    </p>
-                  )}
-                  {exp.description && (
-                    <p className="text-gray-700 leading-relaxed">{exp.description}</p>
-                  )}
-                </div>
-              )
-            ))}
-          </div>
-        )}
-
-        {/* Skills */}
-        {(resumeData.skills.technical.length > 0 || resumeData.skills.soft.length > 0) && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-3 border-b border-gray-200 pb-1">
-              Skills
-            </h2>
-            {resumeData.skills.technical.length > 0 && (
-              <div className="mb-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Technical</h3>
-                <div className="flex flex-wrap gap-2">
-                  {resumeData.skills.technical.map((skill, index) => (
-                    <span key={index} className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {resumeData.skills.soft.length > 0 && (
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Soft Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {resumeData.skills.soft.map((skill, index) => (
-                    <span key={index} className="px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-sm">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const renderCurrentForm = () => {
-    switch (currentStep) {
-      case 0: return <PersonalInfoForm />;
-      case 1: return <EducationForm />;
-      case 2: return <ExperienceForm />;
-      case 3: return <SkillsForm />;
-      default: return <PersonalInfoForm />;
-    }
-  };
+    Experience: []
+  })
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Create Your Resume</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Build a professional resume with our step-by-step builder. Watch your resume come to life as you type.
-          </p>
-        </div>
+    <div className='w-full p-5'>
+      <div className='space-y-3 w-full text-center md:text-start'>
+        <h1 className="font-bold text-5xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+          Craft Your Dream Resume
+        </h1>
+        <p>Showcase your skills, experience, and achievements in a way that opens doors to your future career.</p>
+      </div>
 
-        {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex justify-center">
-            <nav className="flex space-x-4">
-              {steps.map((step, index) => {
-                const Icon = step.icon;
-                return (
-                  <div
-                    key={step.id}
-                    className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
-                      index === currentStep
-                        ? 'bg-indigo-100 text-indigo-700'
-                        : index < currentStep
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-100 text-gray-500'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5 mr-2" />
-                    <span className="font-medium">{step.title}</span>
-                  </div>
-                );
-              })}
-            </nav>
-          </div>
-        </div>
+      <div className='w-full flex flex-col mt-24 border-2 space-y-4 lg:gap-5 border-gray-200 bg-gray-100 lg:flex-row p-5 rounded-lg shadow-xl shadow-gray-400 '>
+        <div className='w-full p-5  min-h-96 bg-white rounded-md border-1 border-gray-300 '>
+          <ul className="steps w-full mx-auto">
+            <li className={`step ${currentStep >= 0 ? "step-info" : "" } `}>Personal Information</li>
+            <li className={`step ${currentStep >= 1  ? "step-info" : "" }`}>Education</li>
+            <li className={`step ${currentStep >= 2 ? "step-info" : "" }`}>Skills</li>
+            <li className={`step ${currentStep >= 3 ? "step-info" : "" }`} data-content="4">Experience</li>
+          </ul>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Form Panel */}
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                {steps[currentStep].title}
-              </h2>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-                ></div>
-              </div>
-            </div>
+          <div className='w-full h-full flex flex-col items-start mt-8 '>
+            {currentStep === 0 && <PersonalInformation resumeData={resumeData} setResumeData={setResumeData} />}
+            {currentStep === 1 && <EducationInfo resumeData={resumeData} setResumeData={setResumeData} />}
+            {currentStep === 2 && <SkillsInfo resumeData={resumeData} setResumeData={setResumeData} />}
+            {currentStep === 3 && <ExperienceInfo resumeData={resumeData} setResumeData={setResumeData} />}
+            {/* <EducationInfo resumeData={resumeData} setResumeData={setResumeData} />
+            <SkillsInfo resumeData={resumeData} setResumeData={setResumeData} />
+            <ExperienceInfo resumeData={resumeData} setResumeData={setResumeData} /> */}
 
-            <div className="mb-8">
-              {renderCurrentForm()}
-            </div>
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between">
-              <button
-                onClick={prevStep}
-                disabled={currentStep === 0}
-                className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-                  currentStep === 0
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <ChevronLeft className="w-5 h-5 mr-2" />
-                Back
-              </button>
-
-              <div className="flex gap-3">
-                <button className="flex items-center px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                  <Save className="w-5 h-5 mr-2" />
-                  Save
-                </button>
-                
-                {currentStep < steps.length - 1 ? (
+            <div className='w-full justify-end  flex mt-18 '>
+                {
+                  currentStep < 3 &&
                   <button
-                    onClick={nextStep}
-                    className="flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                  >
-                    Next
-                    <ChevronRight className="w-5 h-5 ml-2" />
-                  </button>
-                ) : (
-                  <button className="flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                    Complete Resume
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Preview Panel */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="p-4 bg-gray-50 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
-            </div>
-            <div className="h-[800px] overflow-hidden">
-              <ResumePreview />
+                onClick={()=>setCurrentStep(currentStep+1)}
+                className='btn px-12 btn-sm btn-primary text-white lg:btn flex items-center justify-center gap-2'>Next <MoveRight size={16} strokeWidth={0.75} /></button>
+                }
+                {
+                  currentStep === 3 &&
+                  <button
+                onClick={()=> setCurrentStep(0)}
+                className='btn px-12 btn-sm btn-primary  lg:btn flex items-center justify-center gap-2'>Submit</button>
+                }
             </div>
           </div>
         </div>
+
+        <div className='w-full min-h-96 bg-white rounded-md border-1  border-gray-300 p-4'>
+              <h1 className='font-semibold text-xl text-center'>{resumeData.PersonalInfo.FullName}</h1>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------- PERSONAL INFORMATION ----------------
+const PersonalInformation = ({ resumeData, setResumeData }) => {
+  const [inputBoxes, setInputBoxes] = useState([{ Platform: "", Link: "" }])
+  return (
+    <div className='w-full space-y-3'>
+      <div className='w-full flex flex-col'>
+        <label>Full Name</label>
+        <input type="text" className='input w-full'
+          placeholder='Your Name'
+          value={resumeData.PersonalInfo.FullName}
+          onChange={(e) =>
+            setResumeData(prev => ({
+              ...prev,
+              PersonalInfo: { ...prev.PersonalInfo, FullName: e.target.value }
+            }))
+          } />
+      </div>
+
+      <div className='w-full flex flex-col'>
+        <label>Email</label>
+        <input type="email" className='input w-full'
+          placeholder='Email'
+          value={resumeData.PersonalInfo.Email}
+          onChange={(e) =>
+            setResumeData(prev => ({
+              ...prev,
+              PersonalInfo: { ...prev.PersonalInfo, Email: e.target.value }
+            }))
+          } />
+      </div>
+
+      <div className='w-full flex flex-col'>
+        <label>Designation</label>
+        <input type="text" className='input w-full'
+          placeholder='Designation'
+          value={resumeData.PersonalInfo.Designation}
+          onChange={(e) =>
+            setResumeData(prev => ({
+              ...prev,
+              PersonalInfo: { ...prev.PersonalInfo, Designation: e.target.value }
+            }))
+          } />
+      </div>
+
+      <div className='w-full flex flex-col md:flex-row gap-3'>
+        <input type="text" className='input w-full' placeholder='Phone Number'
+          value={resumeData.PersonalInfo.PhoneNumber}
+          onChange={e => setResumeData(prev => ({
+            ...prev,
+            PersonalInfo: { ...prev.PersonalInfo, PhoneNumber: e.target.value }
+          }))} />
+        <input type="text" className='input w-full' placeholder='Location'
+          value={resumeData.PersonalInfo.Location}
+          onChange={e => setResumeData(prev => ({
+            ...prev,
+            PersonalInfo: { ...prev.PersonalInfo, Location: e.target.value }
+          }))} />
+      </div>
+
+      <div className='space-y-3'>
+        {inputBoxes.map((box, idx) => (
+          <div key={idx} className='flex flex-col md:flex-row gap-3'>
+            <input type="text" placeholder='Platform (e.g., GitHub)' className='input w-full'
+              value={resumeData.PersonalInfo.Links[idx]?.Platform || ""}
+              onChange={e => {
+                const newLinks = [...resumeData.PersonalInfo.Links];
+                newLinks[idx] = { ...newLinks[idx], Platform: e.target.value };
+                setResumeData(prev => ({
+                  ...prev,
+                  PersonalInfo: { ...prev.PersonalInfo, Links: newLinks }
+                }));
+              }} />
+            <input type="text" placeholder='Link' className='input w-full'
+              value={resumeData.PersonalInfo.Links[idx]?.Link || ""}
+              onChange={e => {
+                const newLinks = [...resumeData.PersonalInfo.Links];
+                newLinks[idx] = { ...newLinks[idx], Link: e.target.value };
+                setResumeData(prev => ({
+                  ...prev,
+                  PersonalInfo: { ...prev.PersonalInfo, Links: newLinks }
+                }));
+              }} />
+          </div>
+        ))}
+        <button className='btn btn-dash w-full mt-2'
+          onClick={() => {
+            setInputBoxes([...inputBoxes, { Platform: "", Link: "" }])
+            setResumeData(prev => ({
+              ...prev,
+              PersonalInfo: { ...prev.PersonalInfo, Links: [...prev.PersonalInfo.Links, { Platform: "", Link: "" }] }
+            }))
+          }}
+        ><LinkIcon size={15} /> Add Link</button>
+      </div>
+    </div>
+  )
+}
+
+// ---------------- EDUCATION ----------------
+const EducationInfo = ({ resumeData, setResumeData }) => {
+  const [entries, setEntries] = useState([{
+    Degree: "", Institute: "", CGPA: "", Location: "", StartYear: "", EndYear: ""
+  }])
+
+  return (
+    <div className='w-full space-y-3 mt-5'>
+      <h2 className='font-bold'>Education</h2>
+      {entries.map((edu, idx) => (
+        <div key={idx} className='flex flex-col md:flex-row gap-3'>
+          <input type="text" placeholder='Degree' className='input w-full'
+            value={resumeData.Education[idx]?.Degree || ""}
+            onChange={e => {
+              const newEdu = [...resumeData.Education];
+              newEdu[idx] = { ...newEdu[idx], Degree: e.target.value, Institute: newEdu[idx]?.Institute || "", CGPA: newEdu[idx]?.CGPA || "", Location: newEdu[idx]?.Location || "", StartYear: newEdu[idx]?.StartYear || "", EndYear: newEdu[idx]?.EndYear || "" };
+              setResumeData(prev => ({ ...prev, Education: newEdu }));
+            }} />
+          <input type="text" placeholder='Institute' className='input w-full'
+            value={resumeData.Education[idx]?.Institute || ""}
+            onChange={e => {
+              const newEdu = [...resumeData.Education];
+              newEdu[idx] = { ...newEdu[idx], Institute: e.target.value, Degree: newEdu[idx]?.Degree || "", CGPA: newEdu[idx]?.CGPA || "", Location: newEdu[idx]?.Location || "", StartYear: newEdu[idx]?.StartYear || "", EndYear: newEdu[idx]?.EndYear || "" };
+              setResumeData(prev => ({ ...prev, Education: newEdu }));
+            }} />
+          <input type="text" placeholder='CGPA' className='input w-full'
+            value={resumeData.Education[idx]?.CGPA || ""}
+            onChange={e => {
+              const newEdu = [...resumeData.Education];
+              newEdu[idx] = { ...newEdu[idx], CGPA: e.target.value, Degree: newEdu[idx]?.Degree || "", Institute: newEdu[idx]?.Institute || "", Location: newEdu[idx]?.Location || "", StartYear: newEdu[idx]?.StartYear || "", EndYear: newEdu[idx]?.EndYear || "" };
+              setResumeData(prev => ({ ...prev, Education: newEdu }));
+            }} />
+          <input type="text" placeholder='Location' className='input w-full'
+            value={resumeData.Education[idx]?.Location || ""}
+            onChange={e => {
+              const newEdu = [...resumeData.Education];
+              newEdu[idx] = { ...newEdu[idx], Location: e.target.value, Degree: newEdu[idx]?.Degree || "", Institute: newEdu[idx]?.Institute || "", CGPA: newEdu[idx]?.CGPA || "", StartYear: newEdu[idx]?.StartYear || "", EndYear: newEdu[idx]?.EndYear || "" };
+              setResumeData(prev => ({ ...prev, Education: newEdu }));
+            }} />
+          <input type="text" placeholder='Start Year' className='input w-full'
+            value={resumeData.Education[idx]?.StartYear || ""}
+            onChange={e => {
+              const newEdu = [...resumeData.Education];
+              newEdu[idx] = { ...newEdu[idx], StartYear: e.target.value, Degree: newEdu[idx]?.Degree || "", Institute: newEdu[idx]?.Institute || "", CGPA: newEdu[idx]?.CGPA || "", Location: newEdu[idx]?.Location || "", EndYear: newEdu[idx]?.EndYear || "" };
+              setResumeData(prev => ({ ...prev, Education: newEdu }));
+            }} />
+          <input type="text" placeholder='End Year' className='input w-full'
+            value={resumeData.Education[idx]?.EndYear || ""}
+            onChange={e => {
+              const newEdu = [...resumeData.Education];
+              newEdu[idx] = { ...newEdu[idx], EndYear: e.target.value, Degree: newEdu[idx]?.Degree || "", Institute: newEdu[idx]?.Institute || "", CGPA: newEdu[idx]?.CGPA || "", Location: newEdu[idx]?.Location || "", StartYear: newEdu[idx]?.StartYear || "" };
+              setResumeData(prev => ({ ...prev, Education: newEdu }));
+            }} />
+        </div>
+      ))}
+      <button className='btn btn-dash w-full mt-2' onClick={() => {
+        setEntries([...entries, { Degree: "", Institute: "", CGPA: "", Location: "", StartYear: "", EndYear: "" }])
+        setResumeData(prev => ({ ...prev, Education: [...prev.Education, { Degree: "", Institute: "", CGPA: "", Location: "", StartYear: "", EndYear: "" }] }))
+      }}>Add Education</button>
+    </div>
+  )
+}
+
+// ---------------- SKILLS ----------------
+const SkillsInfo = ({ resumeData, setResumeData }) => {
+  const [techSkills, setTechSkills] = useState([""]);
+  const [softSkills, setSoftSkills] = useState([""]);
+  const [tools, setTools] = useState([""]);
+
+const handleArrayChange = (arrName, idx, value) => {
+  setResumeData(prev => {
+    const newArr = [...prev.Skills[arrName]];
+    newArr[idx] = value; // update the value at the correct index
+    return {
+      ...prev,
+      Skills: {
+        ...prev.Skills,
+        [arrName]: newArr
+      }
+    }
+  })
+};
+
+
+  return (
+    <div className='w-full space-y-3 mt-5'>
+      <div>
+        <label>Technical Skills</label>
+        {techSkills.map((_, idx) => (
+          <input
+            key={idx}
+            type="text"
+            className='input w-full mb-2'
+            placeholder={`Skill ${idx + 1}`}
+            value={resumeData.Skills.TechnicalSkills[idx] || ""}
+            onChange={e => handleArrayChange("TechnicalSkills", idx, e.target.value)}
+          />
+        ))}
+        <button
+          className='btn btn-dash w-full'
+          onClick={() => {
+            setTechSkills([...techSkills, ""]);
+            setResumeData(prev => ({
+              ...prev,
+              Skills: { ...prev.Skills, TechnicalSkills: [...prev.Skills.TechnicalSkills, ""] }
+            }));
+          }}
+        >Add Technical Skill</button>
+      </div>
+
+      <div>
+        <label>Soft Skills</label>
+        {softSkills.map((_, idx) => (
+          <input
+            key={idx}
+            type="text"
+            className='input w-full mb-2'
+            placeholder={`Soft Skill ${idx + 1}`}
+            value={resumeData.Skills.SoftSkills[idx] || ""}
+            onChange={e => handleArrayChange("SoftSkills", idx, e.target.value)}
+          />
+        ))}
+        <button
+          className='btn btn-dash w-full'
+          onClick={() => {
+            setSoftSkills([...softSkills, ""]);
+            setResumeData(prev => ({
+              ...prev,
+              Skills: { ...prev.Skills, SoftSkills: [...prev.Skills.SoftSkills, ""] }
+            }));
+          }}
+        >Add Soft Skill</button>
+      </div>
+
+      <div>
+        <label>Tools</label>
+        {tools.map((_, idx) => (
+          <input
+            key={idx}
+            type="text"
+            className='input w-full mb-2'
+            placeholder={`Tool ${idx + 1}`}
+            value={resumeData.Skills.Tools[idx] || ""}
+            onChange={e => handleArrayChange("Tools", idx, e.target.value)}
+          />
+        ))}
+        <button
+          className='btn btn-dash w-full'
+          onClick={() => {
+            setTools([...tools, ""]);
+            setResumeData(prev => ({
+              ...prev,
+              Skills: { ...prev.Skills, Tools: [...prev.Skills.Tools, ""] }
+            }));
+          }}
+        >Add Tool</button>
       </div>
     </div>
   );
 };
 
+// ---------------- EXPERIENCE ----------------
+const ExperienceInfo = ({ resumeData, setResumeData }) => {
+  const [entries, setEntries] = useState([{
+    JobTitle: "", Company: "", Position: "", StartDate: "", EndDate: ""
+  }])
+
+  return (
+    <div className='w-full space-y-3 mt-5'>
+      <h2 className='font-bold'>Experience</h2>
+      {entries.map((exp, idx) => (
+        <div key={idx} className='flex flex-col md:flex-row gap-3'>
+          <input type="text" placeholder='Job Title' className='input w-full'
+            value={resumeData.Experience[idx]?.JobTitle || ""}
+            onChange={e => {
+              const newExp = [...resumeData.Experience];
+              newExp[idx] = { ...newExp[idx], JobTitle: e.target.value, Company: newExp[idx]?.Company || "", Position: newExp[idx]?.Position || "", StartDate: newExp[idx]?.StartDate || "", EndDate: newExp[idx]?.EndDate || "" };
+              setResumeData(prev => ({ ...prev, Experience: newExp }))
+            }} />
+          <input type="text" placeholder='Company' className='input w-full'
+            value={resumeData.Experience[idx]?.Company || ""}
+            onChange={e => {
+              const newExp = [...resumeData.Experience];
+              newExp[idx] = { ...newExp[idx], Company: e.target.value, JobTitle: newExp[idx]?.JobTitle || "", Position: newExp[idx]?.Position || "", StartDate: newExp[idx]?.StartDate || "", EndDate: newExp[idx]?.EndDate || "" };
+              setResumeData(prev => ({ ...prev, Experience: newExp }))
+            }} />
+          <input type="text" placeholder='Position' className='input w-full'
+            value={resumeData.Experience[idx]?.Position || ""}
+            onChange={e => {
+              const newExp = [...resumeData.Experience];
+              newExp[idx] = { ...newExp[idx], Position: e.target.value, JobTitle: newExp[idx]?.JobTitle || "", Company: newExp[idx]?.Company || "", StartDate: newExp[idx]?.StartDate || "", EndDate: newExp[idx]?.EndDate || "" };
+              setResumeData(prev => ({ ...prev, Experience: newExp }))
+            }} />
+          <input type="text" placeholder='Start Date' className='input w-full'
+            value={resumeData.Experience[idx]?.StartDate || ""}
+            onChange={e => {
+              const newExp = [...resumeData.Experience];
+              newExp[idx] = { ...newExp[idx], StartDate: e.target.value, JobTitle: newExp[idx]?.JobTitle || "", Company: newExp[idx]?.Company || "", Position: newExp[idx]?.Position || "", EndDate: newExp[idx]?.EndDate || "" };
+              setResumeData(prev => ({ ...prev, Experience: newExp }))
+            }} />
+          <input type="text" placeholder='End Date' className='input w-full'
+            value={resumeData.Experience[idx]?.EndDate || ""}
+            onChange={e => {
+              const newExp = [...resumeData.Experience];
+              newExp[idx] = { ...newExp[idx], EndDate: e.target.value, JobTitle: newExp[idx]?.JobTitle || "", Company: newExp[idx]?.Company || "", Position: newExp[idx]?.Position || "", StartDate: newExp[idx]?.StartDate || "" };
+              setResumeData(prev => ({ ...prev, Experience: newExp }))
+            }} />
+        </div>
+      ))}
+      <button className='btn btn-dash w-full mt-2' onClick={() => {
+        setEntries([...entries, { JobTitle: "", Company: "", Position: "", StartDate: "", EndDate: "" }])
+        setResumeData(prev => ({ ...prev, Experience: [...prev.Experience, { JobTitle: "", Company: "", Position: "", StartDate: "", EndDate: "" }] }))
+      }}>Add Experience</button>
+    </div>
+  )
+}
