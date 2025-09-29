@@ -1,10 +1,12 @@
 "use client"
 import React, { useState } from 'react';
-import { Link as LinkIcon, MoveRight } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { Cross, Link as LinkIcon, MoveRight, X } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
+import { P } from 'framer-motion/dist/types.d-DsEeKk6G';
 
 type PersonalInfo = {
   FullName: string,
+  Objective: string,
   Designation: string,
   Email: string,
   PhoneNumber: string,
@@ -47,6 +49,7 @@ export default function ResumeBuild() {
   const [resumeData, setResumeData] = useState<ResumeData>({
     PersonalInfo: {
       FullName: "",
+      Objective: "",
       Designation: "",
       Email: "",
       PhoneNumber: "",
@@ -62,8 +65,13 @@ export default function ResumeBuild() {
     Experience: []
   })
 
+
+  const handleResumeSave = ()=>{
+    toast.success("Saved to device")
+  }
   return (
     <div className='w-full p-5'>
+      <Toaster />
       <div className='space-y-3 w-full text-center md:text-start'>
         <h1 className="font-bold text-5xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
           Craft Your Dream Resume
@@ -85,10 +93,7 @@ export default function ResumeBuild() {
             {currentStep === 1 && <EducationInfo resumeData={resumeData} setResumeData={setResumeData} />}
             {currentStep === 2 && <SkillsInfo resumeData={resumeData} setResumeData={setResumeData} />}
             {currentStep === 3 && <ExperienceInfo resumeData={resumeData} setResumeData={setResumeData} />}
-            {/* <EducationInfo resumeData={resumeData} setResumeData={setResumeData} />
-            <SkillsInfo resumeData={resumeData} setResumeData={setResumeData} />
-            <ExperienceInfo resumeData={resumeData} setResumeData={setResumeData} /> */}
-
+  
             <div className='w-full justify-end  flex mt-18 '>
                 {
                   currentStep < 3 &&
@@ -99,15 +104,40 @@ export default function ResumeBuild() {
                 {
                   currentStep === 3 &&
                   <button
-                onClick={()=> setCurrentStep(0)}
-                className='btn px-12 btn-sm btn-primary  lg:btn flex items-center justify-center gap-2'>Submit</button>
+                onClick={()=> handleResumeSave()}
+                className='btn px-12 btn-sm btn-primary  lg:btn flex items-center justify-center gap-2'>Save</button>
                 }
             </div>
           </div>
         </div>
-
+          {/* Preview Box to show resume live preview to user */}
         <div className='w-full min-h-96 bg-white rounded-md border-1  border-gray-300 p-4'>
               <h1 className='font-semibold text-xl text-center'>{resumeData.PersonalInfo.FullName}</h1>
+              <p className='text-md text-center text-gray-700'>{resumeData.PersonalInfo.Designation}</p>
+
+              <div className='w-full text-center  justify-center text-sm font-thin  flex gap-5 '>
+                  <p>{resumeData.PersonalInfo.Email}</p>
+                  <p>{resumeData.PersonalInfo.PhoneNumber}</p>
+                  <p>{resumeData.PersonalInfo.Location}</p>
+              </div>
+
+              <div className='w-full flex justify-center items-center gap-3 text-center text-sm text-blue-400 font-semibold'>
+                {
+                  resumeData.PersonalInfo.Links.map((link , idx)=> <a href={link.Link} target='_blank' >{link.Platform}</a> )
+                }
+              </div>
+
+              {
+                resumeData.PersonalInfo.Links.length > 0  ? <hr className='w-full mt-3 text-gray-500' /> : ""
+              }
+
+              {
+                resumeData.PersonalInfo.Objective && <p className='w-full p-1 bg-gray-200 border-0 border-none text-start'>Career Objective</p>
+              }
+              <p className='text-sm'>{resumeData.PersonalInfo.Objective}</p>
+              
+              
+
         </div>
       </div>
     </div>
@@ -154,6 +184,20 @@ const PersonalInformation = ({ resumeData, setResumeData }) => {
             setResumeData(prev => ({
               ...prev,
               PersonalInfo: { ...prev.PersonalInfo, Designation: e.target.value }
+            }))
+          } />
+      </div>
+
+
+      <div className='w-full flex flex-col'>
+        <label>Career Objective</label>
+        <input type="text" className='textarea w-full'
+          placeholder='Objective (max 100 characters)'
+          value={resumeData.PersonalInfo.Objective}
+          onChange={(e) =>
+            setResumeData(prev => ({
+              ...prev,
+              PersonalInfo: { ...prev.PersonalInfo, Objective: e.target.value }
             }))
           } />
       </div>
@@ -206,7 +250,7 @@ const PersonalInformation = ({ resumeData, setResumeData }) => {
               PersonalInfo: { ...prev.PersonalInfo, Links: [...prev.PersonalInfo.Links, { Platform: "", Link: "" }] }
             }))
           }}
-        ><LinkIcon size={15} /> Add Link</button>
+        ><LinkIcon size={15} /> Add Another Link</button>
       </div>
     </div>
   )
@@ -220,9 +264,9 @@ const EducationInfo = ({ resumeData, setResumeData }) => {
 
   return (
     <div className='w-full space-y-3 mt-5'>
-      <h2 className='font-bold'>Education</h2>
       {entries.map((edu, idx) => (
-        <div key={idx} className='flex flex-col md:flex-row gap-3'>
+        <div key={idx} className='flex flex-col space-y-3'>
+          <h2 className='font-bold'>Education {idx}</h2>
           <input type="text" placeholder='Degree' className='input w-full'
             value={resumeData.Education[idx]?.Degree || ""}
             onChange={e => {
@@ -237,7 +281,7 @@ const EducationInfo = ({ resumeData, setResumeData }) => {
               newEdu[idx] = { ...newEdu[idx], Institute: e.target.value, Degree: newEdu[idx]?.Degree || "", CGPA: newEdu[idx]?.CGPA || "", Location: newEdu[idx]?.Location || "", StartYear: newEdu[idx]?.StartYear || "", EndYear: newEdu[idx]?.EndYear || "" };
               setResumeData(prev => ({ ...prev, Education: newEdu }));
             }} />
-          <input type="text" placeholder='CGPA' className='input w-full'
+          <input type="number" placeholder='CGPA' className='input w-full'
             value={resumeData.Education[idx]?.CGPA || ""}
             onChange={e => {
               const newEdu = [...resumeData.Education];
@@ -251,20 +295,22 @@ const EducationInfo = ({ resumeData, setResumeData }) => {
               newEdu[idx] = { ...newEdu[idx], Location: e.target.value, Degree: newEdu[idx]?.Degree || "", Institute: newEdu[idx]?.Institute || "", CGPA: newEdu[idx]?.CGPA || "", StartYear: newEdu[idx]?.StartYear || "", EndYear: newEdu[idx]?.EndYear || "" };
               setResumeData(prev => ({ ...prev, Education: newEdu }));
             }} />
-          <input type="text" placeholder='Start Year' className='input w-full'
+            <div className='w-full flex flex-col md:flex-row space-y-3 md:gap-3'>
+            <input type="date" placeholder='Start Year' className='input w-full'
             value={resumeData.Education[idx]?.StartYear || ""}
             onChange={e => {
               const newEdu = [...resumeData.Education];
               newEdu[idx] = { ...newEdu[idx], StartYear: e.target.value, Degree: newEdu[idx]?.Degree || "", Institute: newEdu[idx]?.Institute || "", CGPA: newEdu[idx]?.CGPA || "", Location: newEdu[idx]?.Location || "", EndYear: newEdu[idx]?.EndYear || "" };
               setResumeData(prev => ({ ...prev, Education: newEdu }));
             }} />
-          <input type="text" placeholder='End Year' className='input w-full'
+          <input type="date" placeholder='End Year' className='input w-full'
             value={resumeData.Education[idx]?.EndYear || ""}
             onChange={e => {
               const newEdu = [...resumeData.Education];
               newEdu[idx] = { ...newEdu[idx], EndYear: e.target.value, Degree: newEdu[idx]?.Degree || "", Institute: newEdu[idx]?.Institute || "", CGPA: newEdu[idx]?.CGPA || "", Location: newEdu[idx]?.Location || "", StartYear: newEdu[idx]?.StartYear || "" };
               setResumeData(prev => ({ ...prev, Education: newEdu }));
             }} />
+            </div>
         </div>
       ))}
       <button className='btn btn-dash w-full mt-2' onClick={() => {
@@ -301,6 +347,7 @@ const handleArrayChange = (arrName, idx, value) => {
       <div>
         <label>Technical Skills</label>
         {techSkills.map((_, idx) => (
+          <div className='w-full ' key={idx}>
           <input
             key={idx}
             type="text"
@@ -309,6 +356,8 @@ const handleArrayChange = (arrName, idx, value) => {
             value={resumeData.Skills.TechnicalSkills[idx] || ""}
             onChange={e => handleArrayChange("TechnicalSkills", idx, e.target.value)}
           />
+          {/* <p onClick={()=> setTechSkills( prev =>  prev.filter( (_, index)=> index!=idx ) ) } className='text-end link link-hover text-sm flex justify-end'>Clear <X size={16} strokeWidth={0.75} absoluteStrokeWidth /> </p> */}
+          </div>
         ))}
         <button
           className='btn btn-dash w-full'
@@ -383,7 +432,7 @@ const ExperienceInfo = ({ resumeData, setResumeData }) => {
     <div className='w-full space-y-3 mt-5'>
       <h2 className='font-bold'>Experience</h2>
       {entries.map((exp, idx) => (
-        <div key={idx} className='flex flex-col md:flex-row gap-3'>
+        <div key={idx} className='flex flex-col space-y-3'>
           <input type="text" placeholder='Job Title' className='input w-full'
             value={resumeData.Experience[idx]?.JobTitle || ""}
             onChange={e => {
@@ -405,20 +454,22 @@ const ExperienceInfo = ({ resumeData, setResumeData }) => {
               newExp[idx] = { ...newExp[idx], Position: e.target.value, JobTitle: newExp[idx]?.JobTitle || "", Company: newExp[idx]?.Company || "", StartDate: newExp[idx]?.StartDate || "", EndDate: newExp[idx]?.EndDate || "" };
               setResumeData(prev => ({ ...prev, Experience: newExp }))
             }} />
-          <input type="text" placeholder='Start Date' className='input w-full'
+          <div className='w-full flex flex-col md:flex-row space-y-3 md:gap-3'>
+            <input type="date" placeholder='Start Date' className='input w-full'
             value={resumeData.Experience[idx]?.StartDate || ""}
             onChange={e => {
               const newExp = [...resumeData.Experience];
               newExp[idx] = { ...newExp[idx], StartDate: e.target.value, JobTitle: newExp[idx]?.JobTitle || "", Company: newExp[idx]?.Company || "", Position: newExp[idx]?.Position || "", EndDate: newExp[idx]?.EndDate || "" };
               setResumeData(prev => ({ ...prev, Experience: newExp }))
             }} />
-          <input type="text" placeholder='End Date' className='input w-full'
+          <input type="date" placeholder='End Date' className='input w-full'
             value={resumeData.Experience[idx]?.EndDate || ""}
             onChange={e => {
               const newExp = [...resumeData.Experience];
               newExp[idx] = { ...newExp[idx], EndDate: e.target.value, JobTitle: newExp[idx]?.JobTitle || "", Company: newExp[idx]?.Company || "", Position: newExp[idx]?.Position || "", StartDate: newExp[idx]?.StartDate || "" };
               setResumeData(prev => ({ ...prev, Experience: newExp }))
             }} />
+          </div>
         </div>
       ))}
       <button className='btn btn-dash w-full mt-2' onClick={() => {
