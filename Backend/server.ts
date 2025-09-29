@@ -5,14 +5,23 @@ import cors from "cors";
 
 
 import connectDB from "./config/db";
+import { generateCoverLetter } from "./cover-letter-ai/route";
+import bodyParser from "body-parser";
+
 
 connectDB();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.json());
 
-// server.ts (after app.use(express.json());)
+// routes
+
+app.post("/generate-cover-letter", generateCoverLetter);
+
+
+
 app.get("/", (req, res) => {
   res.send("Backend is running! Welcome to Rezoom AI API.");
 });

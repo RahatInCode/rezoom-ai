@@ -9,6 +9,8 @@ import { Card, CardContent } from "../../Components/ui/Card";
 
 
 export default function CoverLetterGenerator() {
+  const [copied, setCopied] = useState(false);
+
   const [form, setForm] = useState({
     jobTitle: "",
     companyName: "",
@@ -29,7 +31,7 @@ export default function CoverLetterGenerator() {
     setResult("");
 
     try {
-      const res = await fetch("/api/generate-cover-letter", {
+      const res = await fetch("http://localhost:5000/generate-cover-letter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -102,23 +104,43 @@ export default function CoverLetterGenerator() {
         </Card>
       </motion.form>
 
-      {result && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mt-8 max-w-2xl mx-auto"
-        >
-          <Card className="p-5 bg-gray-50 shadow-md rounded-2xl">
-            <h2 className="text-lg font-semibold mb-3 text-indigo-600">
-              Your Generated Cover Letter:
-            </h2>
-            <CardContent className="whitespace-pre-wrap text-gray-700">
-              {result}
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
+   {result && (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6 }}
+    className="mt-8 max-w-2xl mx-auto"
+  >
+    <Card className="p-5 bg-gray-50 shadow-md rounded-2xl">
+      <h2 className="text-lg font-semibold mb-3 text-indigo-600">
+        Your Generated Cover Letter:
+      </h2>
+      <CardContent className="whitespace-pre-wrap text-gray-700 relative">
+        {result}
+      </CardContent>
+
+         {/* Copy Button */}
+       
+<Button
+  onClick={() => {
+    navigator.clipboard.writeText(result).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // reset after 2s
+    });
+  }}
+  className={`mt-5 py-2 px-4 rounded-lg transition-colors ${
+    copied
+      ? "bg-green-500 hover:bg-green-600"
+      : "bg-indigo-500 hover:bg-indigo-600"
+  } text-white`}
+>
+  {copied ? "Copied!" : "Copy to Clipboard"}
+</Button>
+    </Card>
+    
+  </motion.div>
+)}
+
     </div>
   );
 }
