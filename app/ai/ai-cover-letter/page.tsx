@@ -45,24 +45,17 @@ export default function CoverLetterGenerator() {
   };
 
   return (
-    <div className="py-10 px-4 md:px-10">
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-4xl font-bold text-center bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent"
-      >
-        AI Cover Letter Generator
-      </motion.h1>
+    <div className="px-4 md:px-10">
+      
 
       <motion.form
         onSubmit={handleSubmit}
-        className="mt-8 grid gap-4 max-w-2xl mx-auto"
+        className=" grid gap-4 max-w-2xl mx-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.7 }}
       >
-        <Card className="p-5 space-y-4 shadow-lg rounded-2xl">
+        <Card className="p-8 space-y-4 shadow-lg rounded-2xl">
           <Input
             name="jobTitle"
             placeholder="Job Title (e.g., Software Engineer)"
