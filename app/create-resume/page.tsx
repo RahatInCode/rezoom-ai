@@ -1,9 +1,7 @@
 "use client"
 import React, { useState } from 'react';
-import { Cross, Link as LinkIcon, MoveRight, X } from 'lucide-react';
+import {  Link as LinkIcon, MoveRight } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
-import { P } from 'framer-motion/dist/types.d-DsEeKk6G';
-
 type PersonalInfo = {
   FullName: string,
   Objective: string,
@@ -123,7 +121,7 @@ export default function ResumeBuild() {
 
               <div className='w-full flex justify-center items-center gap-3 text-center text-sm text-blue-400 font-semibold'>
                 {
-                  resumeData.PersonalInfo.Links.map((link , idx)=> <a href={link.Link} target='_blank' >{link.Platform}</a> )
+                  resumeData.PersonalInfo.Links.map((link , idx)=> <a key={idx} href={link.Link} target='_blank' >{link.Platform}</a> )
                 }
               </div>
 
