@@ -1,13 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useState, ChangeEvent } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-
 import Swal from "sweetalert2";
 import { useRootContext } from "../../context/createContext";
-
 
 export default function SignIn() {
   const [open, setOpen] = useState(false);
@@ -20,127 +19,150 @@ export default function SignIn() {
     e.preventDefault();
     try {
       await login(email, password);
-      // setMessage("✅ Logged in successfully!");
       Swal.fire({
         position: "top-end",
         title: "✅ Logged in successfully!",
         showConfirmButton: false,
-        timer: 1500
+        timer: 1500,
       });
     } catch (err) {
-      if (err instanceof Error) {
-        setMessage(`❌ ${err.message}`);
-      } else {
-        setMessage("❌ Something went wrong.");
-      }
+      setMessage(
+        err instanceof Error ? `❌ ${err.message}` : "❌ Something went wrong."
+      );
     }
   };
 
   const handleForgetPassword = async () => {
     if (!email) {
-      // setMessage("⚠️ Enter your email first to reset password.");
       Swal.fire({
         position: "top-end",
         title: "⚠️ Enter your email first to reset password.",
         showConfirmButton: false,
-        timer: 1500
+        timer: 1500,
       });
       return;
     }
     try {
       await resetPassword(email);
-      // setMessage("📩 Password reset email sent!");
       Swal.fire({
         position: "top-end",
         title: "📩 Password reset email sent!",
         showConfirmButton: false,
-        timer: 1500
+        timer: 1500,
       });
     } catch (err) {
-      if (err instanceof Error) {
-        setMessage(`❌ ${err.message}`);
-      } else {
-        setMessage("❌ Something went wrong.");
-      }
+      setMessage(
+        err instanceof Error ? `❌ ${err.message}` : "❌ Something went wrong."
+      );
     }
   };
 
   return (
-    <div className="text-black w-[50%] space-y-12 p-8 m-auto mt-8">
-      <div>
-        <h1 className="text-3xl font-bold">Welcome,</h1>
-        <p className="font-bold text-gray-400">Sign in to continue!</p>
-      </div>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex w-full max-w-6xl flex-col md:flex-row rounded-lg shadow-md overflow-hidden bg-white">
+        {/* Left Image + Title */}
+        <div className="relative hidden md:flex md:w-1/2">
+          <Image
+            src="/login-bg.jpg"
+            alt="Login background"
+            fill
+            className="object-cover"
+          />
+          <h1 className="absolute inset-0 flex items-center justify-center text-5xl font-extrabold text-white drop-shadow-lg">
+            Login
+          </h1>
+        </div>
 
-      <div className="space-y-3">
-        <form onSubmit={handleSubmit} className="space-y-3">
-
-
-          <div className="form relative">
-            <input
-              type="email"
-              value={email}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
-              }
-              className="textbox w-full"
-              placeholder=""
-              required
-            />
-            <label className="label-box text-gray-400">Email</label>
+        {/* Right Form */}
+        <div className="flex w-full md:w-1/2 flex-col justify-center p-8 sm:p-12 space-y-8">
+          <div className="space-y-2 text-center md:text-left">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+              Welcome Back
+            </h2>
+            <p className="text-gray-600">
+              Sign in to access your AI-powered resume builder and manage your saved resumes.
+            </p>
           </div>
 
-          <div className="form relative">
-            <input
-              type={open ? "text" : "password"}
-              value={password}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setPassword(e.target.value)
-              }
-              placeholder=""
-              className="textbox w-full"
-              required
-            />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email */}
+            <label className="flex items-center gap-2 rounded-md border px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-500">
+              <input
+                type="email"
+                value={email}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setEmail(e.target.value)
+                }
+                placeholder="mail@site.com"
+                className="w-full outline-none"
+                required
+              />
+            </label>
+
+            {/* Password */}
+            <div className="relative flex items-center gap-2 rounded-md border px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-500">
+              <input
+                type={open ? "text" : "password"}
+                value={password}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setPassword(e.target.value)
+                }
+                placeholder="Password"
+                className="w-full outline-none"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setOpen(!open)}
+                className="absolute right-3 text-gray-500 hover:text-gray-700"
+              >
+                {open ? <FaEye /> : <FaEyeSlash />}
+              </button>
+            </div>
+
+            {/* Forgot Password */}
             <button
-              type="button" // ✅ prevent accidental form submit
-              onClick={() => setOpen(!open)}
-              className="btn btn-xs absolute top-4 right-5"
+              type="button"
+              onClick={handleForgetPassword}
+              className="w-full text-right text-sm text-indigo-600 hover:underline"
             >
-              {open ? <FaEye /> : <FaEyeSlash />}
+              Forgot Password?
             </button>
-            <label className="label-box text-gray-400">Password</label>
-          </div>
 
+            {message && (
+              <p className="text-sm text-red-500 text-center">{message}</p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 py-2 text-white font-semibold transition hover:opacity-90"
+            >
+              Log In
+            </button>
+          </form>
+
+          {/* Google Sign-In */}
           <button
             type="button"
-            onClick={handleForgetPassword}
-            className="w-full flex justify-end text-sm text-blue-600 mt-3 hover:underline"
+            onClick={googleLogin}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 py-2 text-gray-700 hover:bg-gray-100 transition"
           >
-            Forgot Password?
+            <FcGoogle size={20} />
+            Continue with Google
           </button>
-          {message && <p className="text-sm text-red-500">{message}</p>}
-          {/* ✅ Move login button INSIDE the form */}
-          <button
-            type="submit"
-            className="transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-2 rounded-2xl w-full text-white font-bold"
-          >
-            Log in
-          </button>
-        </form>
 
-        <div className="flex flex-col gap-2">
-          <button onClick={googleLogin} className="flex justify-center items-center gap-2 border p-2 rounded-xl hover:bg-gray-100">
-            <FcGoogle size={20} /> Continue with Google
-          </button>
+          {/* Register Link */}
+          <p className="text-center text-gray-600">
+            New user?{" "}
+            <Link
+              href="/createAccount/signUp"
+              className="font-semibold text-indigo-600 hover:underline"
+            >
+              Register
+            </Link>
+          </p>
         </div>
       </div>
-
-      <p className="text-center font-bold text-gray-400">
-        I am a new user{" "}
-        <Link href={"/createAccount/signUp"}>
-          <span className="text-orange-500">Register</span>
-        </Link>
-      </p>
     </div>
   );
 }
