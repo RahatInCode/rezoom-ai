@@ -65,7 +65,7 @@ export default function PricingSection() {
             >
               <h3
                 className={`text-xl font-semibold mb-2 ${
-                  plan.highlight ? "text-blue-600" : ""
+                  plan.highlight ? "text-gray-600" : ""
                 }`}
               >
                 {plan.name}
@@ -80,7 +80,7 @@ export default function PricingSection() {
               <button
                 className={`mt-6 w-full py-2 rounded-lg ${
                   plan.highlight
-                    ? "bg-blue-600 text-white"
+                    ? "bg-orange-600 text-white"
                     : "bg-gray-200 text-gray-800"
                 }`}
               >
