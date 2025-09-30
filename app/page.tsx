@@ -7,6 +7,7 @@ import ResumeShowcase from "./Components/ResumeShowcase/ResumeShowcase";
 import ReviewSection from "./Components/ReviewSection/ReviewSection";
 import HeroMediaSection from "./Components/HeroMediaSection/HeroMediaSection";
 import FAQ from "./Components/FAQ/FAQ";
+import PricingSection from "./pricing-section/PricingSection";
 
 
 export default function Home() {
@@ -20,6 +21,7 @@ export default function Home() {
       <ResumeShowcase />
       <ReviewSection />
       <HeroMediaSection />
+      <PricingSection />
       <FAQ />
     </main>
   );
