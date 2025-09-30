@@ -7,6 +7,7 @@ import cors from "cors";
 import connectDB from "./config/db";
 import { generateCoverLetter } from "./cover-letter-ai/route";
 import bodyParser from "body-parser";
+import { generateLinkedInSummary } from "./linkedIn-summery-ai/route";
 
 
 connectDB();
@@ -19,6 +20,7 @@ app.use(bodyParser.json());
 // routes
 
 app.post("/generate-cover-letter", generateCoverLetter);
+app.post("/generate-linkedin-summary", generateLinkedInSummary)
 
 
 
