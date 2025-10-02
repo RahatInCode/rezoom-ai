@@ -184,7 +184,7 @@ export default function ResumeBuild() {
               <ul className=''>
                   {
                 resumeData?.Skills.TechnicalSkills.map((techSkill , index)=> 
-                <li className='text-xs'>
+                <li className='text-xs' key={index}>
                   {techSkill}
                 </li>
                 )
@@ -198,7 +198,7 @@ export default function ResumeBuild() {
               <ul className=''>
                   {
                 resumeData?.Skills.SoftSkills.map((softSkill , index)=> 
-                <li className='text-xs'>
+                <li className='text-xs' key={index}>
                   {softSkill}
                 </li>
                 )
@@ -212,7 +212,7 @@ export default function ResumeBuild() {
               <ul className=''>
                   {
                 resumeData?.Skills.Tools.map((tool , index)=> 
-                <li className='text-xs'>
+                <li className='text-xs' key={index}>
                   {tool}
                 </li>
                 )
