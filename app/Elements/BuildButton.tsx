@@ -31,7 +31,9 @@ if (buttonName === "ResumeBuild"){
     // Main container to center the button on the page
     <div className="flex items-center justify-center font-sans">
       <style>{customCss}</style>
-      <button className="relative inline-flex text-sm items-center justify-center p-[1.5px] bg-gray-300 dark:bg-black rounded-full overflow-hidden group">
+      <Link
+      href={'/create-resume'}
+      className="relative inline-flex text-sm items-center justify-center p-[1.5px] bg-gray-300 dark:bg-black rounded-full overflow-hidden group">
         <div 
           className="absolute inset-0"
           style={{
@@ -42,7 +44,7 @@ if (buttonName === "ResumeBuild"){
         <span className="relative  inline-flex items-cente justify-cente w-full  px-6 py-2 text-gray-900 dark:text-white hover:text-white bg-white dark:bg-gray-900 rounded-full group-hover:bg-[radial-gradient(circle,#4f46e5,#544cd7,#5851c9,#5d57ba,#615dac,#66629e,#6a6890,#6f6d81,#737373)] dark:group-hover:bg-gray-800 transition-colors duration-300">
           Build Resume
         </span>
-      </button>
+      </Link>
     </div>
   );
 }
