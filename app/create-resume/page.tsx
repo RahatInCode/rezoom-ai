@@ -92,28 +92,34 @@ export default function ResumeBuild() {
             {currentStep === 2 && <SkillsInfo resumeData={resumeData} setResumeData={setResumeData} />}
             {currentStep === 3 && <ExperienceInfo resumeData={resumeData} setResumeData={setResumeData} />}
   
-            <div className='w-full justify-end  flex mt-18 '>
+            <div className={`w-full ${currentStep >=1 ? 'justify-between' : 'justify-end '}  flex mt-18 `}>
+              {
+                currentStep >= 1 && <button className='btn btn-sm lg:btn-md btn-outline' onClick={()=> setCurrentStep(currentStep -1)}>Previous</button>
+              }
                 {
                   currentStep < 3 &&
                   <button
                 onClick={()=>setCurrentStep(currentStep+1)}
-                className='btn px-12 btn-sm btn-primary text-white lg:btn flex items-center justify-center gap-2'>Next <MoveRight size={16} strokeWidth={0.75} /></button>
+                className='btn btn-primary px-12 btn-sm xl:btn-md '>Next <MoveRight size={16} strokeWidth={0.75} /></button>
                 }
                 {
                   currentStep === 3 &&
                   <button
                 onClick={()=> handleResumeSave()}
-                className='btn px-12 btn-sm btn-primary  lg:btn flex items-center justify-center gap-2'>Save</button>
+                className='btn px-12 btn-sm btn-primary  lg:btn-md'>Save</button>
                 }
             </div>
           </div>
         </div>
+        {/* ajke kaj holo jokhon onek gula text hoye jay seta jate new line e jay seta ensure kora and div er w jate na bare */}
           {/* Preview Box to show resume live preview to user */}
-        <div className='w-full min-h-96 bg-white rounded-md border-1  border-gray-300 p-4'>
+        <div id='ResumePreview' className='w-full min-h-96 whitespace-normal break-words bg-white rounded-md border-1  border-gray-300 p-5'>
+
+          {/* Showing Personal Information */}
               <h1 className='font-semibold text-xl text-center'>{resumeData.PersonalInfo.FullName}</h1>
               <p className='text-md text-center text-gray-700'>{resumeData.PersonalInfo.Designation}</p>
 
-              <div className='w-full text-center  justify-center text-sm font-thin  flex gap-5 '>
+              <div className='w-full text-center  justify-center text-sm font-thin  flex flex-wrap break-words whitespace-normal gap-5 '>
                   <p>{resumeData.PersonalInfo.Email}</p>
                   <p>{resumeData.PersonalInfo.PhoneNumber}</p>
                   <p>{resumeData.PersonalInfo.Location}</p>
@@ -132,11 +138,90 @@ export default function ResumeBuild() {
               {
                 resumeData.PersonalInfo.Objective && <p className='w-full p-1 bg-gray-200 border-0 border-none text-start'>Career Objective</p>
               }
-              <p className='text-sm'>{resumeData.PersonalInfo.Objective}</p>
-              
+              <p className='text-sm whitespace-normal break-words '>{resumeData.PersonalInfo.Objective}</p>
+
+
+              {/* Showing Education Information */}
+              {
+                currentStep >= 1 && <p className='w-full p-1 mt-3 bg-gray-200 border-0 border-none text-start'>Education</p>
+              }
+              {resumeData.Education.map((edu, idx) => (
+                <div key={idx} className="mt-2">
+                  <p className="font-bold">{edu.Degree}</p>
+                  <p className="text-sm text-gray-700">
+                    {edu.Institute} | CGPA: {edu.CGPA}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {edu.StartYear} - {edu.EndYear}, {edu.Location}
+                  </p>
+                </div>
+              ))}
+
+
+              {/* SHowing Experience Information */}
+                {
+                  currentStep >=3 && <p className='w-full p-1 mt-3 bg-gray-200 border-0 border-none text-start'>Experience</p>
+                }
+                {resumeData.Experience.map((exp, idx) => (
+                  <div key={idx} className="mt-2">
+                    <p className="font-bold">{exp.JobTitle} | {exp.Company}</p>
+                    <p className="text-sm text-gray-700">
+                      {exp.Position} | {exp.StartDate} - {exp.EndDate}
+                    </p>
+                  </div>
+                ))}
               
 
+
+                {/* Showing Skills Information */}
+              {
+               currentStep >=2 && <p className='w-full p-1 mt-3 bg-gray-200 border-0 border-none text-start'>Skills</p>
+              }
+              {/* Technical skills */}
+              {
+                resumeData?.Skills.TechnicalSkills[0] &&  <h1 className='font-semibold'>Technical Skills</h1>
+              }
+              <ul className=''>
+                  {
+                resumeData?.Skills.TechnicalSkills.map((techSkill , index)=> 
+                <li className='text-xs' key={index}>
+                  {techSkill}
+                </li>
+                )
+              }
+              </ul>
+
+              {/* Soft Skills */}
+              {
+                resumeData?.Skills.SoftSkills[0] &&  <h1 className='font-semibold'>Soft Skills</h1>
+              }
+              <ul className=''>
+                  {
+                resumeData?.Skills.SoftSkills.map((softSkill , index)=> 
+                <li className='text-xs' key={index}>
+                  {softSkill}
+                </li>
+                )
+              }
+              </ul>
+
+              {/* Tools and others Information */}
+               {
+                resumeData?.Skills.Tools[0] &&  <h1 className='font-semibold'>Tools & Others</h1>
+              }
+              <ul className=''>
+                  {
+                resumeData?.Skills.Tools.map((tool , index)=> 
+                <li className='text-xs' key={index}>
+                  {tool}
+                </li>
+                )
+              }
+              </ul>
+              
         </div>
+
+
       </div>
     </div>
   )
