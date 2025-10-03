@@ -7,7 +7,7 @@ import { Button } from "../../Components/ui/Button";
 export default function LinkedInSummaryGenerator() {
   const [form, setForm] = useState({
     name: "",
-    profession: "",
+    profession: "", 
     years: "",
     skills: "",
     achievements: "",
