@@ -44,7 +44,7 @@ const Page = () => {
               offer. With our customizable resume templates and expert content
               from Certified Professional Resume Writers (CPRW), you can easily
               create a polished resume and download it in your preferred format.
-              Whether you’re an experienced professional or just starting your
+              Whether you are an experienced professional or just starting your
               career, we have a template that suits your needs and helps you
               catch the attention of employers for better results.
             </p>

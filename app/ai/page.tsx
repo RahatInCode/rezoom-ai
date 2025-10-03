@@ -4,7 +4,7 @@ import CoverLetterGenerator from './ai-cover-letter/page';
 import LinkedInSummaryGenerator from './linkedIn-generator/page';
 import Lottie from 'lottie-react';
 import coverLetter from '../../public/lotties/cvLetter.json'
-import linkedInAi from '../../public/lotties/linkedIn ai.json'
+import linkedInAi from '../../public/lotties/linkedInAi.json'
 import { motion } from "framer-motion";
 
 const fadeInUp = {

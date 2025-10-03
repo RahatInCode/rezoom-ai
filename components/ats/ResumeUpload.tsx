@@ -82,7 +82,7 @@ export function ResumeUpload({ onFileUpload, isUploading, error }: ResumeUploadP
                 </motion.div>
               </div>
               <div>
-                <p className="text-lg font-semibold text-gray-700">Analyzing Resume...</p>
+                <p className="text-lg font-semibold text-gray-700">Analyzing Resume.....</p>
                 <p className="text-sm text-gray-500">
                   {acceptedFiles[0]?.name}
                 </p>
