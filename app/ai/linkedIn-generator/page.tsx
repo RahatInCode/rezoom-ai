@@ -1,8 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Button } from "../../Components/ui/Button";
-
 
 export default function LinkedInSummaryGenerator() {
   const [form, setForm] = useState({
@@ -15,7 +13,6 @@ export default function LinkedInSummaryGenerator() {
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
-  const [copied, setCopied] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -29,7 +26,7 @@ export default function LinkedInSummaryGenerator() {
     setResult("");
 
     try {
-      const res = await fetch("http://localhost:5000/generate-linkedin-summary", {
+      const res = await fetch("https://rezoom-ai-pi.vercel.app/generate-linkedin-summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -45,10 +42,12 @@ export default function LinkedInSummaryGenerator() {
   };
 
   return (
-    <div className="py-10 px-4 md:px-10">
+    <div className=" px-4 md:px-10">
+      
+
       <motion.form
         onSubmit={handleSubmit}
-        className="mt-8 grid border text-gray-900 gap-4 max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-6"
+        className=" grid  text-gray-900  gap-4 max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.7 }}
@@ -59,7 +58,7 @@ export default function LinkedInSummaryGenerator() {
           placeholder="Your Name"
           value={form.name}
           onChange={handleChange}
-          className="border p-3 rounded-lg w-full"
+          className="border p-3 rounded-lg  w-full"
           required
         />
         <input
@@ -125,24 +124,7 @@ export default function LinkedInSummaryGenerator() {
           <h2 className="text-lg font-semibold mb-3 text-blue-600">
             Your LinkedIn Summary:
           </h2>
-          <p className="whitespace-pre-wrap text-gray-700 mb-4">{result}</p>
-
-          {/* Copy Button */}
-          <Button
-            onClick={() => {
-              navigator.clipboard.writeText(result).then(() => {
-                setCopied(true);
-                setTimeout(() => setCopied(false), 5000);
-              });
-            }}
-            className={`w-full text-white rounded-lg py-2 ${
-              copied
-                ? "bg-green-500 hover:bg-green-600"
-                : "bg-gradient-to-r from-blue-500 via-teal-500 to-green-500"
-            }`}
-          >
-            {copied ? "Copied!" : "Copy to Clipboard"}
-          </Button>
+          <p className="whitespace-pre-wrap text-gray-700">{result}</p>
         </motion.div>
       )}
     </div>
