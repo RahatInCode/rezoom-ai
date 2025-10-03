@@ -74,7 +74,7 @@ export default function ResumeBuild() {
     modalBox?.show()
   };
 
-  const saveAsPdf = async(resumePaper:any) =>{
+  const saveAsPdf = async(resumePaper: HTMLDivElement | null) =>{
       try{
         const dataUrl = await htmlToImage.toPng(resumePaper)
         const pdf = new jsPDF('p', 'mm', 'a4')
@@ -97,7 +97,7 @@ export default function ResumeBuild() {
       }
   }
 
-  const saveAsDoc = async(resumepaper)=>{
+  const saveAsDoc = async(resumepaper : HTMLDivElement | null)=>{
     const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
     const resumePaper = document.getElementById('ResumePreview') as HTMLDivElement || null
     const contentBox = `
