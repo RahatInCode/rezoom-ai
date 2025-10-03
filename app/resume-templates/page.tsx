@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import TemplateCard from "../Components/ResumeTemplateCard/TemplateCard";
 import Image from "next/image";
-
+import Link from "next/link";
 type Template = {
   id: number;
   image: string;
@@ -44,14 +44,14 @@ const Page = () => {
               offer. With our customizable resume templates and expert content
               from Certified Professional Resume Writers (CPRW), you can easily
               create a polished resume and download it in your preferred format.
-              Whether you’re an experienced professional or just starting your
+              Whether you are an experienced professional or just starting your
               career, we have a template that suits your needs and helps you
               catch the attention of employers for better results.
             </p>
             <div className="w-full flex flex-col md:flex-row gap-2 md:gap-8">
-              <button className="btn lg:btn-lg btn-primary">
+              <Link href={"/create-resume"} className="btn lg:btn-lg btn-primary">
                 Build Your Resume Now
-              </button>
+              </Link>
               <button className="btn lg:btn-lg btn-primary btn-outline">
                 Import Resume
               </button>
@@ -64,6 +64,9 @@ const Page = () => {
         <h1 className="text-center text-2xl md:text-3xl lg:text-4xl text-accent font-extrabold">
           Professional Resume Templates to Edit and Download
         </h1>
+
+
+       
 
         <div className="w-full mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 justify-items-center gap-3">
           {templates.map((resume) => (
