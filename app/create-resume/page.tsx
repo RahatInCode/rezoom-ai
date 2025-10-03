@@ -70,8 +70,8 @@ export default function ResumeBuild() {
   })
 
   const handleModalOpen =  () => {
-    const modalBox:any = document.getElementById('modal')
-    modalBox.show()
+    const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
+    modalBox?.show()
   };
 
   const saveAsPdf = async(resumePaper:any) =>{
@@ -97,9 +97,9 @@ export default function ResumeBuild() {
       }
   }
 
-  const saveAsDoc = async(resumepaper:unknown)=>{
-    const modalBox:any = document.getElementById('modal')
-    const resumePaper:any = document.getElementById('ResumePreview')
+  const saveAsDoc = async(resumepaper)=>{
+    const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
+    const resumePaper = document.getElementById('ResumePreview') as HTMLDivElement || null
     const contentBox = `
     <html>
       <head><meta charset="utf-8"></head>
@@ -115,8 +115,7 @@ export default function ResumeBuild() {
   }
 
   const handleSaveResume = ()=>{
-    const modalBox:unknown = document.getElementById('modal')
-    const resumePaper:unknown = document.getElementById('ResumePreview')
+    const resumePaper = document.getElementById('ResumePreview') as HTMLDivElement || null
     if (!resumePaper) return toast.error('Something went wrong!')
     if(!selectiom) return toast.error('Select an option first.')
     
