@@ -69,65 +69,62 @@ export default function ResumeBuild() {
     Experience: []
   })
 
-  const handleModalOpen =  () => {
-    const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
-    modalBox?.show()
-  };
+const handleModalOpen = () => {
+  const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
+  modalBox?.show();
+};
 
-  const saveAsPdf = async(resumePaper: HTMLDivElement | null) =>{
-      try{
-        const dataUrl = await htmlToImage.toPng(resumePaper)
-        const pdf = new jsPDF('p', 'mm', 'a4')
-        const pdfWidth = pdf.internal.pageSize.getWidth()
-      const modalBox:any = document.getElementById('modal')
-    
-        const image = new Image()
-        image.src = dataUrl
+const saveAsPdf = async (resumePaper: HTMLDivElement) => {
+  try {
+    const dataUrl = await htmlToImage.toPng(resumePaper);
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
 
-        image.onload =()=>{
-          const pdfHeigth = (image.height * pdfWidth) / image.width
-          pdf.addImage(image , "PNG", 0 , 0 , pdfWidth , pdfHeigth)
-          pdf.save("Resume.pdf")
-          toast.success("Saved!")
-          modalBox.close()
-        }
-      }catch(err){
-          console.log(err)
-          toast.error('Failed to save pdf!')
-      }
+    const image = new Image();
+    image.src = dataUrl;
+
+    image.onload = () => {
+      const pdfHeight = (image.height * pdfWidth) / image.width;
+      pdf.addImage(image, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('Resume.pdf');
+      toast.success('Saved!');
+      const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
+      modalBox?.close();
+    };
+  } catch (err) {
+    console.error(err);
+    toast.error('Failed to save PDF!');
   }
+};
 
-  const saveAsDoc = async(resumepaper : HTMLDivElement | null)=>{
-    const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
-    const resumePaper = document.getElementById('ResumePreview') as HTMLDivElement || null
-    const contentBox = `
+const saveAsDoc = async () => {
+  const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
+  const resumePaper = document.getElementById('ResumePreview') as HTMLDivElement | null;
+  if (!resumePaper) return toast.error('Something went wrong!');
+
+  const contentBox = `
     <html>
       <head><meta charset="utf-8"></head>
       <body>
         ${resumePaper.innerHTML}
       </body>
     </html>
-    `
-    const docs = htmlDocx.asBlob(contentBox)
-    saveAs(docs, "Resume.docx")
-    toast.success('Saved!')
-    modalBox.close()
-  }
+  `;
 
-  const handleSaveResume = ()=>{
-    const resumePaper = document.getElementById('ResumePreview') as HTMLDivElement || null
-    if (!resumePaper) return toast.error('Something went wrong!')
-    if(!selectiom) return toast.error('Select an option first.')
-    
-      if (selectiom === 'pdf'){
-        saveAsPdf(resumePaper)
-        return
-      }
-      if (selectiom === 'doc'){
-        saveAsDoc(resumePaper)
-        return
-      }
-  }
+  const docs = htmlDocx.asBlob(contentBox);
+  saveAs(docs, 'Resume.docx');
+  toast.success('Saved!');
+  modalBox?.close();
+};
+
+const handleSaveResume = () => {
+  if (!selectiom) return toast.error('Select an option first.');
+  const resumePaper = document.getElementById('ResumePreview') as HTMLDivElement | null;
+  if (!resumePaper) return toast.error('Something went wrong!');
+
+  if (selectiom === 'pdf') return saveAsPdf(resumePaper);
+  if (selectiom === 'doc') return saveAsDoc();
+};
 
 
   return (
