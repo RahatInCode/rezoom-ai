@@ -29,7 +29,7 @@ export default function CoverLetterGenerator() {
     setResult("");
 
     try {
-      const res = await fetch("/api/generate-cover-letter", {
+      const res = await fetch("https://rezoom-ai-pi.vercel.app/generate-cover-letter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
