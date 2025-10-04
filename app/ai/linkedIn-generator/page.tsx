@@ -15,7 +15,6 @@ export default function LinkedInSummaryGenerator() {
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
-  const [copied, setCopied] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -29,7 +28,7 @@ export default function LinkedInSummaryGenerator() {
     setResult("");
 
     try {
-      const res = await fetch("http://localhost:5000/generate-linkedin-summary", {
+      const res = await fetch("https://rezoom-ai-pi.vercel.app/generate-linkedin-summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -45,10 +44,12 @@ export default function LinkedInSummaryGenerator() {
   };
 
   return (
-    <div className="py-10 px-4 md:px-10">
+    <div className=" px-4 md:px-10">
+      
+
       <motion.form
         onSubmit={handleSubmit}
-        className="mt-8 grid border text-gray-900 gap-4 max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-6"
+        className=" grid  text-gray-900  gap-4 max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.7 }}
