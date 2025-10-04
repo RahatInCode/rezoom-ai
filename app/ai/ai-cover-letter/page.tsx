@@ -31,11 +31,16 @@ export default function CoverLetterGenerator() {
     setResult("");
 
     try {
-      const res = await fetch("https://rezoom-ai-pi.vercel.app/generate-cover-letter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+     const res = await fetch("/api/generate-cover-letter", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(form),
+});
+
+
+
+console.log(process.env.PUBLIC_URL);
+
 
       const data = await res.json();
       setResult(data.coverLetter || "Error: No response from AI");

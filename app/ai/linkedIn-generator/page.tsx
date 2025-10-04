@@ -29,7 +29,7 @@ export default function LinkedInSummaryGenerator() {
     setResult("");
 
     try {
-      const res = await fetch("https://rezoom-ai-pi.vercel.app/generate-linkedin-summary", {
+      const res = await fetch("api/generate-linkedin-summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
