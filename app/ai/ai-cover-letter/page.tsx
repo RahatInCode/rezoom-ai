@@ -9,8 +9,6 @@ import { Card, CardContent } from "../../Components/ui/Card";
 
 
 export default function CoverLetterGenerator() {
-  const [copied, setCopied] = useState(false);
-
   const [form, setForm] = useState({
     jobTitle: "",
     companyName: "",
@@ -31,16 +29,11 @@ export default function CoverLetterGenerator() {
     setResult("");
 
     try {
-     const res = await fetch("/api/generate-cover-letter", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(form),
-});
-
-
-
-console.log(process.env.PUBLIC_URL);
-
+      const res = await fetch("https://rezoom-ai-pi.vercel.app/generate-cover-letter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
       const data = await res.json();
       setResult(data.coverLetter || "Error: No response from AI");
