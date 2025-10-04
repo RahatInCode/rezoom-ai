@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Button } from "../../Components/ui/Button";
+
 
 export default function LinkedInSummaryGenerator() {
   const [form, setForm] = useState({
@@ -58,7 +60,7 @@ export default function LinkedInSummaryGenerator() {
           placeholder="Your Name"
           value={form.name}
           onChange={handleChange}
-          className="border p-3 rounded-lg  w-full"
+          className="border p-3 rounded-lg w-full"
           required
         />
         <input
@@ -124,7 +126,24 @@ export default function LinkedInSummaryGenerator() {
           <h2 className="text-lg font-semibold mb-3 text-blue-600">
             Your LinkedIn Summary:
           </h2>
-          <p className="whitespace-pre-wrap text-gray-700">{result}</p>
+          <p className="whitespace-pre-wrap text-gray-700 mb-4">{result}</p>
+
+          {/* Copy Button */}
+          <Button
+            onClick={() => {
+              navigator.clipboard.writeText(result).then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 5000);
+              });
+            }}
+            className={`w-full text-white rounded-lg py-2 ${
+              copied
+                ? "bg-green-500 hover:bg-green-600"
+                : "bg-gradient-to-r from-blue-500 via-teal-500 to-green-500"
+            }`}
+          >
+            {copied ? "Copied!" : "Copy to Clipboard"}
+          </Button>
         </motion.div>
       )}
     </div>
