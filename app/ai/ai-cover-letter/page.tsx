@@ -9,8 +9,6 @@ import { Card, CardContent } from "../../Components/ui/Card";
 
 
 export default function CoverLetterGenerator() {
-  const [copied, setCopied] = useState(false);
-
   const [form, setForm] = useState({
     jobTitle: "",
     companyName: "",
@@ -31,7 +29,7 @@ export default function CoverLetterGenerator() {
     setResult("");
 
     try {
-      const res = await fetch("http://localhost:5000/generate-cover-letter", {
+      const res = await fetch("https://rezoom-ai-pi.vercel.app/generate-cover-letter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -125,13 +123,13 @@ export default function CoverLetterGenerator() {
   onClick={() => {
     navigator.clipboard.writeText(result).then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // reset after 2s
+      setTimeout(() => setCopied(false), 5000); 
     });
   }}
-  className={`mt-5 py-2 px-4 rounded-lg transition-colors ${
+  className={`w-full text-white rounded-lg py-2 ${
     copied
       ? "bg-green-500 hover:bg-green-600"
-      : "bg-indigo-500 hover:bg-indigo-600"
+      : " bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500"
   } text-white`}
 >
   {copied ? "Copied!" : "Copy to Clipboard"}

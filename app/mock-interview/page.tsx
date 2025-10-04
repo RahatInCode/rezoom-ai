@@ -1,4 +1,5 @@
 "use client";
+// setting up vapi for ai voice
 import React, { useState } from 'react';
 import { 
   PlayCircle, 
@@ -361,7 +362,7 @@ function solution() {
                 <h3 className="text-xl font-bold mb-2">{interview.title}</h3>
                 <p className="text-gray-400 mb-4">{interview.description}</p>
                 <button className="w-full py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-colors">
-                  Take Interview
+                  Take Interview x
                 </button>
               </div>
             ))}

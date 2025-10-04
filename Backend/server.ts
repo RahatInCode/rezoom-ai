@@ -5,7 +5,7 @@ import cors from "cors";
 
 
 import connectDB from "./config/db";
-import { generateCoverLetter } from "./cover-letter-ai/route";
+
 import bodyParser from "body-parser";
 
 
@@ -16,9 +16,7 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
-// routes
 
-app.post("/generate-cover-letter", generateCoverLetter);
 
 
 
