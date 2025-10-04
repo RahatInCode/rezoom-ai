@@ -2,6 +2,10 @@
 import React, { useState } from 'react';
 import {  Link as LinkIcon, MoveRight } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import * as htmlToImage from "html-to-image";
+import jsPDF from 'jspdf';
+import { saveAs } from "file-saver";
+import htmlDocx from "html-docx-js/dist/html-docx";
 type PersonalInfo = {
   FullName: string,
   Objective: string,
@@ -44,6 +48,8 @@ type ResumeData = {
 
 export default function ResumeBuild() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [pdf_count , setPDFCount] = useState(0);
+  const [selectiom , setSelection] = useState('')
   const [resumeData, setResumeData] = useState<ResumeData>({
     PersonalInfo: {
       FullName: "",
@@ -63,14 +69,97 @@ export default function ResumeBuild() {
     Experience: []
   })
 
+const handleModalOpen = () => {
+  const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
+  modalBox?.show();
+};
 
-  const handleResumeSave = ()=>{
-    toast.success("Saved to device")
+const saveAsPdf = async (resumePaper: HTMLDivElement) => {
+  try {
+    const dataUrl = await htmlToImage.toPng(resumePaper);
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+
+    const image = new Image();
+    image.src = dataUrl;
+
+    image.onload = () => {
+      const pdfHeight = (image.height * pdfWidth) / image.width;
+      pdf.addImage(image, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('Resume.pdf');
+      toast.success('Saved!');
+      const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
+      modalBox?.close();
+    };
+  } catch (err) {
+    console.error(err);
+    toast.error('Failed to save PDF!');
   }
+};
+
+const saveAsDoc = async () => {
+  const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
+  const resumePaper = document.getElementById('ResumePreview') as HTMLDivElement | null;
+  if (!resumePaper) return toast.error('Something went wrong!');
+
+  const contentBox = `
+    <html>
+      <head><meta charset="utf-8"></head>
+      <body>
+        ${resumePaper.innerHTML}
+      </body>
+    </html>
+  `;
+
+  const docs = htmlDocx.asBlob(contentBox);
+  saveAs(docs, 'Resume.docx');
+  toast.success('Saved!');
+  modalBox?.close();
+};
+
+const handleSaveResume = () => {
+  if (!selectiom) return toast.error('Select an option first.');
+  const resumePaper = document.getElementById('ResumePreview') as HTMLDivElement | null;
+  if (!resumePaper) return toast.error('Something went wrong!');
+
+  if (selectiom === 'pdf') return saveAsPdf(resumePaper);
+  if (selectiom === 'doc') return saveAsDoc();
+};
+
+
   return (
+
     <div className='w-full p-5'>
+
+{/* Resume saving type modal code */}
+      <dialog id="modal" className="modal ">
+        <div className="modal-box bg-gray-100">
+          <form method="dialog">
+            {/* if there is a button in form, it will close the modal */}
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+          <div className='w-full flex flex-col space-y-2'>
+              {/* options are here */}
+              <h1 className='font-bold text-xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent'>Save as</h1>
+              <div className='w-full text-sm font-semibold p-2 bg-white py-4 rounded-lg flex justify-between items-center'>
+                  <p>Save as PDF</p>
+                  <input onChange={()=> setSelection('pdf')}  type="radio" name="radio-5" className="radio radio-secondary" />
+              </div>
+               <div className='w-full text-sm font-semibold flex p-2 py-4 bg-white rounded-lg justify-between items-center'>
+                  <p>Save as Document</p>
+                  <input onChange={()=>setSelection('doc')} type="radio" name="radio-5" className="radio radio-secondary" />
+              </div>
+              <div className='w-full flex justify-end items-center'>
+                  <button onClick={()=> handleSaveResume()} className='btn btn-sm bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white px-12'>
+                    Save
+                  </button>
+              </div>
+          </div>
+        </div>
+      </dialog>
+
       <Toaster />
-      <div className='space-y-3 w-full text-center md:text-start'>
+      <div className='space-y-3 w-full text-center'>
         <h1 className="font-bold text-5xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
           Craft Your Dream Resume
         </h1>
@@ -105,7 +194,7 @@ export default function ResumeBuild() {
                 {
                   currentStep === 3 &&
                   <button
-                onClick={()=> handleResumeSave()}
+                onClick={()=> handleModalOpen()}
                 className='btn px-12 btn-sm btn-primary  lg:btn-md'>Save</button>
                 }
             </div>
@@ -113,7 +202,7 @@ export default function ResumeBuild() {
         </div>
         {/* ajke kaj holo jokhon onek gula text hoye jay seta jate new line e jay seta ensure kora and div er w jate na bare */}
           {/* Preview Box to show resume live preview to user */}
-        <div id='ResumePreview' className='w-full min-h-96 whitespace-normal break-words bg-white rounded-md border-1  border-gray-300 p-5'>
+        <div id='ResumePreview'  className='w-full min-h-96 whitespace-normal break-words rounded-md border-1  border-gray-300 p-5'>
 
           {/* Showing Personal Information */}
               <h1 className='font-semibold text-xl text-center'>{resumeData.PersonalInfo.FullName}</h1>

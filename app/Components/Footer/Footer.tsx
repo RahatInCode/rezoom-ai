@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-function Footer2() {
+function Footer() {
   const navLinks = [
     { name: "Features", href: "#" },
     { name: "Solution", href: "#" },
@@ -277,4 +277,4 @@ function Footer2() {
   );
 }
 
-export default Footer2;
+export default Footer;
