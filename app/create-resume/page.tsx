@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { MoveRight, Link as LinkIcon } from "lucide-react";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import * as htmlToImage from "html-to-image";
 import jsPDF from "jspdf";
 import { saveAs } from "file-saver";
