@@ -2,7 +2,8 @@ import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import { RootProvider } from "./context/createContext";
 import Navbar from "./Components/Navigation/Navbar";
-import Footer2 from "./Components/Footer/Footer";
+import Footer from "./Components/Footer/Footer";
+
 
 
 
