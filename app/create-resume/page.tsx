@@ -1,55 +1,58 @@
-"use client"
-import React, { useState } from 'react';
-import {  Link as LinkIcon, MoveRight } from 'lucide-react';
-import toast, { Toaster } from 'react-hot-toast';
+"use client";
+
+import React, { useState } from "react";
+import { MoveRight, Link as LinkIcon } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 import * as htmlToImage from "html-to-image";
-import jsPDF from 'jspdf';
+import jsPDF from "jspdf";
 import { saveAs } from "file-saver";
 import htmlDocx from "html-docx-js/dist/html-docx";
-type PersonalInfo = {
-  FullName: string,
-  Objective: string,
-  Designation: string,
-  Email: string,
-  PhoneNumber: string,
-  Location: string,
-  Links: { Platform: string, Link: string }[]
+
+// ---------- Types ----------
+interface PersonalInfo {
+  FullName: string;
+  Objective: string;
+  Designation: string;
+  Email: string;
+  PhoneNumber: string;
+  Location: string;
+  Links: { Platform: string; Link: string }[];
 }
 
-type EducationEntry = {
-  Degree: string,
-  Institute: string,
-  CGPA: string,
-  Location: string,
-  StartYear: string,
-  EndYear: string
+interface EducationEntry {
+  Degree: string;
+  Institute: string;
+  CGPA: string;
+  Location: string;
+  StartYear: string;
+  EndYear: string;
 }
 
-type Skills = {
-  TechnicalSkills: string[],
-  SoftSkills: string[],
-  Tools: string[],
+interface Skills {
+  TechnicalSkills: string[];
+  SoftSkills: string[];
+  Tools: string[];
 }
 
-type ExperienceEntry = {
-  JobTitle: string,
-  Company: string,
-  Position: string,
-  StartDate: string,
-  EndDate: string
+interface ExperienceEntry {
+  JobTitle: string;
+  Company: string;
+  Position: string;
+  StartDate: string;
+  EndDate: string;
 }
 
-type ResumeData = {
-  PersonalInfo: PersonalInfo,
-  Education: EducationEntry[],
-  Skills: Skills,
-  Experience: ExperienceEntry[]
+interface ResumeData {
+  PersonalInfo: PersonalInfo;
+  Education: EducationEntry[];
+  Skills: Skills;
+  Experience: ExperienceEntry[];
 }
 
+// ---------- Component ----------
 export default function ResumeBuild() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [pdf_count , setPDFCount] = useState(0);
-  const [selectiom , setSelection] = useState('')
+  const [selection, setSelection] = useState("");
   const [resumeData, setResumeData] = useState<ResumeData>({
     PersonalInfo: {
       FullName: "",
@@ -58,7 +61,7 @@ export default function ResumeBuild() {
       Email: "",
       PhoneNumber: "",
       Location: "",
-      Links: []
+      Links: [],
     },
     Education: [],
     Skills: {
@@ -66,66 +69,77 @@ export default function ResumeBuild() {
       SoftSkills: [],
       Tools: [],
     },
-    Experience: []
-  })
+    Experience: [],
+  });
 
-const handleModalOpen = () => {
-  const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
-  modalBox?.show();
-};
+  // ---------- Handlers ----------
+  const handleModalOpen = (): void => {
+    const modalBox = document.getElementById("modal") as HTMLDialogElement | null;
+    if (modalBox) modalBox.showModal();
+  };
 
-const saveAsPdf = async (resumePaper: HTMLDivElement) => {
-  try {
-    const dataUrl = await htmlToImage.toPng(resumePaper);
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
+  const saveAsPdf = async (resumePaper: HTMLDivElement): Promise<void> => {
+    try {
+      const dataUrl = await htmlToImage.toPng(resumePaper);
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
 
-    const image = new Image();
-    image.src = dataUrl;
+      const image = new Image();
+      image.src = dataUrl;
 
-    image.onload = () => {
-      const pdfHeight = (image.height * pdfWidth) / image.width;
-      pdf.addImage(image, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save('Resume.pdf');
-      toast.success('Saved!');
-      const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
-      modalBox?.close();
-    };
-  } catch (err) {
-    console.error(err);
-    toast.error('Failed to save PDF!');
-  }
-};
+      image.onload = () => {
+        const pdfHeight = (image.height * pdfWidth) / image.width;
+        pdf.addImage(image, "PNG", 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Resume.pdf`);
+        toast.success("PDF Saved!");
+        const modalBox = document.getElementById("modal") as HTMLDialogElement | null;
+        if (modalBox) modalBox.close();
+      };
+    } catch (err) {
+      console.error("PDF Save Error:", err);
+      toast.error("Failed to save PDF!");
+    }
+  };
 
-const saveAsDoc = async () => {
-  const modalBox = document.getElementById('modal') as HTMLDialogElement | null;
-  const resumePaper = document.getElementById('ResumePreview') as HTMLDivElement | null;
-  if (!resumePaper) return toast.error('Something went wrong!');
+  const saveAsDoc = async (): Promise<void> => {
+    const modalBox = document.getElementById("modal") as HTMLDialogElement | null;
+    const resumePaper = document.getElementById("ResumePreview") as HTMLDivElement | null;
+    if (!resumePaper) {
+      toast.error("Resume preview not found!");
+      return;
+    }
 
-  const contentBox = `
-    <html>
-      <head><meta charset="utf-8"></head>
-      <body>
-        ${resumePaper.innerHTML}
-      </body>
-    </html>
-  `;
+    const contentBox = `
+      <html>
+        <head><meta charset="utf-8"></head>
+        <body>${resumePaper.innerHTML}</body>
+      </html>
+    `;
 
-  const docs = htmlDocx.asBlob(contentBox);
-  saveAs(docs, 'Resume.docx');
-  toast.success('Saved!');
-  modalBox?.close();
-};
+    const docs = htmlDocx.asBlob(contentBox);
+    saveAs(docs, "Resume.docx");
+    toast.success("DOC Saved!");
+    if (modalBox) modalBox.close();
+  };
 
-const handleSaveResume = () => {
-  if (!selectiom) return toast.error('Select an option first.');
-  const resumePaper = document.getElementById('ResumePreview') as HTMLDivElement | null;
-  if (!resumePaper) return toast.error('Something went wrong!');
+  const handleSaveResume = (): void => {
+    const resumePaper = document.getElementById("ResumePreview") as HTMLDivElement | null;
+    if (!resumePaper) {
+      toast.error("Something went wrong!");
+      return;
+    }
 
-  if (selectiom === 'pdf') return saveAsPdf(resumePaper);
-  if (selectiom === 'doc') return saveAsDoc();
-};
+    if (!selection) {
+      toast.error("Select an option first.");
+      return;
+    }
 
+    if (selection === "pdf") {
+      saveAsPdf(resumePaper);
+    } else if (selection === "doc") {
+      saveAsDoc();
+    }
+  };
 
   return (
 
