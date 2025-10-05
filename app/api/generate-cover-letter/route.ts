@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     const coverLetter = completion.choices[0]?.message?.content?.trim();
     return NextResponse.json({ coverLetter });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Cover Letter Error:", error);
     return NextResponse.json(
       { error: error.response?.data || "Failed to generate cover letter" },

@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     const summary = completion.choices[0]?.message?.content?.trim();
     return NextResponse.json({ summary });
-  } catch (error: any) {
+  } catch (error) {
     console.error("LinkedIn Summary Error:", error);
     return NextResponse.json(
       { error: error.response?.data || "Failed to generate LinkedIn summary" },
