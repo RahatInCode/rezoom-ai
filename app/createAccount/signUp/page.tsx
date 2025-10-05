@@ -33,6 +33,16 @@ export default function SignUp() {
 
     try {
       await signup(email, password, name);
+      const userInfo = {
+        name,
+        email,
+        role : 'user'
+      }
+      await fetch("https://rezoom-ai-pi.vercel.app/addUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userInfo),
+      });
       Swal.fire({
         position: "top-end",
         title: "Signup successful! Please check your email for verification.",
@@ -197,3 +207,7 @@ export default function SignUp() {
     </div>
   );
 }
+
+
+
+//https://rezoom-ai-pi.vercel.app
