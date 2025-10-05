@@ -52,7 +52,6 @@ interface ResumeData {
 // ---------- Component ----------
 export default function ResumeBuild() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [pdfCount, setPDFCount] = useState(0);
   const [selection, setSelection] = useState("");
   const [resumeData, setResumeData] = useState<ResumeData>({
     PersonalInfo: {
@@ -91,10 +90,8 @@ export default function ResumeBuild() {
       image.onload = () => {
         const pdfHeight = (image.height * pdfWidth) / image.width;
         pdf.addImage(image, "PNG", 0, 0, pdfWidth, pdfHeight);
-        pdf.save(`Resume_${pdfCount + 1}.pdf`);
+        pdf.save(`Resume.pdf`);
         toast.success("PDF Saved!");
-        setPDFCount((prev) => prev + 1);
-
         const modalBox = document.getElementById("modal") as HTMLDialogElement | null;
         if (modalBox) modalBox.close();
       };
