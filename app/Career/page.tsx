@@ -30,29 +30,7 @@ const Page = () => {
     { id: "special-reports", label: "Special Reports" },
     { id: "experts", label: "Meet Our Career Experts" },
   ];
- const developers = [
-    {
-      name: "Alex Johnson",
-      role: "Full Stack Developer",
-      img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-      github: "https://github.com",
-      linkedin: "https://linkedin.com"
-    },
-    {
-      name: "Sarah Chen",
-      role: "UI/UX Designer",
-      img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
-      github: "https://github.com",
-      linkedin: "https://linkedin.com"
-    },
-    {
-      name: "Marcus Williams",
-      role: "Backend Engineer",
-      img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-      github: "https://github.com",
-      linkedin: "https://linkedin.com"
-    }
-  ];
+
 
   const handleScrollTo = (id: string) => {
     const el = document.getElementById(id);
