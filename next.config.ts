@@ -8,6 +8,14 @@ const nextConfig = {
         hostname: 'i.ibb.co.com', // <-- your host
         pathname: '/**',           // allow all paths
       },
+       {
+        protocol: 'https',
+        hostname: 'i.pinimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'encrypted-tbn0.gstatic.com',
+      }
     ],
   },
 };
