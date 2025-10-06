@@ -96,7 +96,6 @@ export default function ResumeBuild() {
         if (modalBox) modalBox.close();
       };
     } catch (err) {
-      console.error("PDF Save Error:", err);
       toast.error("Failed to save PDF!");
     }
   };
