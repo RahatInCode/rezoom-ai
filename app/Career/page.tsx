@@ -5,6 +5,7 @@ import ExpertsCard from "../Components/ExpertsCard";
 import { motion } from "framer-motion";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import Image from "next/image";
+import DeveloperSection from "./developers/DevTeam";
 interface Expert {
   name: string;
   position: string;
@@ -343,6 +344,7 @@ const developers = [
         ></motion.div>
       </div>
     </section>
+    <DeveloperSection />
     </div>
   );
 };
