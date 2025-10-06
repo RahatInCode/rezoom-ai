@@ -1,21 +1,13 @@
-'use client'
-import React from 'react';
-import CoverLetterGenerator from './ai-cover-letter/page';
-import LinkedInSummaryGenerator from './linkedIn-generator/page';
-import Lottie from 'lottie-react';
-import coverLetter from '../../public/lotties/cvLetter.json'
-import linkedInAi from '../../public/lotties/linkedInAi.json'
+"use client";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Button } from "../../Components/ui/Button";
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-};
 
 export default function LinkedInSummaryGenerator() {
   const [form, setForm] = useState({
     name: "",
-    profession: "",
+    profession: "", 
     years: "",
     skills: "",
     achievements: "",
@@ -23,6 +15,7 @@ export default function LinkedInSummaryGenerator() {
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -36,7 +29,7 @@ export default function LinkedInSummaryGenerator() {
     setResult("");
 
     try {
-      const res = await fetch("https://rezoom-ai-pi.vercel.app/generate-linkedin-summary", {
+      const res = await fetch("api/generate-linkedin-summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -52,12 +45,10 @@ export default function LinkedInSummaryGenerator() {
   };
 
   return (
-    <div className=" px-4 md:px-10">
-      
-
+    <div className="py-10 px-4 md:px-10">
       <motion.form
         onSubmit={handleSubmit}
-        className=" grid  text-gray-900  gap-4 max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-6"
+        className="mt-8 grid border text-gray-900 gap-4 max-w-2xl mx-auto bg-white shadow-lg rounded-2xl p-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.7 }}
@@ -120,59 +111,40 @@ export default function LinkedInSummaryGenerator() {
           disabled={loading}
           className="w-full bg-gradient-to-r from-blue-500 via-teal-500 to-green-500 text-white font-semibold py-3 rounded-lg hover:opacity-90 transition"
         >
-          AI Cover Letter Generator
-        </motion.h1>
+          {loading ? "Generating..." : "Generate Summary"}
+        </button>
+      </motion.form>
 
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <motion.div variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
-            <CoverLetterGenerator />
-          </motion.div>
-          
-          <motion.div 
-            variants={fadeInUp} 
-            initial="hidden" 
-            whileInView="show" 
-            viewport={{ once: true }}
-            className="hidden md:flex justify-center"
-          >
-            <Lottie animationData={coverLetter} loop={true} className="max-w-md w-full" />
-          </motion.div>
-        </div>
-      </section>
-
-     
-      <div className="w-full h-px bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300" />
-
-      {/* Section 2 - LinkedIn Summary */}
-      <section className="pt-16 px-4 md:px-10 bg-white">
-        <motion.h1
-          variants={fadeInUp}
-          initial="hidden"
-          animate="show"
-          className="text-3xl md:text-5xl font-bold text-center mb-12
-          bg-gradient-to-r from-blue-500 via-teal-500 to-green-500 bg-clip-text text-transparent"
+      {result && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mt-8 max-w-2xl mx-auto bg-gray-50 shadow-md rounded-2xl p-6"
         >
-          AI LinkedIn Summary Generator
-        </motion.h1>
+          <h2 className="text-lg font-semibold mb-3 text-blue-600">
+            Your LinkedIn Summary:
+          </h2>
+          <p className="whitespace-pre-wrap text-gray-700 mb-4">{result}</p>
 
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <motion.div 
-            variants={fadeInUp} 
-            initial="hidden" 
-            whileInView="show" 
-            viewport={{ once: true }}
-            className="hidden md:flex justify-center"
+          {/* Copy Button */}
+          <Button
+            onClick={() => {
+              navigator.clipboard.writeText(result).then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 5000);
+              });
+            }}
+            className={`w-full text-white rounded-lg py-2 ${
+              copied
+                ? "bg-green-500 hover:bg-green-600"
+                : "bg-gradient-to-r from-blue-500 via-teal-500 to-green-500"
+            }`}
           >
-            <Lottie animationData={linkedInAi} loop={true} className="max-w-md w-full" />
-          </motion.div>
-
-          <motion.div variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
-            <LinkedInSummaryGenerator />
-          </motion.div>
-        </div>
-      </section>
+            {copied ? "Copied!" : "Copy to Clipboard"}
+          </Button>
+        </motion.div>
+      )}
     </div>
   );
-};
-
-export default Page;
+}
