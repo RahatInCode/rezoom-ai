@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { IoChevronForward } from "react-icons/io5";
 import ExpertsCard from "../Components/ExpertsCard";
+import DeveloperSection from "./developers/DevTeam";
 
 interface Expert {
   name: string;
@@ -28,6 +29,29 @@ const Page = () => {
     { id: "careers", label: "Careers" },
     { id: "special-reports", label: "Special Reports" },
     { id: "experts", label: "Meet Our Career Experts" },
+  ];
+ const developers = [
+    {
+      name: "Alex Johnson",
+      role: "Full Stack Developer",
+      img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      github: "https://github.com",
+      linkedin: "https://linkedin.com"
+    },
+    {
+      name: "Sarah Chen",
+      role: "UI/UX Designer",
+      img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      github: "https://github.com",
+      linkedin: "https://linkedin.com"
+    },
+    {
+      name: "Marcus Williams",
+      role: "Backend Engineer",
+      img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      github: "https://github.com",
+      linkedin: "https://linkedin.com"
+    }
   ];
 
   const handleScrollTo = (id: string) => {
@@ -103,7 +127,7 @@ const Page = () => {
         <div className="w-full lg:w-3/4 text-sm lg:text-[19px] p-3 space-y-20 text-gray-600">
           {/* Intro */}
           <p id="About">
-            Welcome to the Rezoom-AI Career Center, your one-stop shop for resume and cover letter writing, interview tips, and job search resources. Whether you’re looking for tools like a resume maker or resume editor, or seeking resume help from certified professionals, our Career Center has everything you need to create a standout resume.
+            Welcome to the Rezoom-AI Career Center, your one-stop shop for resume and cover letter writing, interview tips, and job search resources. Whether youre looking for tools like a resume maker or resume editor, or seeking resume help from certified professionals, our Career Center has everything you need to create a standout resume.
             <br />
             Gain access to critical insights from our team of certified resume writers, career coaches, and recruiters to help you navigate all aspects of the job market landscape.
           </p>
@@ -124,7 +148,7 @@ const Page = () => {
           <div id="resume-templates" className="space-y-4">
             <h1 className="text-[#A053CF] text-3xl font-semibold">Resume Templates</h1>
             <p>
-              Building your resume doesn’t need to be a difficult or time-consuming process. We offer hundreds of free, high-quality resume templates you can use to catch the attention of hiring managers, make a good first impression, and generate more interview callbacks.
+              Building your resume doesnt need to be a difficult or time-consuming process. We offer hundreds of free, high-quality resume templates you can use to catch the attention of hiring managers, make a good first impression, and generate more interview callbacks.
             </p>
             <div className="space-y-2">
               <GradientLink text="Modern Resume Template" href="https://example.com/modern-template" />
@@ -182,6 +206,7 @@ const Page = () => {
           </div>
         </div>
       </section>
+      <DeveloperSection />
     </div>
   );
 };
