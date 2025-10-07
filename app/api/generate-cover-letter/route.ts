@@ -27,13 +27,23 @@ export async function POST(req: NextRequest) {
       max_tokens: 500,
     });
 
-    const coverLetter = completion.choices[0]?.message?.content?.trim();
-    return NextResponse.json({ coverLetter });
-  } catch (error: any) {
-    console.error("Cover Letter Error:", error);
+const coverLetter = completion.choices[0]?.message?.content?.trim();
+return NextResponse.json({ coverLetter });
+} catch (error: unknown) {
+  if (typeof error === "object" && error !== null && "response" in error) {
+    const err = error as { response?: { data?: unknown } };
+    console.error("Cover Letter Error:", err.response);
     return NextResponse.json(
-      { error: error.response?.data || "Failed to generate cover letter" },
+      { error: err.response?.data || "Failed to generate cover letter" },
       { status: 500 }
     );
   }
+
+  console.error("Unexpected Cover Letter Error:", error);
+  return NextResponse.json(
+    { error: "Failed to generate cover letter" },
+    { status: 500 }
+  );
+}
+
 }
