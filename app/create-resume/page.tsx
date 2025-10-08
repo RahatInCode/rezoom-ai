@@ -7,6 +7,7 @@ import * as htmlToImage from "html-to-image";
 import jsPDF from "jspdf";
 import { saveAs } from "file-saver";
 import htmlDocx from "html-docx-js/dist/html-docx";
+import OurFeature from "../Components/WhyChooseUS/OurFeature";
 
 // ---------- Types ----------
 interface PersonalInfo {
@@ -179,7 +180,7 @@ export default function ResumeBuild() {
         <p>Showcase your skills, experience, and achievements in a way that opens doors to your future career.</p>
       </div>
 
-      <div className='w-full flex flex-col mt-24 border-2 space-y-4 lg:gap-5 border-gray-200 bg-gray-100 lg:flex-row p-5 rounded-lg shadow-xl shadow-gray-400 '>
+      <div className='w-full flex flex-col mt-24 border-2 space-y-4 lg:gap-5 border-gray-200 bg-gray-100 lg:flex-row p-5 rounded-lg  '>
         <div className='w-full p-5  min-h-96 bg-white rounded-md border-1 border-gray-300 '>
           <ul className="steps w-full mx-auto">
             <li className={`step ${currentStep >= 0 ? "step-info" : "" } `}>Personal Information</li>
@@ -215,7 +216,7 @@ export default function ResumeBuild() {
         </div>
         {/* ajke kaj holo jokhon onek gula text hoye jay seta jate new line e jay seta ensure kora and div er w jate na bare */}
           {/* Preview Box to show resume live preview to user */}
-        <div id='ResumePreview'  className='w-full min-h-96 whitespace-normal break-words rounded-md border-1  border-gray-300 p-5'>
+        <div id='ResumePreview'  className='w-full min-h-96 whitespace-normal break-words rounded-md border-1 bg-white border-gray-300 p-5'>
 
           {/* Showing Personal Information */}
               <h1 className='font-semibold text-xl text-center'>{resumeData.PersonalInfo.FullName}</h1>
@@ -323,8 +324,15 @@ export default function ResumeBuild() {
               
         </div>
 
-
       </div>
+
+
+
+      <div className="w-full mt-24 ">
+                  <OurFeature />
+              </div>
+
+
     </div>
   )
 }
