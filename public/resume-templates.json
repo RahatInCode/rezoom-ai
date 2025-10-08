@@ -1,42 +1,62 @@
 [
-    {
-        "id" : 1,
-        "image" : "/resume/template-1.jpeg"
-    },
-    {
-        "id" : 2,
-        "image" : "/resume/template-2.jpeg"
-    },
-    {
-        "id" : 3,
-        "image" : "/resume/template-3.jpeg"
-    },
-    {
-        "id" : 4,
-        "image" : "/resume/template-4.webp"
-    },
-    {
-        "id" : 5,
-        "image" : "/resume/template-5.jpeg"
-    },
-    {
-        "id" : 6,
-        "image" : "/resume/template-6.jpeg"
-    },
-    {
-        "id" : 7,
-        "image" : "/resume/template-7.jpeg"
-    },
-    {
-        "id" : 8,
-        "image" : "/resume/template-8.jpeg"
-    },
-    {
-        "id" : 9,
-        "image" : "/resume/template-9.jpeg"
-    },
-    {
-        "id" : 10,
-        "image" : "/resume/template-10.webp"
-    }
+  {
+    "id": 1,
+    "image": "/resume/template-1.jpeg",
+    "name": "Classic Professional",
+    "description": "A clean and traditional layout perfect for corporate and academic job applications."
+  },
+  {
+    "id": 2,
+    "image": "/resume/template-2.jpeg",
+    "name": "Modern Minimalist",
+    "description": "A sleek and minimal design that focuses on readability and clean structure."
+  },
+  {
+    "id": 3,
+    "image": "/resume/template-3.jpeg",
+    "name": "Elegant Design",
+    "description": "A stylish template with balanced use of color and typography for creative professionals."
+  },
+  {
+    "id": 4,
+    "image": "/resume/template-4.webp",
+    "name": "Creative Edge",
+    "description": "Perfect for designers or artists, this layout adds visual flair while staying professional."
+  },
+  {
+    "id": 5,
+    "image": "/resume/template-9.jpeg",
+    "name": "Corporate Blue",
+    "description": "A formal blue-accented template ideal for business, finance, or IT-related positions."
+  },
+  {
+    "id": 6,
+    "image": "/resume/template-6.jpeg",
+    "name": "Simple Focus",
+    "description": "Straightforward and distraction-free, designed to highlight your experience and skills."
+  },
+  {
+    "id": 7,
+    "image": "/resume/template-7.jpeg",
+    "name": "Modern Blocks",
+    "description": "A block-based structure for an organized and visually balanced presentation."
+  },
+  {
+    "id": 8,
+    "image": "/resume/template-8.jpeg",
+    "name": "Stylish Gradient",
+    "description": "A trendy resume with soft gradients and elegant typography for modern job seekers."
+  },
+  {
+    "id": 9,
+    "image": "/resume/template-9.jpeg",
+    "name": "Smart Compact",
+    "description": "Compact and smart layout that fits all key information in a single-page design."
+  },
+  {
+    "id": 10,
+    "image": "/resume/template-10.webp",
+    "name": "Bold Impression",
+    "description": "A bold and eye-catching design that helps you stand out in competitive fields."
+  }
 ]
