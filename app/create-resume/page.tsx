@@ -1,5 +1,5 @@
 "use client";
-
+import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { MoveRight, Link as LinkIcon } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
@@ -8,6 +8,7 @@ import jsPDF from "jspdf";
 import { saveAs } from "file-saver";
 import htmlDocx from "html-docx-js/dist/html-docx";
 import OurFeature from "../Components/WhyChooseUS/OurFeature";
+import { AnimatePresence } from "framer-motion";
 
 // ---------- Types ----------
 interface PersonalInfo {
@@ -143,197 +144,150 @@ export default function ResumeBuild() {
 
   return (
 
-    <div className='w-full p-5'>
 
-{/* Resume saving type modal code */}
-      <dialog id="modal" className="modal ">
-        <div className="modal-box bg-gray-100">
-          <form method="dialog">
-            {/* if there is a button in form, it will close the modal */}
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-          </form>
-          <div className='w-full flex flex-col space-y-2'>
-              {/* options are here */}
-              <h1 className='font-bold text-xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent'>Save as</h1>
-              <div className='w-full text-sm font-semibold p-2 bg-white py-4 rounded-lg flex justify-between items-center'>
-                  <p>Save as PDF</p>
-                  <input onChange={()=> setSelection('pdf')}  type="radio" name="radio-5" className="radio radio-secondary" />
-              </div>
-               <div className='w-full text-sm font-semibold flex p-2 py-4 bg-white rounded-lg justify-between items-center'>
-                  <p>Save as Document</p>
-                  <input onChange={()=>setSelection('doc')} type="radio" name="radio-5" className="radio radio-secondary" />
-              </div>
-              <div className='w-full flex justify-end items-center'>
-                  <button onClick={()=> handleSaveResume()} className='btn btn-sm bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white px-12'>
-                    Save
-                  </button>
-              </div>
-          </div>
+<div className='w-full p-5'>
+
+  {/* Resume saving type modal */}
+  <dialog id="modal" className="modal">
+    <div className="modal-box bg-white/60 backdrop-blur-lg border border-gray-200 shadow-xl rounded-xl">
+      <form method="dialog">
+        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      <div className='w-full flex flex-col space-y-4'>
+        <h1 className='font-bold text-xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent'>Save as</h1>
+
+        <div className='w-full text-sm font-semibold p-3 bg-white/70 backdrop-blur-sm rounded-lg flex justify-between items-center hover:bg-white/90 transition'>
+          <p>Save as PDF</p>
+          <input onChange={()=> setSelection('pdf')} type="radio" name="radio-5" className="radio radio-secondary" />
         </div>
-      </dialog>
 
-      <Toaster />
-      <div className='space-y-3 w-full text-center'>
-        <h1 className="font-bold text-5xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
-          Craft Your Dream Resume
-        </h1>
-        <p>Showcase your skills, experience, and achievements in a way that opens doors to your future career.</p>
+        <div className='w-full text-sm font-semibold p-3 bg-white/70 backdrop-blur-sm rounded-lg flex justify-between items-center hover:bg-white/90 transition'>
+          <p>Save as Document</p>
+          <input onChange={()=>setSelection('doc')} type="radio" name="radio-5" className="radio radio-secondary" />
+        </div>
+
+        <div className='w-full flex justify-end'>
+          <button onClick={()=> handleSaveResume()} className='btn bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white px-12 hover:scale-105 transition-transform'>
+            Save
+          </button>
+        </div>
       </div>
+    </div>
+  </dialog>
 
-      <div className='w-full flex flex-col mt-24 border-2 space-y-4 lg:gap-5 border-gray-200 bg-gray-100 lg:flex-row p-5 rounded-lg  '>
-        <div className='w-full p-5  min-h-96 bg-white rounded-md border-1 border-gray-300 '>
-          <ul className="steps w-full mx-auto">
-            <li className={`step ${currentStep >= 0 ? "step-info" : "" } `}>Personal Information</li>
-            <li className={`step ${currentStep >= 1  ? "step-info" : "" }`}>Education</li>
-            <li className={`step ${currentStep >= 2 ? "step-info" : "" }`}>Skills</li>
-            <li className={`step ${currentStep >= 3 ? "step-info" : "" }`} data-content="4">Experience</li>
-          </ul>
+  <Toaster />
 
-          <div className='w-full h-full flex flex-col items-start mt-8 '>
+  {/* Header Section */}
+  <div className='space-y-3 w-full text-center'>
+    <motion.h1
+      initial={{ opacity: 0, y: -30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="font-bold text-5xl lg:text-6xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent"
+    >
+      Craft Your Dream Resume
+    </motion.h1>
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.3 }}
+      className='text-gray-700 text-md lg:text-lg max-w-3xl mx-auto'
+    >
+      Showcase your skills, experience, and achievements in a way that opens doors to your future career.
+    </motion.p>
+  </div>
+
+  {/* Steps & Preview */}
+  <div className='w-full flex flex-col mt-24 border-2 border-gray-200 bg-gray-50 lg:flex-row p-5 rounded-xl gap-5'>
+
+    {/* Left Panel - Form */}
+    <div className='w-full p-5 min-h-96 bg-white/70 backdrop-blur-md rounded-xl border border-gray-200 shadow-lg'>
+      <ul className="steps w-full">
+        <li className={`step ${currentStep >= 0 ? "step-primary text-white" : ""}`}>Personal Information</li>
+        <li className={`step ${currentStep >= 1 ? "step-primary text-white" : ""}`}>Education</li>
+        <li className={`step ${currentStep >= 2 ? "step-primary text-white" : ""}`}>Skills</li>
+        <li className={`step ${currentStep >= 3 ? "step-primary text-white" : ""}`} data-content="4">Experience</li>
+      </ul>
+
+      <div className='w-full h-full flex flex-col items-start mt-8'>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.5 }}
+            className='w-full'
+          >
             {currentStep === 0 && <PersonalInformation resumeData={resumeData} setResumeData={setResumeData} />}
             {currentStep === 1 && <EducationInfo resumeData={resumeData} setResumeData={setResumeData} />}
             {currentStep === 2 && <SkillsInfo resumeData={resumeData} setResumeData={setResumeData} />}
             {currentStep === 3 && <ExperienceInfo resumeData={resumeData} setResumeData={setResumeData} />}
-  
-            <div className={`w-full ${currentStep >=1 ? 'justify-between' : 'justify-end '}  flex mt-18 `}>
-              {
-                currentStep >= 1 && <button className='btn btn-sm lg:btn-md btn-outline' onClick={()=> setCurrentStep(currentStep -1)}>Previous</button>
-              }
-                {
-                  currentStep < 3 &&
-                  <button
-                onClick={()=>setCurrentStep(currentStep+1)}
-                className='btn btn-primary px-12 btn-sm xl:btn-md '>Next <MoveRight size={16} strokeWidth={0.75} /></button>
-                }
-                {
-                  currentStep === 3 &&
-                  <button
-                onClick={()=> handleModalOpen()}
-                className='btn px-12 btn-sm btn-primary  lg:btn-md'>Save</button>
-                }
-            </div>
-          </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Navigation Buttons */}
+        <div className={`w-full mt-8 flex ${currentStep >= 1 ? 'justify-between' : 'justify-end'}`}>
+          {currentStep >= 1 && <button className='btn btn-sm lg:btn-md btn-outline hover:scale-105 transition-transform' onClick={()=> setCurrentStep(currentStep -1)}>Previous</button>}
+          {currentStep < 3 && <button onClick={()=>setCurrentStep(currentStep+1)} className='btn btn-primary px-12 btn-sm lg:btn-md hover:scale-105 transition-transform'>Next <MoveRight size={16} strokeWidth={0.75} /></button>}
+          {currentStep === 3 && <button onClick={()=> handleModalOpen()} className='btn px-12 btn-sm btn-primary lg:btn-md hover:scale-105 transition-transform'>Save</button>}
         </div>
-        {/* ajke kaj holo jokhon onek gula text hoye jay seta jate new line e jay seta ensure kora and div er w jate na bare */}
-          {/* Preview Box to show resume live preview to user */}
-        <div id='ResumePreview'  className='w-full min-h-96 whitespace-normal break-words rounded-md border-1 bg-white border-gray-300 p-5'>
+      </div>
+    </div>
 
-          {/* Showing Personal Information */}
-              <h1 className='font-semibold text-xl text-center'>{resumeData.PersonalInfo.FullName}</h1>
-              <p className='text-md text-center text-gray-700'>{resumeData.PersonalInfo.Designation}</p>
+    {/* Right Panel - Live Preview */}
+    <div id='ResumePreview' className='w-full min-h-96 whitespace-normal break-words rounded-xl border border-gray-200 bg-white/70 backdrop-blur-md shadow-lg p-5 hover:scale-[1.01] transition-transform'>
+      <h1 className='font-semibold text-xl text-center'>{resumeData.PersonalInfo.FullName}</h1>
+      <p className='text-md text-center text-gray-700'>{resumeData.PersonalInfo.Designation}</p>
 
-              <div className='w-full text-center  justify-center text-sm font-thin  flex flex-wrap break-words whitespace-normal gap-5 '>
-                  <p>{resumeData.PersonalInfo.Email}</p>
-                  <p>{resumeData.PersonalInfo.PhoneNumber}</p>
-                  <p>{resumeData.PersonalInfo.Location}</p>
-              </div>
-
-              <div className='w-full flex justify-center items-center gap-3 text-center text-sm text-blue-400 font-semibold'>
-                {
-                  resumeData.PersonalInfo.Links.map((link , idx)=> <a key={idx} href={link.Link} target='_blank' >{link.Platform}</a> )
-                }
-              </div>
-
-              {
-                resumeData.PersonalInfo.Links.length > 0  ? <hr className='w-full mt-3 text-gray-500' /> : ""
-              }
-
-              {
-                resumeData.PersonalInfo.Objective && <p className='w-full p-1 bg-gray-200 border-0 border-none text-start'>Career Objective</p>
-              }
-              <p className='text-sm whitespace-normal break-words '>{resumeData.PersonalInfo.Objective}</p>
-
-
-              {/* Showing Education Information */}
-              {
-                currentStep >= 1 && <p className='w-full p-1 mt-3 bg-gray-200 border-0 border-none text-start'>Education</p>
-              }
-              {resumeData.Education.map((edu, idx) => (
-                <div key={idx} className="mt-2">
-                  <p className="font-bold">{edu.Degree}</p>
-                  <p className="text-sm text-gray-700">
-                    {edu.Institute} | CGPA: {edu.CGPA}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {edu.StartYear} - {edu.EndYear}, {edu.Location}
-                  </p>
-                </div>
-              ))}
-
-
-              {/* SHowing Experience Information */}
-                {
-                  currentStep >=3 && <p className='w-full p-1 mt-3 bg-gray-200 border-0 border-none text-start'>Experience</p>
-                }
-                {resumeData.Experience.map((exp, idx) => (
-                  <div key={idx} className="mt-2">
-                    <p className="font-bold">{exp.JobTitle} | {exp.Company}</p>
-                    <p className="text-sm text-gray-700">
-                      {exp.Position} | {exp.StartDate} - {exp.EndDate}
-                    </p>
-                  </div>
-                ))}
-              
-
-
-                {/* Showing Skills Information */}
-              {
-               currentStep >=2 && <p className='w-full p-1 mt-3 bg-gray-200 border-0 border-none text-start'>Skills</p>
-              }
-              {/* Technical skills */}
-              {
-                resumeData?.Skills.TechnicalSkills[0] &&  <h1 className='font-semibold'>Technical Skills</h1>
-              }
-              <ul className=''>
-                  {
-                resumeData?.Skills.TechnicalSkills.map((techSkill , index)=> 
-                <li className='text-xs' key={index}>
-                  {techSkill}
-                </li>
-                )
-              }
-              </ul>
-
-              {/* Soft Skills */}
-              {
-                resumeData?.Skills.SoftSkills[0] &&  <h1 className='font-semibold'>Soft Skills</h1>
-              }
-              <ul className=''>
-                  {
-                resumeData?.Skills.SoftSkills.map((softSkill , index)=> 
-                <li className='text-xs' key={index}>
-                  {softSkill}
-                </li>
-                )
-              }
-              </ul>
-
-              {/* Tools and others Information */}
-               {
-                resumeData?.Skills.Tools[0] &&  <h1 className='font-semibold'>Tools & Others</h1>
-              }
-              <ul className=''>
-                  {
-                resumeData?.Skills.Tools.map((tool , index)=> 
-                <li className='text-xs' key={index}>
-                  {tool}
-                </li>
-                )
-              }
-              </ul>
-              
-        </div>
-
+      <div className='w-full flex flex-wrap justify-center gap-5 text-sm font-thin text-center'>
+        <p>{resumeData.PersonalInfo.Email}</p>
+        <p>{resumeData.PersonalInfo.PhoneNumber}</p>
+        <p>{resumeData.PersonalInfo.Location}</p>
       </div>
 
+      <div className='w-full flex flex-wrap justify-center gap-3 text-sm text-blue-500 font-thin'>
+        {resumeData.PersonalInfo.Links.map((link, idx) => <a key={idx} className="link" href={link.Link} target='_blank'>{link.Platform}</a>)}
+      </div>
 
+      {resumeData.PersonalInfo.Links.length > 0 && <hr className='w-full mt-3 text-gray-500' />}
 
-      <div className="w-full mt-24 ">
-                  <OurFeature />
-              </div>
+      {resumeData.PersonalInfo.Objective && <p className='w-full p-1 mt-2 bg-gray-200 text-start font-medium'>Career Objective</p>}
+      <p className='text-sm whitespace-normal break-words'>{resumeData.PersonalInfo.Objective}</p>
 
+      {currentStep >= 1 && <p className='w-full p-1 mt-3 bg-gray-200 text-start'>Education</p>}
+      {resumeData.Education.map((edu, idx) => (
+        <div key={idx} className="mt-2">
+          <p className="font-bold">{edu.Degree}</p>
+          <p className="text-sm text-gray-700">{edu.Institute} | CGPA: {edu.CGPA}</p>
+          <p className="text-sm text-gray-500">{edu.StartYear} - {edu.EndYear}, {edu.Location}</p>
+        </div>
+      ))}
 
+      {currentStep >= 3 && <p className='w-full p-1 mt-3 bg-gray-200 text-start'>Experience</p>}
+      {resumeData.Experience.map((exp, idx) => (
+        <div key={idx} className="mt-2">
+          <p className="font-bold">{exp.JobTitle} | {exp.Company}</p>
+          <p className="text-sm text-gray-700">{exp.Position} | {exp.StartDate} - {exp.EndDate}</p>
+        </div>
+      ))}
+
+      {currentStep >= 2 && <p className='w-full p-1 mt-3 bg-gray-200 text-start'>Skills</p>}
+      {resumeData.Skills.TechnicalSkills.length > 0 && <h1 className='font-semibold'>Technical Skills</h1>}
+      <ul>{resumeData.Skills.TechnicalSkills.map((techSkill, index) => <li key={index} className='text-xs'>{techSkill}</li>)}</ul>
+
+      {resumeData.Skills.SoftSkills.length > 0 && <h1 className='font-semibold mt-2'>Soft Skills</h1>}
+      <ul>{resumeData.Skills.SoftSkills.map((softSkill, index) => <li key={index} className='text-xs'>{softSkill}</li>)}</ul>
+
+      {resumeData.Skills.Tools.length > 0 && <h1 className='font-semibold mt-2'>Tools & Others</h1>}
+      <ul>{resumeData.Skills.Tools.map((tool, index) => <li key={index} className='text-xs'>{tool}</li>)}</ul>
     </div>
+  </div>
+
+  <div className="w-full mt-24">
+    <OurFeature />
+  </div>
+</div>
   )
 }
 
