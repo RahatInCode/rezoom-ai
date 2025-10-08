@@ -50,6 +50,7 @@ export default function SignUp() {
         timer: 1500,
       });
     } catch (err) {
+      console.log(err)
       const fe = err as FirebaseError;
       setError(
         fe.code === "auth/email-already-in-use"

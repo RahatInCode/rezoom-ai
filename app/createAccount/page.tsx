@@ -11,12 +11,13 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Swal from "sweetalert2";
 import { useRootContext } from "../context/createContext";
+import MyAccount from "../userDashboard/UserDashboard";
 
 // import createAccount from "../../public/lotties/createAccount.json";
 
 
 function SignUp() {
-  const { signup,  sendVerificationEmail, googleLogin } = useRootContext();
+  const { signup,  sendVerificationEmail, googleLogin, user } = useRootContext();
   const [open, setOpen] = useState(false)
   const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState('')
@@ -92,7 +93,8 @@ function SignUp() {
   };
 
   return (
-    <div className="text-black  w-[50%] space-y-12 p-8 m-auto mt-8">
+   <>
+   {user ? <MyAccount></MyAccount> :  <div className="text-black  w-[50%] space-y-12 p-8 m-auto mt-8">
       <div>
         <h1 className="text-3xl font-bold">Create account</h1>
         <p className="font-bold text-gray-400">Sign up to get started!</p>
@@ -145,7 +147,8 @@ function SignUp() {
           <span className="text-orange-500">Log in</span>
         </Link>
       </p>
-    </div>
+    </div>}
+   </>
   );
 }
 
