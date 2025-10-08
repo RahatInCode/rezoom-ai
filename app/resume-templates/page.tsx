@@ -3,19 +3,29 @@ import React, { useEffect, useState } from "react";
 import TemplateCard from "../Components/ResumeTemplateCard/TemplateCard";
 import Image from "next/image";
 import Link from "next/link";
+
 type Template = {
   id: number;
   image: string;
-  [key: string]: unknown; 
+  name: string;
+  description: string;
 };
 
 const Page = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
-
+  const [loading , setLoading] = useState(true)
+  
   useEffect(() => {
     fetch("/resume-templates.json") // keep it absolute for Next.js public folder
       .then((res) => res.json())
-      .then((data) => setTemplates(data || []));
+      .then((data) => { 
+        if(data){
+          setTemplates(data || [])
+          setLoading(false)
+        }
+      }
+      );
+      
   }, []); // <-- run once
 
   return (
@@ -68,11 +78,18 @@ const Page = () => {
 
        
 
-        <div className="w-full mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 justify-items-center gap-3">
-          {templates.map((resume) => (
-            <TemplateCard key={resume.id} template={resume} />
-          ))}
-        </div>
+        {
+          loading ? <div className="w-full min-h-96 flex flex-col items-center justify-center">
+            <span className="loading loading-spinner text-2xl text-primary"></span>
+          </div>
+            :
+            <div className="w-full mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 justify-items-center gap-3">
+              {templates.map((resume) => (
+                <TemplateCard key={resume.id} template={resume} />
+              ))}
+            </div>
+        }
+       
       </div>
     </div>
   );

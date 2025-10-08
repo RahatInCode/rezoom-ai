@@ -183,10 +183,10 @@ export default function ResumeBuild() {
       <div className='w-full flex flex-col mt-24 border-2 space-y-4 lg:gap-5 border-gray-200 bg-gray-100 lg:flex-row p-5 rounded-lg  '>
         <div className='w-full p-5  min-h-96 bg-white rounded-md border-1 border-gray-300 '>
           <ul className="steps w-full mx-auto">
-            <li className={`step ${currentStep >= 0 ? "step-info" : "" } `}>Personal Information</li>
-            <li className={`step ${currentStep >= 1  ? "step-info" : "" }`}>Education</li>
-            <li className={`step ${currentStep >= 2 ? "step-info" : "" }`}>Skills</li>
-            <li className={`step ${currentStep >= 3 ? "step-info" : "" }`} data-content="4">Experience</li>
+            <li className={`step ${currentStep >= 0 ? "step-primary text-white" : "" } `}>Personal Information</li>
+            <li className={`step ${currentStep >= 1  ? "step-primary text-white" : "" }`}>Education</li>
+            <li className={`step ${currentStep >= 2 ? "step-primary text-white" : "" }`}>Skills</li>
+            <li className={`step ${currentStep >= 3 ? "step-primary text-white" : "" }`} data-content="4">Experience</li>
           </ul>
 
           <div className='w-full h-full flex flex-col items-start mt-8 '>
@@ -228,9 +228,9 @@ export default function ResumeBuild() {
                   <p>{resumeData.PersonalInfo.Location}</p>
               </div>
 
-              <div className='w-full flex justify-center items-center gap-3 text-center text-sm text-blue-400 font-semibold'>
+              <div className='w-full flex justify-center items-center gap-3 text-center text-sm text-blue-500 font-thin'>
                 {
-                  resumeData.PersonalInfo.Links.map((link , idx)=> <a key={idx} href={link.Link} target='_blank' >{link.Platform}</a> )
+                  resumeData.PersonalInfo.Links.map((link , idx)=> <a className="link" key={idx} href={link.Link} target='_blank' >{link.Platform}</a> )
                 }
               </div>
 
