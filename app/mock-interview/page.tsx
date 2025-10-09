@@ -30,7 +30,8 @@ import {
   AlertCircle,
   Globe,
   Server,
-  CloudLightning
+  CloudLightning,
+  AlertTriangle
 } from 'lucide-react';
 
 // Types
@@ -58,7 +59,7 @@ interface TestResult {
 }
 
 interface ConversationMessage {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: string;
 }
@@ -194,6 +195,9 @@ const CODING_PROBLEMS: CodingProblem[] = [
 ];
 
 const MockInterviewPage = () => {
+  // API Key from environment variable
+  const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY || '';
+  
   // State management
   const [showModal, setShowModal] = useState(false);
   const [showMockInterview, setShowMockInterview] = useState(false);
@@ -206,6 +210,7 @@ const MockInterviewPage = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const [currentCode, setCurrentCode] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({
     interviewType: 'Technical',
     role: '',
@@ -223,7 +228,6 @@ const MockInterviewPage = () => {
   const [currentCodingProblem, setCurrentCodingProblem] = useState<CodingProblem | null>(null);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [showTestResults, setShowTestResults] = useState(false);
-  const [apiKey, setApiKey] = useState(process.env.NEXT_PUBLIC_OPENAI_API_KEY || '');
 
   // Refs
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -236,25 +240,63 @@ const MockInterviewPage = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
-  // Browser TTS fallback (regular function, not a hook)
-  const browserTTS = useCallback((text: string, currentVolume: number, onEnd: () => void) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-      utterance.volume = currentVolume / 100;
-      utterance.onend = onEnd;
+  // Enhanced system prompt for professional interviewing
+  const getSystemPrompt = useCallback((): string => {
+    const basePrompt = `You are Sarah, a senior ${formData.role || 'Software Engineer'} and experienced technical interviewer at a top tech company. 
 
-      window.speechSynthesis.speak(utterance);
-    }
-  }, []);
+INTERVIEW DETAILS:
+- Position: ${formData.role}
+- Type: ${formData.interviewType}
+- Tech Stack: ${formData.techStack}
+- Duration: ${formData.duration} minutes
+- Current Question: ${questionNumber} of ${totalQuestions}
 
-  // OpenAI API call - memoized with useCallback
+YOUR PERSONALITY & APPROACH:
+- Professional yet warm and encouraging
+- Clear, concise communication
+- Ask ONE question at a time
+- Listen actively and provide thoughtful follow-ups
+- Balance between challenging and supportive
+- Give constructive feedback when appropriate
+
+INTERVIEW FLOW:
+1. Start with a warm greeting and ask the candidate to introduce themselves
+2. Ask about their experience with ${formData.techStack}
+3. Progress from basic to advanced questions
+4. Include behavioral questions (e.g., "Tell me about a challenging project")
+5. Ask technical deep-dive questions relevant to ${formData.role}
+6. Occasionally give coding challenges (mention "Let's try a coding challenge")
+7. Ask follow-up questions based on their answers
+8. Conclude professionally when reaching question ${totalQuestions}
+
+TECHNICAL INTERVIEW GUIDELINES:
+- Ask about system design, algorithms, data structures
+- Inquire about best practices and optimization
+- Discuss real-world scenarios they might face
+- Test problem-solving approach, not just solutions
+
+NON-TECHNICAL INTERVIEW GUIDELINES:
+- Focus on soft skills, teamwork, leadership
+- Ask about conflict resolution
+- Discuss career goals and motivations
+- Explore cultural fit and values
+
+RESPONSE RULES:
+- Keep responses under 3 sentences
+- Ask only ONE question per response
+- Be natural and conversational
+- Acknowledge their answers before moving to next question
+- Use phrases like "That's interesting," "Good point," "Tell me more about..."
+
+Remember: You're conducting a real interview, not a quiz. Build rapport, assess skills, and help the candidate showcase their abilities.`;
+
+    return basePrompt;
+  }, [formData, questionNumber, totalQuestions]);
+
+  // OpenAI API call with enhanced error handling
   const callOpenAI = useCallback(async (messages: ConversationMessage[]): Promise<string | null> => {
-    if (!apiKey) {
-      alert('Please enter your OpenAI API key in settings');
+    if (!API_KEY) {
+      setErrorMessage('OpenAI API key not configured. Please add NEXT_PUBLIC_OPENAI_API_KEY to your .env file.');
       return null;
     }
 
@@ -263,48 +305,77 @@ const MockInterviewPage = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
+          'Authorization': `Bearer ${API_KEY}`
         },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
+          model: 'gpt-4o-mini', // Using GPT-4 Mini for better quality and lower cost
           messages: messages.map(msg => ({
             role: msg.role,
             content: msg.content
           })),
-          temperature: 0.7,
-          max_tokens: 500
+          temperature: 0.8, // Slightly higher for more natural conversation
+          max_tokens: 300, // Shorter responses for more natural interview flow
+          presence_penalty: 0.6, // Encourage topic diversity
+          frequency_penalty: 0.3 // Reduce repetition
         })
       });
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('OpenAI API Error:', errorData);
+        
+        if (response.status === 401) {
+          setErrorMessage('Invalid API key. Please check your OpenAI API key configuration.');
+        } else if (response.status === 429) {
+          setErrorMessage('Rate limit exceeded. Please wait a moment and try again.');
+        } else if (response.status === 500) {
+          setErrorMessage('OpenAI service error. Please try again in a moment.');
+        } else {
+          setErrorMessage(`API error: ${response.statusText}`);
+        }
+        return null;
       }
 
       const data = await response.json();
+      setErrorMessage(''); // Clear any previous errors
       return data.choices[0].message.content;
     } catch (error) {
       console.error('OpenAI API Error:', error);
-      alert('Error calling OpenAI API. Please check your API key and try again.');
+      setErrorMessage('Network error. Please check your internet connection and try again.');
       return null;
     }
-  }, [apiKey]);
+  }, [API_KEY]);
 
-  // Text to Speech using OpenAI - memoized
+  // Enhanced Text to Speech using OpenAI with "nova" voice
   const speakText = useCallback(async (text: string) => {
     setIsSpeaking(true);
+
+    if (!API_KEY) {
+      // Fallback to browser TTS if no API key
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = volume / 100;
+        utterance.onend = () => setIsSpeaking(false);
+        window.speechSynthesis.speak(utterance);
+      }
+      return;
+    }
 
     try {
       const response = await fetch('https://api.openai.com/v1/audio/speech', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
+          'Authorization': `Bearer ${API_KEY}`
         },
         body: JSON.stringify({
-          model: 'tts-1',
-          voice: 'alloy',
+          model: 'tts-1-hd', // HD quality for better voice
+          voice: 'nova', // Nova has the most professional, natural female voice
           input: text,
-          speed: 1.0
+          speed: 0.95 // Slightly slower for more professional delivery
         })
       });
 
@@ -327,16 +398,31 @@ const MockInterviewPage = () => {
         URL.revokeObjectURL(audioUrl);
       };
 
+      audioRef.current.onerror = () => {
+        setIsSpeaking(false);
+        URL.revokeObjectURL(audioUrl);
+        console.error('Audio playback error');
+      };
+
       await audioRef.current.play();
     } catch (error) {
       console.error('TTS Error:', error);
       // Fallback to browser speech synthesis
-      browserTTS(text, volume, () => setIsSpeaking(false));
-      setIsSpeaking(true);
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = volume / 100;
+        utterance.onend = () => setIsSpeaking(false);
+        window.speechSynthesis.speak(utterance);
+      } else {
+        setIsSpeaking(false);
+      }
     }
-  }, [apiKey, volume, browserTTS]);
+  }, [API_KEY, volume]);
 
-  // Trigger coding question - memoized
+  // Trigger coding question
   const triggerCodingQuestion = useCallback(() => {
     const randomProblem = CODING_PROBLEMS[Math.floor(Math.random() * CODING_PROBLEMS.length)];
     setCurrentCodingProblem(randomProblem);
@@ -347,7 +433,7 @@ const MockInterviewPage = () => {
     setShowTestResults(false);
   }, []);
 
-  // Handle user speech - memoized
+  // Handle user speech with improved conversation flow
   const handleUserSpeech = useCallback(async (transcript: string) => {
     const userMessage: ConversationMessage = {
       role: 'user',
@@ -360,17 +446,17 @@ const MockInterviewPage = () => {
 
     setIsProcessing(true);
 
-    // Create system prompt based on interview type
+    // Create system prompt
     const systemPrompt: ConversationMessage = {
-      role: 'assistant',
-      content: `You are an experienced ${formData.role || 'software engineer'} interviewer conducting a ${formData.interviewType} interview. 
-      The candidate is interviewing for a ${formData.role} position with tech stack: ${formData.techStack}. 
-      Ask relevant questions, provide constructive feedback, and occasionally give coding challenges when appropriate.
-      Keep responses concise and professional. Current question number: ${questionNumber} of ${totalQuestions}.`,
+      role: 'system',
+      content: getSystemPrompt(),
       timestamp: new Date().toISOString()
     };
 
-    const response = await callOpenAI([systemPrompt, ...updatedHistory]);
+    // Prepare messages for API (include system prompt only once)
+    const apiMessages = [systemPrompt, ...updatedHistory];
+
+    const response = await callOpenAI(apiMessages);
 
     if (response) {
       const aiMessage: ConversationMessage = {
@@ -386,9 +472,11 @@ const MockInterviewPage = () => {
       await speakText(response);
 
       // Check if AI wants to give a coding question
-      if (response.toLowerCase().includes('coding challenge') || 
-          response.toLowerCase().includes('write a function') ||
-          response.toLowerCase().includes('solve this problem')) {
+      const lowerResponse = response.toLowerCase();
+      if (lowerResponse.includes('coding challenge') || 
+          lowerResponse.includes('write a function') ||
+          lowerResponse.includes('solve this problem') ||
+          lowerResponse.includes("let's code")) {
         setTimeout(() => {
           triggerCodingQuestion();
         }, 2000);
@@ -398,9 +486,9 @@ const MockInterviewPage = () => {
     }
 
     setIsProcessing(false);
-  }, [conversationHistory, formData.interviewType, formData.role, formData.techStack, interviewTime, questionNumber, totalQuestions, callOpenAI, speakText, triggerCodingQuestion, formatTime]);
+  }, [conversationHistory, interviewTime, getSystemPrompt, callOpenAI, speakText, triggerCodingQuestion, formatTime, totalQuestions]);
 
-  // Initialize speech recognition
+  // Initialize speech recognition with better error handling
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -412,19 +500,41 @@ const MockInterviewPage = () => {
 
         recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
           const transcript = event.results[0][0].transcript;
+          console.log('Recognized speech:', transcript);
           handleUserSpeech(transcript);
         };
 
         recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
           console.error('Speech recognition error:', event.error);
           setIsListening(false);
+          
+          if (event.error === 'not-allowed') {
+            setErrorMessage('Microphone access denied. Please allow microphone access in your browser settings.');
+          } else if (event.error === 'no-speech') {
+            setErrorMessage('No speech detected. Please try again.');
+            setTimeout(() => setErrorMessage(''), 3000);
+          } else if (event.error === 'network') {
+            setErrorMessage('Network error. Please check your internet connection.');
+          }
         };
 
         recognitionRef.current.onend = () => {
           setIsListening(false);
         };
+      } else {
+        setErrorMessage('Speech recognition not supported in this browser. Please use Chrome or Edge.');
       }
     }
+
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          // Ignore errors on cleanup
+        }
+      }
+    };
   }, [handleUserSpeech]);
 
   // Interview timer
@@ -440,11 +550,9 @@ const MockInterviewPage = () => {
     };
   }, [showMockInterview, isPaused]);
 
-  // Start interview with initial question - memoized
+  // Start interview with enhanced initial question
   const startInterviewConversation = useCallback(async () => {
-    const initialPrompt = `Hello! I'm your AI interviewer for the ${formData.role} position. 
-    This will be a ${formData.duration}-minute ${formData.interviewType} interview. 
-    Let's start with an introduction. Tell me about yourself and your experience with ${formData.techStack}.`;
+    const initialPrompt = `Hello! I'm Sarah, and I'll be conducting your interview today for the ${formData.role || 'software engineering'} position. I'm really excited to learn about your background and experience, especially with ${formData.techStack || 'your tech stack'}. This will be a ${formData.duration}-minute conversation. Let's start with you telling me a bit about yourself and your journey in tech. What interests you most about this role?`;
 
     const aiMessage: ConversationMessage = {
       role: 'assistant',
@@ -454,26 +562,39 @@ const MockInterviewPage = () => {
 
     setConversationHistory([aiMessage]);
     setCurrentQuestion(initialPrompt);
+    setQuestionNumber(1);
     await speakText(initialPrompt);
-  }, [formData.role, formData.duration, formData.interviewType, formData.techStack, speakText]);
+  }, [formData, speakText]);
 
-  // Start listening to user - memoized
+  // Start listening to user
   const startListening = useCallback(() => {
-    if (recognitionRef.current && !isListening) {
-      setIsListening(true);
-      recognitionRef.current.start();
+    if (recognitionRef.current && !isListening && !isSpeaking) {
+      try {
+        setIsListening(true);
+        setErrorMessage('');
+        recognitionRef.current.start();
+      } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        setIsListening(false);
+        setErrorMessage('Could not start microphone. Please try again.');
+      }
     }
-  }, [isListening]);
+  }, [isListening, isSpeaking]);
 
-  // Stop listening - memoized
+  // Stop listening
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
+      try {
+        recognitionRef.current.stop();
+        setIsListening(false);
+      } catch (error) {
+        console.error('Error stopping speech recognition:', error);
+        setIsListening(false);
+      }
     }
   }, [isListening]);
 
-  // Run code tests - memoized
+  // Run code tests
   const runCodeTests = useCallback(() => {
     if (!currentCodingProblem) return;
 
@@ -511,23 +632,26 @@ const MockInterviewPage = () => {
       
       let feedback = '';
       if (passedCount === totalCount) {
-        feedback = `Excellent! All ${totalCount} test cases passed. Your solution is correct.`;
+        feedback = `Excellent work! All ${totalCount} test cases passed. Your solution looks good. Can you walk me through your approach?`;
       } else {
-        feedback = `${passedCount} out of ${totalCount} test cases passed. Please review the failed cases and try again.`;
+        feedback = `I see you got ${passedCount} out of ${totalCount} test cases passing. Let's review the failing cases - what do you think might be the issue?`;
       }
 
       speakText(feedback);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      alert(`Error in code: ${errorMessage}`);
+      setErrorMessage(`Error in code: ${errorMessage}`);
     }
   }, [currentCodingProblem, currentCode, speakText]);
 
-  // Submit code solution - memoized
+  // Submit code solution
   const handleSubmitCode = useCallback(async () => {
     runCodeTests();
 
-    const submissionMessage = `I've completed the coding challenge: ${currentCodingProblem?.title}`;
+    const passedCount = testResults.filter(r => r.passed).length;
+    const totalCount = testResults.length;
+    
+    const submissionMessage = `I've completed the coding challenge: ${currentCodingProblem?.title}. ${passedCount} out of ${totalCount} test cases passed.`;
     
     const userMessage: ConversationMessage = {
       role: 'user',
@@ -539,9 +663,8 @@ const MockInterviewPage = () => {
     setConversationHistory(updatedHistory);
 
     const systemPrompt: ConversationMessage = {
-      role: 'assistant',
-      content: `The candidate has submitted their solution for the coding problem. 
-      Provide brief feedback and move to the next question.`,
+      role: 'system',
+      content: getSystemPrompt(),
       timestamp: new Date().toISOString()
     };
 
@@ -558,23 +681,24 @@ const MockInterviewPage = () => {
       setCurrentQuestion(response);
       await speakText(response);
     }
-  }, [runCodeTests, currentCodingProblem?.title, interviewTime, conversationHistory, callOpenAI, speakText, formatTime]);
+  }, [runCodeTests, testResults, currentCodingProblem?.title, interviewTime, conversationHistory, getSystemPrompt, callOpenAI, speakText, formatTime]);
 
-  // Handle starting interview - memoized
+  // Handle starting interview
   const handleStartInterview = useCallback(() => {
-    if (!apiKey) {
-      alert('Please enter your OpenAI API key to continue');
+    if (!API_KEY) {
+      setErrorMessage('⚠️ OpenAI API key not configured. Please add NEXT_PUBLIC_OPENAI_API_KEY to your .env.local file.');
       return;
     }
     
     setShowModal(false);
     setShowMockInterview(true);
+    setErrorMessage('');
     startInterviewConversation();
-  }, [apiKey, startInterviewConversation]);
+  }, [API_KEY, startInterviewConversation]);
 
-  // Handle leaving interview - memoized
+  // Handle leaving interview
   const handleLeaveInterview = useCallback(() => {
-    if (window.confirm('Are you sure you want to leave the interview?')) {
+    if (window.confirm('Are you sure you want to leave the interview? Your progress will be lost.')) {
       // Stop all audio
       if (audioRef.current) {
         audioRef.current.pause();
@@ -583,7 +707,11 @@ const MockInterviewPage = () => {
         window.speechSynthesis.cancel();
       }
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          // Ignore
+        }
       }
 
       // Reset all states
@@ -600,84 +728,83 @@ const MockInterviewPage = () => {
       setCurrentCodingProblem(null);
       setTestResults([]);
       setCurrentCode('');
+      setErrorMessage('');
     }
   }, []);
 
-// Interview types data
-const interviewTypes: InterviewCard[] = [
-  {
-    id: 1,
-    title: 'System Design',
-    category: 'Technical',
-    icon: <Code className="w-8 h-8 text-blue-400" />,
-    description: 'Design scalable systems and architecture'
-  },
-  {
-    id: 2,
-    title: 'Business Analyst',
-    category: 'Non-Technical',
-    icon: <TrendingUp className="w-8 h-8 text-green-400" />,
-    description: 'Business requirements and analysis'
-  },
-  {
-    id: 3,
-    title: 'Mobile App Development',
-    category: 'Technical',
-    icon: <Smartphone className="w-8 h-8 text-purple-400" />,
-    description: 'iOS and Android development'
-  },
-  {
-    id: 4,
-    title: 'SQL & Database',
-    category: 'Technical',
-    icon: <Database className="w-8 h-8 text-yellow-400" />,
-    description: 'Database design and queries'
-  },
-  {
-    id: 5,
-    title: 'Cybersecurity',
-    category: 'Technical',
-    icon: <Shield className="w-8 h-8 text-red-400" />,
-    description: 'Security protocols and practices'
-  },
-  {
-    id: 6,
-    title: 'Sales & Marketing',
-    category: 'Non-Technical',
-    icon: <Users className="w-8 h-8 text-pink-400" />,
-    description: 'Sales strategies and marketing'
-  },
-  // Web development related
-  {
-    id: 7,
-    title: 'Front-End Development',
-    category: 'Technical',
-    icon: <Code className="w-8 h-8 text-indigo-400" />,
-    description: 'HTML, CSS, JavaScript, and frameworks like React or Angular'
-  },
-  {
-    id: 8,
-    title: 'Back-End Development',
-    category: 'Technical',
-    icon: <Server className="w-8 h-8 text-teal-400" />,
-    description: 'Node.js, Express, REST APIs, and server-side logic'
-  },
-  {
-    id: 9,
-    title: 'Full-Stack Development',
-    category: 'Technical',
-    icon: <Globe className="w-8 h-8 text-orange-400" />,
-    description: 'End-to-end web applications combining front-end and back-end skills'
-  },
-  {
-    id: 10,
-    title: 'Web Performance & Optimization',
-    category: 'Technical',
-    icon: <CloudLightning className="w-8 h-8 text-yellow-600" />,
-    description: 'Improving website speed, responsiveness, and SEO'
-  }
-];
-
+  // Interview types data
+  const interviewTypes: InterviewCard[] = [
+    {
+      id: 1,
+      title: 'System Design',
+      category: 'Technical',
+      icon: <Code className="w-8 h-8 text-blue-400" />,
+      description: 'Design scalable systems and architecture'
+    },
+    {
+      id: 2,
+      title: 'Business Analyst',
+      category: 'Non-Technical',
+      icon: <TrendingUp className="w-8 h-8 text-green-400" />,
+      description: 'Business requirements and analysis'
+    },
+    {
+      id: 3,
+      title: 'Mobile App Development',
+      category: 'Technical',
+      icon: <Smartphone className="w-8 h-8 text-purple-400" />,
+      description: 'iOS and Android development'
+    },
+    {
+      id: 4,
+      title: 'SQL & Database',
+      category: 'Technical',
+      icon: <Database className="w-8 h-8 text-yellow-400" />,
+      description: 'Database design and queries'
+    },
+    {
+      id: 5,
+      title: 'Cybersecurity',
+      category: 'Technical',
+      icon: <Shield className="w-8 h-8 text-red-400" />,
+      description: 'Security protocols and practices'
+    },
+    {
+      id: 6,
+      title: 'Sales & Marketing',
+      category: 'Non-Technical',
+      icon: <Users className="w-8 h-8 text-pink-400" />,
+      description: 'Sales strategies and marketing'
+    },
+    {
+      id: 7,
+      title: 'Front-End Development',
+      category: 'Technical',
+      icon: <Code className="w-8 h-8 text-indigo-400" />,
+      description: 'HTML, CSS, JavaScript, React, Angular'
+    },
+    {
+      id: 8,
+      title: 'Back-End Development',
+      category: 'Technical',
+      icon: <Server className="w-8 h-8 text-teal-400" />,
+      description: 'Node.js, Express, REST APIs'
+    },
+    {
+      id: 9,
+      title: 'Full-Stack Development',
+      category: 'Technical',
+      icon: <Globe className="w-8 h-8 text-orange-400" />,
+      description: 'End-to-end web applications'
+    },
+    {
+      id: 10,
+      title: 'Web Performance',
+      category: 'Technical',
+      icon: <CloudLightning className="w-8 h-8 text-yellow-600" />,
+      description: 'Speed optimization and SEO'
+    }
+  ];
 
   const handleCardClick = useCallback((card: InterviewCard) => {
     setFormData(prev => ({ ...prev, interviewType: card.category }));
@@ -746,6 +873,29 @@ const interviewTypes: InterviewCard[] = [
 
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
+            {/* Error Message Display */}
+            <AnimatePresence>
+              {errorMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="mb-4 p-4 bg-red-900/20 border border-red-500/30 rounded-lg flex items-start space-x-3"
+                >
+                  <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-red-300 text-sm">{errorMessage}</p>
+                  </div>
+                  <button
+                    onClick={() => setErrorMessage('')}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div className="flex gap-4">
               {/* Main Content Area */}
               <div className="flex-1 space-y-8">
@@ -828,11 +978,11 @@ const interviewTypes: InterviewCard[] = [
                               ease: "easeInOut"
                             }}
                           >
-                            🤖
+                            🎤
                           </motion.div>
                         </div>
                       </motion.div>
-                      <h3 className="text-2xl font-bold text-white mb-2">AI Interviewer</h3>
+                      <h3 className="text-2xl font-bold text-white mb-2">Sarah - AI Interviewer</h3>
                       <motion.div
                         className="w-4 h-4 rounded-full mx-auto"
                         animate={{
@@ -972,11 +1122,10 @@ const interviewTypes: InterviewCard[] = [
                   </div>
                 </div>
 
-                {/* Collapsible Code Editor Panel */}
+                {/* Code Editor - Keep existing code */}
                 {showCodeEditor && currentCodingProblem && (
                   <div>
                     <div className="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700">
-                      {/* Code Editor Header */}
                       <div 
                         className="flex items-center justify-between p-4 bg-gray-900 cursor-pointer hover:bg-gray-700 transition-colors"
                         onClick={() => setCodeEditorCollapsed(!codeEditorCollapsed)}
@@ -1001,12 +1150,10 @@ const interviewTypes: InterviewCard[] = [
                         </div>
                       </div>
 
-                      {/* Code Editor Content */}
                       <div className={`transition-all duration-300 ease-in-out ${
                         codeEditorCollapsed ? 'max-h-0 overflow-hidden' : 'max-h-[1000px] overflow-visible'
                       }`}>
                         <div className="p-6">
-                          {/* Problem Statement */}
                           <div className="mb-4 p-4 bg-gray-900 rounded-lg border border-gray-600">
                             <h5 className="text-md font-semibold text-yellow-400 mb-2">Problem Description</h5>
                             <p className="text-gray-300 text-sm mb-4">
@@ -1022,20 +1169,16 @@ const interviewTypes: InterviewCard[] = [
                             </div>
                           </div>
 
-                          {/* Code Editor Area */}
                           <div className="relative bg-gray-900 rounded-lg border border-gray-600">
                             <textarea
                               value={currentCode}
                               onChange={(e) => setCurrentCode(e.target.value)}
                               className="w-full h-64 bg-transparent text-gray-100 font-mono text-sm p-4 pl-12 rounded-lg focus:outline-none resize-none"
-                              style={{
-                                lineHeight: '1.5',
-                              }}
+                              style={{ lineHeight: '1.5' }}
                               spellCheck={false}
                               placeholder="// Start coding here..."
                             />
                             
-                            {/* Line numbers */}
                             <div className="absolute top-4 left-4 text-xs text-gray-500 font-mono leading-6 pointer-events-none select-none">
                               {currentCode.split('\n').map((_, index) => (
                                 <div key={index}>{index + 1}</div>
@@ -1043,7 +1186,6 @@ const interviewTypes: InterviewCard[] = [
                             </div>
                           </div>
 
-                          {/* Editor Controls */}
                           <div className="flex items-center justify-between mt-4">
                             <div className="flex items-center space-x-2 text-sm text-gray-400">
                               <div className="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -1069,7 +1211,6 @@ const interviewTypes: InterviewCard[] = [
                             </div>
                           </div>
 
-                          {/* Test Results Area */}
                           {showTestResults && testResults.length > 0 && (
                             <div className="mt-4 p-4 bg-gray-900 rounded-lg border border-gray-600">
                               <div className="flex items-center justify-between mb-3">
@@ -1119,7 +1260,6 @@ const interviewTypes: InterviewCard[] = [
                   </div>
                 )}
 
-                {/* Quick Actions */}
                 <div className="flex justify-center space-x-4">
                   <button 
                     onClick={() => {
@@ -1135,7 +1275,7 @@ const interviewTypes: InterviewCard[] = [
                 </div>
               </div>
 
-              {/* Right Sidebar - Transcript/Settings */}
+              {/* Right Sidebar - Keep existing code */}
               <AnimatePresence>
                 {(showTranscript || showSettings) && (
                   <motion.div
@@ -1163,7 +1303,7 @@ const interviewTypes: InterviewCard[] = [
                                 <span className={`font-semibold ${
                                   entry.role === 'assistant' ? 'text-blue-400' : 'text-green-400'
                                 }`}>
-                                  {entry.role === 'assistant' ? 'AI' : 'You'}
+                                  {entry.role === 'assistant' ? 'Sarah' : 'You'}
                                 </span>
                                 <span className="text-xs text-gray-500">{entry.timestamp}</span>
                               </div>
@@ -1186,7 +1326,6 @@ const interviewTypes: InterviewCard[] = [
                           </button>
                         </div>
                         <div className="space-y-6">
-                          {/* Volume Control */}
                           <div>
                             <label className="block text-sm font-medium mb-2">
                               AI Voice Volume
@@ -1205,7 +1344,6 @@ const interviewTypes: InterviewCard[] = [
                             </div>
                           </div>
 
-                          {/* Microphone Status */}
                           <div>
                             <label className="block text-sm font-medium mb-2">
                               Microphone
@@ -1218,21 +1356,18 @@ const interviewTypes: InterviewCard[] = [
                             </div>
                           </div>
 
-                          {/* API Key */}
                           <div>
                             <label className="block text-sm font-medium mb-2">
-                              OpenAI API Key
+                              API Status
                             </label>
-                            <input
-                              type="password"
-                              value={apiKey}
-                              onChange={(e) => setApiKey(e.target.value)}
-                              placeholder="sk-..."
-                              className="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none text-sm"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                              Get your key from platform.openai.com
-                            </p>
+                            <div className={`w-full flex items-center justify-between px-4 py-3 rounded-lg ${
+                              API_KEY ? 'bg-green-900/20 border border-green-500/30' : 'bg-red-900/20 border border-red-500/30'
+                            }`}>
+                              <div className="flex items-center space-x-2">
+                                <div className={`w-2 h-2 rounded-full ${API_KEY ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                                <span className="text-sm">{API_KEY ? 'Connected' : 'Not Configured'}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1247,10 +1382,9 @@ const interviewTypes: InterviewCard[] = [
     );
   }
 
-  // Main Landing Page
+  // Main Landing Page - Keep all existing code
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20"></div>
         <div className="relative container mx-auto px-4 py-20 text-center">
@@ -1275,13 +1409,11 @@ const interviewTypes: InterviewCard[] = [
             </button>
           </div>
           
-          {/* Background Decoration */}
           <div className="absolute top-20 right-10 w-32 h-32 bg-blue-500/10 rounded-full blur-xl"></div>
           <div className="absolute bottom-20 left-10 w-40 h-40 bg-purple-500/10 rounded-full blur-xl"></div>
         </div>
       </section>
 
-      {/* Pick Your Interview Section */}
       <section id="pick-interview" className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -1317,7 +1449,6 @@ const interviewTypes: InterviewCard[] = [
         </div>
       </section>
 
-      {/* Call to Action Section */}
       <section className="py-20 bg-gray-800/50">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto">
@@ -1351,28 +1482,32 @@ const interviewTypes: InterviewCard[] = [
             </div>
 
             <div className="space-y-6">
-              {/* API Key Input */}
-              <div className="p-4 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
-                <h4 className="text-sm font-semibold text-yellow-400 mb-2">🔑 OpenAI API Key Required</h4>
-                <p className="text-xs text-gray-400 mb-3">
-                  You need an OpenAI API key for voice features. Get one from{' '}
-                  <a 
-                    href="https://platform.openai.com/api-keys" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:underline"
-                  >
-                    platform.openai.com
-                  </a>
-                </p>
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none text-sm"
-                  placeholder="sk-..."
-                />
-              </div>
+              {/* API Key Status */}
+              {!API_KEY && (
+                <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
+                  <h4 className="text-sm font-semibold text-red-400 mb-2 flex items-center">
+                    <AlertTriangle className="w-4 h-4 mr-2" />
+                    API Key Not Configured
+                  </h4>
+                  <p className="text-xs text-gray-400 mb-2">
+                    Add your OpenAI API key to <code className="bg-gray-900 px-1 rounded">.env.local</code>:
+                  </p>
+                  <code className="text-xs bg-gray-900 p-2 rounded block">
+                    NEXT_PUBLIC_OPENAI_API_KEY=sk-...
+                  </code>
+                  <p className="text-xs text-gray-400 mt-2">
+                    Get your key from{' '}
+                    <a 
+                      href="https://platform.openai.com/api-keys" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:underline"
+                    >
+                      platform.openai.com
+                    </a>
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium mb-2">Interview Type</label>
@@ -1439,9 +1574,9 @@ const interviewTypes: InterviewCard[] = [
 
               <button
                 onClick={handleStartInterview}
-                disabled={!apiKey}
+                disabled={!API_KEY}
                 className={`w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold transition-colors ${
-                  !apiKey ? 'opacity-50 cursor-not-allowed' : ''
+                  !API_KEY ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
                 Start Interview
