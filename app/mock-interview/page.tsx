@@ -27,7 +27,10 @@ import {
   MicOff,
   Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Globe,
+  Server,
+  CloudLightning
 } from 'lucide-react';
 
 // Types
@@ -600,51 +603,81 @@ const MockInterviewPage = () => {
     }
   }, []);
 
-  // Interview types data
-  const interviewTypes: InterviewCard[] = [
-    {
-      id: 1,
-      title: 'System Design',
-      category: 'Technical',
-      icon: <Code className="w-8 h-8 text-blue-400" />,
-      description: 'Design scalable systems and architecture'
-    },
-    {
-      id: 2,
-      title: 'Business Analyst',
-      category: 'Non-Technical',
-      icon: <TrendingUp className="w-8 h-8 text-green-400" />,
-      description: 'Business requirements and analysis'
-    },
-    {
-      id: 3,
-      title: 'Mobile App Development',
-      category: 'Technical',
-      icon: <Smartphone className="w-8 h-8 text-purple-400" />,
-      description: 'iOS and Android development'
-    },
-    {
-      id: 4,
-      title: 'SQL & Database',
-      category: 'Technical',
-      icon: <Database className="w-8 h-8 text-yellow-400" />,
-      description: 'Database design and queries'
-    },
-    {
-      id: 5,
-      title: 'Cybersecurity',
-      category: 'Technical',
-      icon: <Shield className="w-8 h-8 text-red-400" />,
-      description: 'Security protocols and practices'
-    },
-    {
-      id: 6,
-      title: 'Sales & Marketing',
-      category: 'Non-Technical',
-      icon: <Users className="w-8 h-8 text-pink-400" />,
-      description: 'Sales strategies and marketing'
-    }
-  ];
+// Interview types data
+const interviewTypes: InterviewCard[] = [
+  {
+    id: 1,
+    title: 'System Design',
+    category: 'Technical',
+    icon: <Code className="w-8 h-8 text-blue-400" />,
+    description: 'Design scalable systems and architecture'
+  },
+  {
+    id: 2,
+    title: 'Business Analyst',
+    category: 'Non-Technical',
+    icon: <TrendingUp className="w-8 h-8 text-green-400" />,
+    description: 'Business requirements and analysis'
+  },
+  {
+    id: 3,
+    title: 'Mobile App Development',
+    category: 'Technical',
+    icon: <Smartphone className="w-8 h-8 text-purple-400" />,
+    description: 'iOS and Android development'
+  },
+  {
+    id: 4,
+    title: 'SQL & Database',
+    category: 'Technical',
+    icon: <Database className="w-8 h-8 text-yellow-400" />,
+    description: 'Database design and queries'
+  },
+  {
+    id: 5,
+    title: 'Cybersecurity',
+    category: 'Technical',
+    icon: <Shield className="w-8 h-8 text-red-400" />,
+    description: 'Security protocols and practices'
+  },
+  {
+    id: 6,
+    title: 'Sales & Marketing',
+    category: 'Non-Technical',
+    icon: <Users className="w-8 h-8 text-pink-400" />,
+    description: 'Sales strategies and marketing'
+  },
+  // Web development related
+  {
+    id: 7,
+    title: 'Front-End Development',
+    category: 'Technical',
+    icon: <Code className="w-8 h-8 text-indigo-400" />,
+    description: 'HTML, CSS, JavaScript, and frameworks like React or Angular'
+  },
+  {
+    id: 8,
+    title: 'Back-End Development',
+    category: 'Technical',
+    icon: <Server className="w-8 h-8 text-teal-400" />,
+    description: 'Node.js, Express, REST APIs, and server-side logic'
+  },
+  {
+    id: 9,
+    title: 'Full-Stack Development',
+    category: 'Technical',
+    icon: <Globe className="w-8 h-8 text-orange-400" />,
+    description: 'End-to-end web applications combining front-end and back-end skills'
+  },
+  {
+    id: 10,
+    title: 'Web Performance & Optimization',
+    category: 'Technical',
+    icon: <CloudLightning className="w-8 h-8 text-yellow-600" />,
+    description: 'Improving website speed, responsiveness, and SEO'
+  }
+];
+
 
   const handleCardClick = useCallback((card: InterviewCard) => {
     setFormData(prev => ({ ...prev, interviewType: card.category }));
