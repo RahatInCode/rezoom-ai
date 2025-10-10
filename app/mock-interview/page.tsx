@@ -5,15 +5,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 
-import { 
-  PlayCircle, 
-  Code, 
-  Database, 
-  Smartphone, 
-  Shield, 
-  TrendingUp, 
-  Users, 
-  Briefcase, 
+import {
+  PlayCircle,
+  Code,
+  Database,
+  Smartphone,
+  Shield,
+  TrendingUp,
+  Users,
+  Briefcase,
   X,
   Repeat,
   LogOut,
@@ -33,7 +33,8 @@ import {
   AlertCircle,
   Globe,
   Server,
-  CloudLightning
+  CloudLightning,
+  Loader
 } from 'lucide-react';
 import { type CodingProblem, type TestCase, getRandomProblem } from '../Components/CodingProblems';
 
@@ -59,30 +60,9 @@ interface InterviewCard {
   description: string;
 }
 
-interface SpeechRecognitionEvent extends Event {
-  results: SpeechRecognitionResultList;
-}
-
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start: () => void;
-  stop: () => void;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
-  onend: (() => void) | null;
-  onstart: (() => void) | null;
-}
-
-interface SpeechRecognitionResultList {
-  length: number;
-  item(index: number): SpeechRecognitionResult;
-  [index: number]: SpeechRecognitionResult;
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
 }
 
 interface SpeechRecognitionResult {
@@ -92,9 +72,43 @@ interface SpeechRecognitionResult {
   isFinal: boolean;
 }
 
-interface SpeechRecognitionAlternative {
-  transcript: string;
-  confidence: number;
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
+  interpretation: unknown;
+  emma: unknown;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  maxAlternatives: number;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  onstart: (() => void) | null;
+  onaudiostart: (() => void) | null;
+  onaudioend: (() => void) | null;
+  onsoundstart: (() => void) | null;
+  onsoundend: (() => void) | null;
+  onspeechstart: (() => void) | null;
+  onspeechend: (() => void) | null;
+  onnomatch: (() => void) | null;
 }
 
 declare global {
@@ -106,7 +120,7 @@ declare global {
 
 const MockInterviewPage = () => {
   const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY || '';
-  
+
   // State management
   const [showModal, setShowModal] = useState(false);
   const [showMockInterview, setShowMockInterview] = useState(false);
@@ -137,10 +151,16 @@ const MockInterviewPage = () => {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [showTestResults, setShowTestResults] = useState(false);
 
+  // NEW: Interim transcript and better state management
+  const [interimTranscript, setInterimTranscript] = useState('');
+  const [finalTranscript, setFinalTranscript] = useState('');
+
   // Refs
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const processingRef = useRef(false);
+  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Save interview state to localStorage
   useEffect(() => {
@@ -155,7 +175,7 @@ const MockInterviewPage = () => {
       try {
         localStorage.setItem('interviewState', JSON.stringify(interviewState));
       } catch (error) {
-        console.error('Error saving interview state:', error instanceof Error ? error.message : 'Unknown error');
+        console.error('Error saving interview state:', error instanceof Error ? error.message : String(error));
       }
     }
   }, [showMockInterview, conversationHistory, currentQuestion, questionNumber, interviewTime, formData]);
@@ -166,7 +186,7 @@ const MockInterviewPage = () => {
     if (savedState) {
       try {
         const state = JSON.parse(savedState);
-        
+
         Swal.fire({
           title: 'Resume Interview?',
           text: 'You have an ongoing interview. Would you like to continue?',
@@ -189,10 +209,10 @@ const MockInterviewPage = () => {
             localStorage.removeItem('interviewState');
           }
         }).catch((error) => {
-          console.error('SweetAlert error:', error instanceof Error ? error.message : 'Unknown error');
+          console.error('SweetAlert error:', error instanceof Error ? error.message : String(error));
         });
       } catch (error) {
-        console.error('Error restoring interview state:', error instanceof Error ? error.message : 'Unknown error');
+        console.error('Error restoring interview state:', error instanceof Error ? error.message : String(error));
         localStorage.removeItem('interviewState');
       }
     }
@@ -233,20 +253,107 @@ YOUR PERSONALITY:
 - Clear and articulate communicator
 - Patient but thorough
 - Genuinely interested in the candidate's experience
+Your tone should feel like a real interviewer from a reputable tech company — empathetic, focused, and conversational.
 
-INTERVIEWING STYLE:
-1. Start with a warm greeting, introduce yourself as Sneha
-2. Build rapport - ask about their background
-3. Progressive difficulty - start easy, gradually increase
-4. Acknowledge answers: "That's a great point...", "Interesting approach...", "Tell me more..."
-5. Ask ONE clear question at a time
-6. Mix technical depth, problem-solving, behavioral questions
+🗣 INTERVIEWING STYLE
 
-RESPONSE GUIDELINES:
-- Keep responses under 3 sentences
-- Use professional but friendly tone
-- Provide subtle encouragement
-- Occasionally suggest coding challenges: "Let's try a quick coding problem"
+Introduction & Rapport
+
+Start with a warm greeting and introduce yourself as Sneha.
+
+Build rapport by asking about their background and comfort level.
+
+Example:
+
+“Hi, I'm Sneha. I'll be conducting your mock interview today. How are you feeling?”
+
+Flow & Progression
+
+Begin with simple, open-ended questions.
+
+Gradually increase question difficulty (mix behavioral + technical).
+
+Ask one clear question at a time.
+
+Acknowledge & Encourage
+
+React naturally to answers with brief affirmations:
+
+“That's a great point.”
+“Interesting approach — tell me more.”
+“I like how you explained that.”
+
+Coding & Problem-Solving
+
+Occasionally introduce small coding or logic challenges:
+
+“Let's try a quick coding problem.”
+
+Wait patiently for the candidate's response.
+
+Give subtle hints if they struggle but don't reveal the full solution.
+
+Afterward, give short, constructive feedback:
+
+“Good attempt! You structured it well, though you could optimize by…”
+
+Conclusion
+
+End politely, summarize overall feedback, and thank them for participating.
+
+Example:
+
+“That wraps up our interview. You handled the questions thoughtfully — keep practicing and you’ll do great in real interviews!”
+
+⚙️ BEHAVIORAL RULES (Realtime Handling)
+
+Voice + Text Output
+
+Speak all responses and display them as text.
+
+Maintain natural pacing with short pauses.
+
+Add small fillers (“Hmm”, “Alright”, “I see”) for realism — not too often.
+
+Turn Detection & Timing
+
+Wait until the user finishes speaking.
+
+Treat ~2 seconds of silence as end of speech.
+
+Never interrupt the user; listen fully.
+
+Speech Recognition Failures
+
+If speech is unclear or missing:
+
+“I did not quite catch that — could you please repeat your answer?”
+
+Do not display system messages like "no speech detected" or "rate limit exceeded".
+
+Retry once automatically.
+
+If it happens 3 times, gracefully end with:
+
+“It seems we're having audio issues. Let's reconnect and continue later.”
+
+Error Handling
+
+On API rate-limit or timeout, pause 2 seconds and retry once.
+
+During processing delays, show “Sneha is listening…” or a waveform animation (if supported).
+
+Response Limits
+
+Keep each response under 3 sentences.
+
+Keep each voice reply under 15 seconds for smooth streaming.
+
+User Commands
+
+If the user says “repeat”, repeat your last question.
+
+If they say “end interview” or “stop”, end immediately and thank them politely.
 
 Remember: Create a comfortable interview environment while assessing talent.`;
   }, [formData, questionNumber, totalQuestions]);
@@ -261,6 +368,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       toast.error('Invalid API key format');
       return null;
     }
+
+    if (processingRef.current) {
+      console.log('Already processing, skipping API call');
+      return null;
+    }
+
+    processingRef.current = true;
 
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -286,8 +400,10 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         if (response.status === 401) {
           toast.error('Invalid API key');
         } else if (response.status === 429) {
-          toast.error('Rate limit exceeded. Please wait...');
+          toast.error('Rate limit exceeded. Please wait a moment...');
         } else {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API Error:', errorData);
           toast.error('API error occurred');
         }
         return null;
@@ -296,16 +412,27 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       const data = await response.json();
       return data.choices[0].message.content;
     } catch (error) {
-      console.error('OpenAI API Error:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('OpenAI API Error:', error instanceof Error ? error.message : String(error));
       toast.error('Network error. Please check your connection.');
       return null;
+    } finally {
+      processingRef.current = false;
     }
   }, [API_KEY]);
 
   const speakText = useCallback(async (text: string) => {
     if (!text) return;
-    
+
     setIsSpeaking(true);
+
+    if (recognitionRef.current && isListening) {
+      try {
+        recognitionRef.current.stop();
+        setIsListening(false);
+      } catch (error) {
+        console.error('Error stopping recognition:', error instanceof Error ? error.message : String(error));
+      }
+    }
 
     if (!API_KEY) {
       if ('speechSynthesis' in window) {
@@ -314,7 +441,10 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         utterance.rate = 0.95;
         utterance.pitch = 1.1;
         utterance.volume = volume / 100;
-        utterance.onend = () => setIsSpeaking(false);
+        utterance.onend = () => {
+          setIsSpeaking(false);
+          toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
+        };
         window.speechSynthesis.speak(utterance);
       }
       return;
@@ -328,7 +458,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           'Authorization': `Bearer ${API_KEY}`
         },
         body: JSON.stringify({
-          model: 'tts-1-hd',
+          model: 'tts-1',
           voice: 'nova',
           input: text,
           speed: 0.95
@@ -341,17 +471,18 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
-      
+
       if (audioRef.current) {
         audioRef.current.pause();
       }
 
       audioRef.current = new Audio(audioUrl);
       audioRef.current.volume = volume / 100;
-      
+
       audioRef.current.onended = () => {
         setIsSpeaking(false);
         URL.revokeObjectURL(audioUrl);
+        toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
       };
 
       audioRef.current.onerror = (event) => {
@@ -362,23 +493,24 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       await audioRef.current.play();
     } catch (error) {
-      console.error('TTS Error:', error instanceof Error ? error.message : 'Unknown error');
-      // Fallback to browser TTS
+      console.error('TTS Error:', error instanceof Error ? error.message : String(error));
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 0.95;
         utterance.pitch = 1.1;
         utterance.volume = volume / 100;
-        utterance.onend = () => setIsSpeaking(false);
+        utterance.onend = () => {
+          setIsSpeaking(false);
+          toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
+        };
         window.speechSynthesis.speak(utterance);
       } else {
         setIsSpeaking(false);
       }
     }
-  }, [API_KEY, volume]);
+  }, [API_KEY, volume, isListening]);
 
-  // Update volume in real-time
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume / 100;
@@ -398,12 +530,19 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
   const handleUserSpeech = useCallback(async (transcript: string) => {
     if (!transcript.trim()) {
-      toast.error('No speech detected. Please try again.');
       return;
     }
 
-    console.log('User said:', transcript);
-    toast.success('Processing your response...');
+    if (processingRef.current || isProcessing) {
+      console.log('Already processing, ignoring new transcript');
+      return;
+    }
+
+    console.log('Processing user speech:', transcript);
+
+    setIsProcessing(true);
+    setFinalTranscript(transcript);
+    setInterimTranscript('');
 
     const userMessage: ConversationMessage = {
       role: 'user',
@@ -413,7 +552,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
     const updatedHistory = [...conversationHistory, userMessage];
     setConversationHistory(updatedHistory);
-    setIsProcessing(true);
 
     const systemPrompt: ConversationMessage = {
       role: 'system',
@@ -433,10 +571,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       setConversationHistory([...updatedHistory, aiMessage]);
       setCurrentQuestion(response);
+
       await speakText(response);
 
       const lower = response.toLowerCase();
-      if (lower.includes('coding problem') || 
+      if (lower.includes('coding problem') ||
           lower.includes('coding challenge') ||
           lower.includes('write a function') ||
           lower.includes("let's code")) {
@@ -444,112 +583,140 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       }
 
       setQuestionNumber(prev => Math.min(prev + 1, totalQuestions));
+    } else {
+      toast.error('Failed to get AI response. Please try again.');
     }
 
     setIsProcessing(false);
-  }, [conversationHistory, interviewTime, getSystemPrompt, callOpenAI, speakText, triggerCodingQuestion, formatTime, totalQuestions]);
+    setFinalTranscript('');
+  }, [conversationHistory, interviewTime, getSystemPrompt, callOpenAI, speakText, triggerCodingQuestion, formatTime, totalQuestions, isProcessing]);
 
-  // Initialize speech recognition
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        recognitionRef.current = new SpeechRecognition();
-        recognitionRef.current.continuous = true;
-        recognitionRef.current.interimResults = true;
-        recognitionRef.current.lang = 'en-US';
+  const setupSpeechRecognition = useCallback(() => {
+    if (typeof window === 'undefined') return;
 
-        recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-          // Clear the timeout on new results
-          if (speechTimeoutRef.current) {
-            clearTimeout(speechTimeoutRef.current);
-          }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error('Speech recognition not supported. Please use Chrome or Edge.');
+      return;
+    }
 
-          const last = event.results.length - 1;
-          const transcript = event.results[last][0].transcript;
-          
-          // Only process final results
-          if (event.results[last].isFinal) {
-            console.log('Final transcript:', transcript);
-            handleUserSpeech(transcript);
-            
-            // Auto-stop after processing
-            setTimeout(() => {
-              if (recognitionRef.current && isListening) {
-                try {
-                  recognitionRef.current.stop();
-                } catch (error) {
-                  console.error('Error stopping recognition:', error instanceof Error ? error.message : 'Unknown error');
-                }
-              }
-            }, 500);
-          } else {
-            // Show interim results
-            console.log('Interim:', transcript);
-            
-            // Set timeout to auto-stop if no speech for 3 seconds
-            speechTimeoutRef.current = setTimeout(() => {
-              if (recognitionRef.current && isListening) {
-                try {
-                  recognitionRef.current.stop();
-                } catch (error) {
-                  console.error('Error stopping recognition:', error instanceof Error ? error.message : 'Unknown error');
-                }
-              }
-            }, 3000);
-          }
-        };
-
-        recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-          console.error('Speech error:', event.error);
-          setIsListening(false);
-          
-          if (event.error === 'not-allowed') {
-            toast.error('🎤 Microphone access denied. Please enable it in browser settings.');
-          } else if (event.error === 'no-speech') {
-            toast('🎤 No speech detected. Please try again.', { icon: '⚠️' });
-          } else if (event.error === 'network') {
-            toast.error('🌐 Network error. Check your connection.');
-          } else if (event.error === 'aborted') {
-            // Ignore aborted errors
-            return;
-          } else {
-            toast.error(`Speech recognition error: ${event.error}`);
-          }
-        };
-
-        recognitionRef.current.onend = () => {
-          console.log('Speech recognition ended');
-          setIsListening(false);
-          if (speechTimeoutRef.current) {
-            clearTimeout(speechTimeoutRef.current);
-          }
-        };
-
-        recognitionRef.current.onstart = () => {
-          console.log('Speech recognition started');
-          toast.success('🎤 Listening...');
-        };
-      } else {
-        toast.error('Speech recognition not supported. Please use Chrome or Edge.');
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        console.error('Recognition stop error:', error instanceof Error ? error.message : String(error));
       }
     }
+
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.continuous = true;
+    recognitionRef.current.interimResults = true;
+    recognitionRef.current.lang = 'en-US';
+
+    recognitionRef.current.onstart = () => {
+      console.log('Speech recognition started');
+      setIsListening(true);
+      setInterimTranscript('');
+      setFinalTranscript('');
+    };
+
+    recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+      let interim = '';
+      let final = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          final += transcript + ' ';
+        } else {
+          interim += transcript;
+        }
+      }
+
+      if (interim) {
+        setInterimTranscript(interim);
+        console.log('Interim:', interim);
+      }
+
+      if (final.trim()) {
+        console.log('Final transcript:', final.trim());
+
+        if (silenceTimeoutRef.current) {
+          clearTimeout(silenceTimeoutRef.current);
+          silenceTimeoutRef.current = null;
+        }
+
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.stop();
+          } catch (error) {
+            console.error('Error stopping recognition:', error instanceof Error ? error.message : String(error));
+          }
+        }
+
+        handleUserSpeech(final.trim());
+      }
+    };
+
+    recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
+      console.error('Speech recognition error:', event.error);
+
+      if (event.error === 'no-speech') {
+        console.log('No speech detected, will retry...');
+        return;
+      }
+
+      if (event.error === 'aborted') {
+        return;
+      }
+
+      setIsListening(false);
+
+      if (event.error === 'not-allowed') {
+        toast.error('🎤 Microphone access denied. Please enable it in browser settings.');
+      } else if (event.error === 'network') {
+        toast.error('🌐 Network error. Check your connection.');
+      } else if (event.error !== 'no-speech') {
+        toast.error(`Speech error: ${event.error}`);
+      }
+    };
+
+    recognitionRef.current.onend = () => {
+      console.log('Speech recognition ended');
+      setIsListening(false);
+      setInterimTranscript('');
+
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+        silenceTimeoutRef.current = null;
+      }
+      if (restartTimeoutRef.current) {
+        clearTimeout(restartTimeoutRef.current);
+        restartTimeoutRef.current = null;
+      }
+    };
+  }, [handleUserSpeech]);
+
+  useEffect(() => {
+    setupSpeechRecognition();
 
     return () => {
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
         } catch (error) {
-          console.error('Cleanup error:', error instanceof Error ? error.message : 'Unknown error');
+          console.error('Cleanup error:', error instanceof Error ? error.message : String(error));
         }
       }
-      if (speechTimeoutRef.current) {
-        clearTimeout(speechTimeoutRef.current);
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+      }
+      if (restartTimeoutRef.current) {
+        clearTimeout(restartTimeoutRef.current);
       }
     };
-  }, [handleUserSpeech, isListening]);
+  }, [setupSpeechRecognition]);
 
-  // Timer
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
     if (showMockInterview && !isPaused) {
@@ -580,41 +747,57 @@ Remember: Create a comfortable interview environment while assessing talent.`;
   const startListening = useCallback(() => {
     if (!recognitionRef.current) {
       toast.error('Speech recognition not available');
+      setupSpeechRecognition();
       return;
     }
 
     if (isSpeaking) {
-      toast.error('Please wait for the interviewer to finish speaking');
+      toast.error('⏳ Please wait for the interviewer to finish speaking');
       return;
     }
 
     if (isProcessing) {
-      toast.error('Please wait while processing...');
+      toast.error('⏳ Processing previous response, please wait...');
       return;
     }
 
     if (isListening) {
+      toast('Already listening...', { icon: '🎤' });
       return;
     }
 
     try {
-      setIsListening(true);
       recognitionRef.current.start();
+      toast.success('🎤 Listening... Speak now!', { duration: 2000 });
     } catch (error) {
-      console.error('Start listening error:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Start listening error:', error instanceof Error ? error.message : String(error));
       setIsListening(false);
-      toast.error('Could not start microphone. Please try again.');
+
+      setupSpeechRecognition();
+
+      setTimeout(() => {
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.start();
+          } catch (retryError) {
+            console.error('Retry start error:', retryError instanceof Error ? retryError.message : String(retryError));
+            toast.error('Could not start microphone. Please try again.');
+          }
+        }
+      }, 500);
     }
-  }, [isListening, isSpeaking, isProcessing]);
+  }, [isListening, isSpeaking, isProcessing, setupSpeechRecognition]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
       try {
         recognitionRef.current.stop();
+        toast('Stopped listening', { icon: '🛑' });
       } catch (error) {
-        console.error('Stop listening error:', error instanceof Error ? error.message : 'Unknown error');
+        console.error('Stop listening error:', error instanceof Error ? error.message : String(error));
       }
       setIsListening(false);
+      setInterimTranscript('');
     }
   }, [isListening]);
 
@@ -633,7 +816,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           const passed = JSON.stringify(actual) === JSON.stringify(testCase.expected);
           results.push({ passed, testCase, actual });
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          const errorMessage = error instanceof Error ? error.message : String(error);
           results.push({ passed: false, testCase, error: errorMessage });
         }
       });
@@ -645,7 +828,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       const totalCount = results.length;
 
       toast.dismiss(loadingToast);
-      
+
       if (passedCount === totalCount) {
         toast.success(`✅ All ${totalCount} tests passed!`);
         const feedback = `Excellent work! All ${totalCount} test cases passed. Your solution looks solid. Can you explain your approach and the time complexity?`;
@@ -656,7 +839,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         speakText(feedback);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage = error instanceof Error ? error.message : String(error);
       toast.dismiss(loadingToast);
       toast.error(`Code Error: ${errorMessage}`);
     }
@@ -671,7 +854,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       toast.error('API key not configured. Please check your .env.local file');
       return;
     }
-    
+
     setShowModal(false);
     setShowMockInterview(true);
     toast.success('Interview started! Good luck! 🎯');
@@ -697,7 +880,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         try {
           recognitionRef.current.stop();
         } catch (error) {
-          console.error('Error stopping recognition:', error instanceof Error ? error.message : 'Unknown error');
+          console.error('Error stopping recognition:', error instanceof Error ? error.message : String(error));
         }
       }
 
@@ -706,7 +889,8 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       setCodeEditorCollapsed(true);
       setIsSpeaking(false);
       setIsListening(false);
-      
+      setIsProcessing(false);
+
       toast.success('Interview saved. You can resume later!');
     }
   }, []);
@@ -729,12 +913,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     setShowModal(true);
   }, []);
 
-  // Mock Interview UI
   if (showMockInterview) {
     return (
       <div className="min-h-screen bg-gray-900 text-white">
         <Toaster position="top-center" reverseOrder={false} />
-        
+
         <div className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
@@ -774,41 +957,40 @@ Remember: Create a comfortable interview environment while assessing talent.`;
             <div className="flex gap-4">
               <div className="flex-1 space-y-8">
                 <div className="grid md:grid-cols-2 gap-8">
-                  {/* AI Interviewer Panel */}
-                  <motion.div 
+                  <motion.div
                     className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-center relative overflow-hidden border border-gray-700"
-                    animate={{ 
-                      boxShadow: isSpeaking 
-                        ? ['0 0 20px rgba(59, 130, 246, 0.5)', '0 0 40px rgba(139, 92, 246, 0.6)', '0 0 20px rgba(59, 130, 246, 0.5)'] 
-                        : '0 0 0px rgba(0, 0, 0, 0)' 
+                    animate={{
+                      boxShadow: isSpeaking
+                        ? ['0 0 20px rgba(59, 130, 246, 0.5)', '0 0 40px rgba(139, 92, 246, 0.6)', '0 0 20px rgba(59, 130, 246, 0.5)']
+                        : '0 0 0px rgba(0, 0, 0, 0)'
                     }}
                     transition={{ duration: 1.5, repeat: isSpeaking ? Infinity : 0, ease: "easeInOut" }}
                   >
                     <AnimatePresence>
                       {isSpeaking && (
-                        <motion.div 
-                          className="absolute inset-0 pointer-events-none" 
-                          initial={{ opacity: 0 }} 
-                          animate={{ opacity: [0.3, 0.6, 0.3] }} 
-                          exit={{ opacity: 0 }} 
-                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }} 
-                          style={{ background: 'radial-gradient(circle at center, rgba(59, 130, 246, 0.2), transparent 70%)' }} 
+                        <motion.div
+                          className="absolute inset-0 pointer-events-none"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                          style={{ background: 'radial-gradient(circle at center, rgba(59, 130, 246, 0.2), transparent 70%)' }}
                         />
                       )}
                     </AnimatePresence>
 
-                    <motion.div 
-                      className="relative z-10" 
-                      animate={{ scale: isSpeaking ? [1, 1.05, 1] : 1 }} 
+                    <motion.div
+                      className="relative z-10"
+                      animate={{ scale: isSpeaking ? [1, 1.05, 1] : 1 }}
                       transition={{ duration: 1.5, repeat: isSpeaking ? Infinity : 0, ease: "easeInOut" }}
                     >
-                      <motion.div 
-                        className="w-32 h-32 mx-auto mb-6 rounded-full flex items-center justify-center relative" 
-                        animate={{ 
-                          background: isSpeaking 
-                            ? ['linear-gradient(135deg, rgb(59, 130, 246), rgb(139, 92, 246))', 'linear-gradient(135deg, rgb(139, 92, 246), rgb(236, 72, 153))', 'linear-gradient(135deg, rgb(59, 130, 246), rgb(139, 92, 246))'] 
-                            : 'linear-gradient(135deg, rgb(59, 130, 246), rgb(139, 92, 246))' 
-                        }} 
+                      <motion.div
+                        className="w-32 h-32 mx-auto mb-6 rounded-full flex items-center justify-center relative"
+                        animate={{
+                          background: isSpeaking
+                            ? ['linear-gradient(135deg, rgb(59, 130, 246), rgb(139, 92, 246))', 'linear-gradient(135deg, rgb(139, 92, 246), rgb(236, 72, 153))', 'linear-gradient(135deg, rgb(59, 130, 246), rgb(139, 92, 246))']
+                            : 'linear-gradient(135deg, rgb(59, 130, 246), rgb(139, 92, 246))'
+                        }}
                         transition={{ duration: 2, repeat: isSpeaking ? Infinity : 0, ease: "easeInOut" }}
                       >
                         <div className="w-28 h-28 bg-gray-900 rounded-full flex items-center justify-center">
@@ -819,18 +1001,18 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                       </motion.div>
                       <h3 className="text-2xl font-bold text-white mb-1">Sneha</h3>
                       <p className="text-sm text-gray-400 mb-3">AI Interviewer</p>
-                      <motion.div 
-                        className="w-3 h-3 rounded-full mx-auto" 
-                        animate={{ 
-                          backgroundColor: isSpeaking ? '#4ade80' : '#6b7280', 
-                          scale: isSpeaking ? [1, 1.3, 1] : 1 
-                        }} 
-                        transition={{ duration: 0.8, repeat: isSpeaking ? Infinity : 0, ease: "easeInOut" }} 
+                      <motion.div
+                        className="w-3 h-3 rounded-full mx-auto"
+                        animate={{
+                          backgroundColor: isSpeaking ? '#4ade80' : '#6b7280',
+                          scale: isSpeaking ? [1, 1.3, 1] : 1
+                        }}
+                        transition={{ duration: 0.8, repeat: isSpeaking ? Infinity : 0, ease: "easeInOut" }}
                       />
                       {isSpeaking && (
-                        <motion.p 
-                          initial={{ opacity: 0, y: 10 }} 
-                          animate={{ opacity: 1, y: 0 }} 
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
                           className="text-sm text-green-400 mt-2 font-medium"
                         >
                           Speaking...
@@ -839,25 +1021,24 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                     </motion.div>
                   </motion.div>
 
-                  {/* User Panel */}
-                  <motion.div 
-                    className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-center relative overflow-hidden border border-gray-700" 
-                    animate={{ 
-                      boxShadow: isListening 
-                        ? ['0 0 20px rgba(34, 197, 94, 0.5)', '0 0 40px rgba(34, 197, 94, 0.6)', '0 0 20px rgba(34, 197, 94, 0.5)'] 
-                        : '0 0 0px rgba(0, 0, 0, 0)' 
-                    }} 
+                  <motion.div
+                    className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-center relative overflow-hidden border border-gray-700"
+                    animate={{
+                      boxShadow: isListening
+                        ? ['0 0 20px rgba(34, 197, 94, 0.5)', '0 0 40px rgba(34, 197, 94, 0.6)', '0 0 20px rgba(34, 197, 94, 0.5)']
+                        : '0 0 0px rgba(0, 0, 0, 0)'
+                    }}
                     transition={{ duration: 1.5, repeat: isListening ? Infinity : 0, ease: "easeInOut" }}
                   >
                     <AnimatePresence>
                       {isListening && (
-                        <motion.div 
-                          className="absolute inset-0 pointer-events-none" 
-                          initial={{ opacity: 0 }} 
-                          animate={{ opacity: [0.3, 0.6, 0.3] }} 
-                          exit={{ opacity: 0 }} 
-                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }} 
-                          style={{ background: 'radial-gradient(circle at center, rgba(34, 197, 94, 0.2), transparent 70%)' }} 
+                        <motion.div
+                          className="absolute inset-0 pointer-events-none"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                          style={{ background: 'radial-gradient(circle at center, rgba(34, 197, 94, 0.2), transparent 70%)' }}
                         />
                       )}
                     </AnimatePresence>
@@ -868,28 +1049,57 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-1">You</h3>
                       <p className="text-sm text-gray-400 mb-3">Candidate</p>
-                      <motion.div 
-                        className="w-3 h-3 rounded-full mx-auto" 
-                        animate={{ 
-                          backgroundColor: isListening ? '#4ade80' : '#6b7280', 
-                          scale: isListening ? [1, 1.3, 1] : 1 
-                        }} 
-                        transition={{ duration: 0.8, repeat: isListening ? Infinity : 0, ease: "easeInOut" }} 
+                      <motion.div
+                        className="w-3 h-3 rounded-full mx-auto"
+                        animate={{
+                          backgroundColor: isListening ? '#4ade80' : '#6b7280',
+                          scale: isListening ? [1, 1.3, 1] : 1
+                        }}
+                        transition={{ duration: 0.8, repeat: isListening ? Infinity : 0, ease: "easeInOut" }}
                       />
                       {isListening && (
-                        <motion.p 
-                          initial={{ opacity: 0, y: 10 }} 
-                          animate={{ opacity: 1, y: 0 }} 
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
                           className="text-sm text-green-400 mt-2 font-medium"
                         >
                           Listening...
+                        </motion.p>
+                      )}
+                      {isProcessing && (
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="text-sm text-blue-400 mt-2 font-medium flex items-center justify-center gap-2"
+                        >
+                          <Loader className="w-4 h-4 animate-spin" />
+                          Processing...
                         </motion.p>
                       )}
                     </div>
                   </motion.div>
                 </div>
 
-                {/* Question Section */}
+                {(interimTranscript || finalTranscript) && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4"
+                  >
+                    <div className="flex items-start gap-2">
+                      <Mic className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-400 mb-1">You&apos;re saying:</p>
+                        <p className="text-white">
+                          {finalTranscript}
+                          <span className="text-gray-400">{interimTranscript}</span>
+                          <span className="inline-block w-1 h-4 bg-blue-400 ml-1 animate-pulse"></span>
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
                 <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
                   <div className="text-center">
                     <div className="flex items-center justify-center space-x-2 mb-4">
@@ -901,52 +1111,65 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                     <p className="text-lg text-gray-300 leading-relaxed mb-6 min-h-[60px]">
                       {currentQuestion || 'Waiting for AI interviewer...'}
                     </p>
-                    
-                    <div className="flex items-center justify-center space-x-3 mb-4">
-                      <button 
-                        onClick={isListening ? stopListening : startListening} 
-                        disabled={isSpeaking || isProcessing} 
-                        className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all transform hover:scale-105 ${
-                          isListening 
-                            ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800' 
-                            : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800'
-                        } ${(isSpeaking || isProcessing) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
-                        <span className="text-lg">{isListening ? 'Stop Speaking' : 'Start Speaking'}</span>
-                      </button>
 
-                      {isProcessing && (
-                        <div className="flex items-center space-x-2 text-blue-400">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400"></div>
-                          <span className="text-sm font-medium">Processing...</span>
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="flex items-center justify-center space-x-3">
+                        <button
+                          onClick={isListening ? stopListening : startListening}
+                          disabled={isSpeaking || isProcessing}
+                          className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all transform hover:scale-105 ${
+                            isListening
+                              ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800'
+                              : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800'
+                          } ${(isSpeaking || isProcessing) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+                          <span className="text-lg">
+                            {isListening ? 'Stop Recording' : isProcessing ? 'Processing...' : 'Click to Speak'}
+                          </span>
+                        </button>
+                      </div>
+
+                      {(isSpeaking || isProcessing) && (
+                        <div className="flex items-center space-x-2 text-sm">
+                          {isSpeaking && (
+                            <div className="flex items-center space-x-2 text-blue-400">
+                              <Volume2 className="w-4 h-4" />
+                              <span>AI is speaking...</span>
+                            </div>
+                          )}
+                          {isProcessing && (
+                            <div className="flex items-center space-x-2 text-purple-400">
+                              <Loader className="w-4 h-4 animate-spin" />
+                              <span>Processing your response...</span>
+                            </div>
+                          )}
                         </div>
                       )}
-                    </div>
 
-                    <button 
-                      onClick={triggerCodingQuestion} 
-                      className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-xl transition-all transform hover:scale-105 text-sm mx-auto font-medium"
-                    >
-                      <Code className="w-5 h-5" />
-                      <span>Practice Coding Challenge</span>
-                    </button>
+                      <button
+                        onClick={triggerCodingQuestion}
+                        className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-xl transition-all transform hover:scale-105 text-sm font-medium"
+                      >
+                        <Code className="w-5 h-5" />
+                        <span>Practice Coding Challenge</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                {/* Code Editor */}
                 {showCodeEditor && currentCodingProblem && (
                   <div className="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700">
-                    <div 
-                      className="flex items-center justify-between p-4 bg-gray-900 cursor-pointer hover:bg-gray-700 transition-colors" 
+                    <div
+                      className="flex items-center justify-between p-4 bg-gray-900 cursor-pointer hover:bg-gray-700 transition-colors"
                       onClick={() => setCodeEditorCollapsed(!codeEditorCollapsed)}
                     >
                       <div className="flex items-center space-x-3">
                         <Code className="w-5 h-5 text-blue-400" />
                         <h4 className="text-lg font-semibold text-white">{currentCodingProblem.title}</h4>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          currentCodingProblem.difficulty === 'easy' ? 'bg-green-500/20 text-green-300' : 
-                          currentCodingProblem.difficulty === 'medium' ? 'bg-yellow-500/20 text-yellow-300' : 
+                          currentCodingProblem.difficulty === 'easy' ? 'bg-green-500/20 text-green-300' :
+                          currentCodingProblem.difficulty === 'medium' ? 'bg-yellow-500/20 text-yellow-300' :
                           'bg-red-500/20 text-red-300'
                         }`}>
                           {currentCodingProblem.difficulty}
@@ -972,12 +1195,12 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                         </div>
 
                         <div className="relative bg-gray-900 rounded-lg border border-gray-600">
-                          <textarea 
-                            value={currentCode} 
-                            onChange={(e) => setCurrentCode(e.target.value)} 
-                            className="w-full h-64 bg-transparent text-gray-100 font-mono text-sm p-4 pl-12 rounded-lg focus:outline-none resize-none" 
-                            style={{ lineHeight: '1.5' }} 
-                            spellCheck={false} 
+                          <textarea
+                            value={currentCode}
+                            onChange={(e) => setCurrentCode(e.target.value)}
+                            className="w-full h-64 bg-transparent text-gray-100 font-mono text-sm p-4 pl-12 rounded-lg focus:outline-none resize-none"
+                            style={{ lineHeight: '1.5' }}
+                            spellCheck={false}
                           />
                           <div className="absolute top-4 left-4 text-xs text-gray-500 font-mono leading-6 pointer-events-none select-none">
                             {currentCode.split('\n').map((_, i) => <div key={i}>{i + 1}</div>)}
@@ -990,15 +1213,15 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                             <span>JavaScript</span>
                           </div>
                           <div className="flex space-x-3">
-                            <button 
-                              onClick={runCodeTests} 
+                            <button
+                              onClick={runCodeTests}
                               className="flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
                             >
                               <Play className="w-4 h-4" />
                               <span>Run Tests</span>
                             </button>
-                            <button 
-                              onClick={handleSubmitCode} 
+                            <button
+                              onClick={handleSubmitCode}
                               className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors"
                             >
                               <Send className="w-4 h-4" />
@@ -1016,11 +1239,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                               </span>
                             </div>
                             {testResults.map((result, idx) => (
-                              <div 
-                                key={idx} 
+                              <div
+                                key={idx}
                                 className={`p-3 rounded-lg border mb-2 ${
-                                  result.passed 
-                                    ? 'bg-green-900/20 border-green-500/30' 
+                                  result.passed
+                                    ? 'bg-green-900/20 border-green-500/30'
                                     : 'bg-red-900/20 border-red-500/30'
                                 }`}
                               >
@@ -1054,9 +1277,10 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                 )}
 
                 <div className="flex justify-center">
-                  <button 
-                    onClick={() => currentQuestion && speakText(currentQuestion)} 
-                    className="flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl transition-all transform hover:scale-105 font-medium"
+                  <button
+                    onClick={() => currentQuestion && speakText(currentQuestion)}
+                    disabled={isSpeaking}
+                    className={`flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl transition-all transform hover:scale-105 font-medium ${isSpeaking ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <Repeat className="w-5 h-5" />
                     <span>Repeat Question</span>
@@ -1064,14 +1288,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                 </div>
               </div>
 
-              {/* Sidebar */}
               <AnimatePresence>
                 {(showTranscript || showSettings) && (
-                  <motion.div 
-                    initial={{ width: 0, opacity: 0 }} 
-                    animate={{ width: 320, opacity: 1 }} 
-                    exit={{ width: 0, opacity: 0 }} 
-                    className="bg-gray-800 rounded-2xl p-6 border border-gray-700"
+                  <motion.div
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 320, opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    className="bg-gray-800 rounded-2xl p-6 border border-gray-700 overflow-hidden"
                   >
                     {showTranscript && (
                       <div>
@@ -1081,7 +1304,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                             <X className="w-4 h-4" />
                           </button>
                         </div>
-                        <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                           {conversationHistory.map((msg, idx) => (
                             <div key={idx} className="text-sm">
                               <div className="flex justify-between mb-1">
@@ -1090,7 +1313,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                                 </span>
                                 <span className="text-xs text-gray-500">{msg.timestamp}</span>
                               </div>
-                              <p className="text-gray-300">{msg.content}</p>
+                              <p className="text-gray-300 leading-relaxed">{msg.content}</p>
                             </div>
                           ))}
                         </div>
@@ -1112,13 +1335,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                             </label>
                             <div className="flex items-center space-x-3">
                               <Volume2 className="w-4 h-4" />
-                              <input 
-                                type="range" 
-                                min="0" 
-                                max="100" 
-                                value={volume} 
-                                onChange={(e) => setVolume(Number(e.target.value))} 
-                                className="flex-1" 
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={volume}
+                                onChange={(e) => setVolume(Number(e.target.value))}
+                                className="flex-1"
                               />
                             </div>
                           </div>
@@ -1130,6 +1353,17 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                               <div className="flex items-center space-x-2">
                                 <div className={`w-2 h-2 rounded-full ${API_KEY ? 'bg-green-400' : 'bg-red-400'}`}></div>
                                 <span className="text-sm">{API_KEY ? 'Connected' : 'Not Set'}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-2">Speech Recognition</label>
+                            <div className={`px-4 py-3 rounded-lg ${
+                              recognitionRef.current ? 'bg-green-900/20 border border-green-500/30' : 'bg-red-900/20 border border-red-500/30'
+                            }`}>
+                              <div className="flex items-center space-x-2">
+                                <div className={`w-2 h-2 rounded-full ${recognitionRef.current ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                                <span className="text-sm">{recognitionRef.current ? 'Ready' : 'Not Supported'}</span>
                               </div>
                             </div>
                           </div>
@@ -1146,11 +1380,10 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     );
   }
 
-  // Landing page
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Toaster position="top-center" />
-      
+
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20"></div>
         <div className="relative container mx-auto px-4 py-20 text-center">
@@ -1159,8 +1392,8 @@ Remember: Create a comfortable interview environment while assessing talent.`;
               Ace Your Next Interview with AI
             </h1>
             <p className="text-xl text-gray-300 mb-8">Practice with real-time voice AI and coding challenges</p>
-            <button 
-              onClick={() => document.getElementById('pick-interview')?.scrollIntoView({ behavior: 'smooth' })} 
+            <button
+              onClick={() => document.getElementById('pick-interview')?.scrollIntoView({ behavior: 'smooth' })}
               className="inline-flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl text-lg font-semibold transition-all transform hover:scale-105"
             >
               <PlayCircle className="w-6 h-6" />
@@ -1179,9 +1412,9 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {interviewTypes.map((interview) => (
-              <div 
-                key={interview.id} 
-                onClick={() => handleCardClick(interview)} 
+              <div
+                key={interview.id}
+                onClick={() => handleCardClick(interview)}
                 className="bg-gray-800 rounded-2xl p-6 hover:bg-gray-700 transition-all cursor-pointer transform hover:scale-105 border border-gray-700"
               >
                 <div className="flex items-center justify-between mb-4">
@@ -1231,24 +1464,24 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                 <label className="block text-sm font-medium mb-2">Interview Type</label>
                 <div className="flex space-x-4">
                   <label className="flex items-center">
-                    <input 
-                      type="radio" 
-                      name="type" 
-                      value="Technical" 
-                      checked={formData.interviewType === 'Technical'} 
-                      onChange={(e) => setFormData({ ...formData, interviewType: e.target.value })} 
-                      className="mr-2" 
+                    <input
+                      type="radio"
+                      name="type"
+                      value="Technical"
+                      checked={formData.interviewType === 'Technical'}
+                      onChange={(e) => setFormData({ ...formData, interviewType: e.target.value })}
+                      className="mr-2"
                     />
                     Technical
                   </label>
                   <label className="flex items-center">
-                    <input 
-                      type="radio" 
-                      name="type" 
-                      value="Non-Technical" 
-                      checked={formData.interviewType === 'Non-Technical'} 
-                      onChange={(e) => setFormData({ ...formData, interviewType: e.target.value })} 
-                      className="mr-2" 
+                    <input
+                      type="radio"
+                      name="type"
+                      value="Non-Technical"
+                      checked={formData.interviewType === 'Non-Technical'}
+                      onChange={(e) => setFormData({ ...formData, interviewType: e.target.value })}
+                      className="mr-2"
                     />
                     Non-Technical
                   </label>
@@ -1257,31 +1490,31 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
               <div>
                 <label className="block text-sm font-medium mb-2">Role</label>
-                <input 
-                  type="text" 
-                  value={formData.role} 
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })} 
-                  className="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none" 
-                  placeholder="e.g. Frontend Developer" 
+                <input
+                  type="text"
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  placeholder="e.g. Frontend Developer"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-2">Tech Stack</label>
-                <input 
-                  type="text" 
-                  value={formData.techStack} 
-                  onChange={(e) => setFormData({ ...formData, techStack: e.target.value })} 
-                  className="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none" 
-                  placeholder="e.g. React, Node.js" 
+                <input
+                  type="text"
+                  value={formData.techStack}
+                  onChange={(e) => setFormData({ ...formData, techStack: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  placeholder="e.g. React, Node.js"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-2">Duration</label>
-                <select 
-                  value={formData.duration} 
-                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })} 
+                <select
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                   className="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
                 >
                   <option value="15">15 minutes</option>
@@ -1290,9 +1523,9 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                 </select>
               </div>
 
-              <button 
-                onClick={handleStartInterview} 
-                disabled={!API_KEY} 
+              <button
+                onClick={handleStartInterview}
+                disabled={!API_KEY}
                 className={`w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold ${
                   !API_KEY ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
