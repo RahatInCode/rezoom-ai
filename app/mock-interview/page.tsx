@@ -151,9 +151,15 @@ const MockInterviewPage = () => {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [showTestResults, setShowTestResults] = useState(false);
 
-  // NEW: Interim transcript and better state management
+  // Transcript states
   const [interimTranscript, setInterimTranscript] = useState('');
   const [finalTranscript, setFinalTranscript] = useState('');
+
+  // ✅ NEW: Request queue and rate limiting
+  const [requestQueue, setRequestQueue] = useState<string[]>([]);
+  const isProcessingQueueRef = useRef(false);
+  const lastRequestTimeRef = useRef<number>(0);
+  const MIN_REQUEST_INTERVAL = 3000; // Minimum 3 seconds between API calls
 
   // Refs
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -265,7 +271,7 @@ Build rapport by asking about their background and comfort level.
 
 Example:
 
-“Hi, I'm Sneha. I'll be conducting your mock interview today. How are you feeling?”
+"Hi, I'm Sneha. I'll be conducting your mock interview today. How are you feeling?"
 
 Flow & Progression
 
@@ -279,15 +285,15 @@ Acknowledge & Encourage
 
 React naturally to answers with brief affirmations:
 
-“That's a great point.”
-“Interesting approach — tell me more.”
-“I like how you explained that.”
+"That's a great point."
+"Interesting approach — tell me more."
+"I like how you explained that."
 
 Coding & Problem-Solving
 
 Occasionally introduce small coding or logic challenges:
 
-“Let's try a quick coding problem.”
+"Let's try a quick coding problem."
 
 Wait patiently for the candidate's response.
 
@@ -295,7 +301,7 @@ Give subtle hints if they struggle but don't reveal the full solution.
 
 Afterward, give short, constructive feedback:
 
-“Good attempt! You structured it well, though you could optimize by…”
+"Good attempt! You structured it well, though you could optimize by…"
 
 Conclusion
 
@@ -303,7 +309,7 @@ End politely, summarize overall feedback, and thank them for participating.
 
 Example:
 
-“That wraps up our interview. You handled the questions thoughtfully — keep practicing and you’ll do great in real interviews!”
+"That wraps up our interview. You handled the questions thoughtfully — keep practicing and you'll do great in real interviews!"
 
 ⚙️ BEHAVIORAL RULES (Realtime Handling)
 
@@ -313,7 +319,7 @@ Speak all responses and display them as text.
 
 Maintain natural pacing with short pauses.
 
-Add small fillers (“Hmm”, “Alright”, “I see”) for realism — not too often.
+Add small fillers ("Hmm", "Alright", "I see") for realism — not too often.
 
 Turn Detection & Timing
 
@@ -327,7 +333,7 @@ Speech Recognition Failures
 
 If speech is unclear or missing:
 
-“I did not quite catch that — could you please repeat your answer?”
+"I did not quite catch that — could you please repeat your answer?"
 
 Do not display system messages like "no speech detected" or "rate limit exceeded".
 
@@ -335,13 +341,13 @@ Retry once automatically.
 
 If it happens 3 times, gracefully end with:
 
-“It seems we're having audio issues. Let's reconnect and continue later.”
+"It seems we're having audio issues. Let's reconnect and continue later."
 
 Error Handling
 
 On API rate-limit or timeout, pause 2 seconds and retry once.
 
-During processing delays, show “Sneha is listening…” or a waveform animation (if supported).
+During processing delays, show "Sneha is listening…" or a waveform animation (if supported).
 
 Response Limits
 
@@ -351,14 +357,18 @@ Keep each voice reply under 15 seconds for smooth streaming.
 
 User Commands
 
-If the user says “repeat”, repeat your last question.
+If the user says "repeat", repeat your last question.
 
-If they say “end interview” or “stop”, end immediately and thank them politely.
+If they say "end interview" or "stop", end immediately and thank them politely.
 
 Remember: Create a comfortable interview environment while assessing talent.`;
   }, [formData, questionNumber, totalQuestions]);
 
-  const callOpenAI = useCallback(async (messages: ConversationMessage[]): Promise<string | null> => {
+  // ✅ UPDATED: API call with exponential backoff
+  const callOpenAI = useCallback(async (
+    messages: ConversationMessage[],
+    retryCount = 0
+  ): Promise<string | null> => {
     if (!API_KEY) {
       toast.error('API key not configured. Please add NEXT_PUBLIC_OPENAI_API_KEY to .env.local');
       return null;
@@ -369,14 +379,12 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       return null;
     }
 
-    if (processingRef.current) {
-      console.log('Already processing, skipping API call');
-      return null;
-    }
-
-    processingRef.current = true;
+    const MAX_RETRIES = 3;
+    const BASE_DELAY = 2000; // Start with 2 seconds
 
     try {
+      console.log(`[${new Date().toISOString()}] API Call initiated (attempt ${retryCount + 1})`);
+
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -396,11 +404,30 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         })
       });
 
+      // ✅ Handle 429 with exponential backoff
+      if (response.status === 429) {
+        if (retryCount < MAX_RETRIES) {
+          const delay = BASE_DELAY * Math.pow(2, retryCount); // 2s, 4s, 8s
+          console.log(`Rate limited. Retrying in ${delay}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+          
+          toast.loading(`Rate limited. Retrying in ${delay / 1000}s...`, { 
+            duration: delay,
+            id: 'rate-limit-toast'
+          });
+
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return callOpenAI(messages, retryCount + 1); // ✅ Recursive retry
+        } else {
+          toast.error('Rate limit exceeded. Please wait a moment before continuing.', {
+            duration: 5000
+          });
+          return null;
+        }
+      }
+
       if (!response.ok) {
         if (response.status === 401) {
           toast.error('Invalid API key');
-        } else if (response.status === 429) {
-          toast.error('Rate limit exceeded. Please wait a moment...');
         } else {
           const errorData = await response.json().catch(() => ({}));
           console.error('API Error:', errorData);
@@ -410,13 +437,23 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       }
 
       const data = await response.json();
+      toast.dismiss('rate-limit-toast'); // Clear retry toast
+      console.log(`[${new Date().toISOString()}] API Call successful`);
       return data.choices[0].message.content;
+
     } catch (error) {
       console.error('OpenAI API Error:', error instanceof Error ? error.message : String(error));
+      
+      // ✅ Retry on network errors
+      if (retryCount < MAX_RETRIES) {
+        const delay = BASE_DELAY * Math.pow(2, retryCount);
+        console.log(`Network error. Retrying in ${delay}ms`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return callOpenAI(messages, retryCount + 1);
+      }
+      
       toast.error('Network error. Please check your connection.');
       return null;
-    } finally {
-      processingRef.current = false;
     }
   }, [API_KEY]);
 
@@ -528,18 +565,15 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     toast.success(`Coding challenge: ${randomProblem.title}`);
   }, []);
 
-  const handleUserSpeech = useCallback(async (transcript: string) => {
-    if (!transcript.trim()) {
-      return;
-    }
-
-    if (processingRef.current || isProcessing) {
-      console.log('Already processing, ignoring new transcript');
+  // ✅ NEW: Internal handler that processes the actual API call
+  const handleUserSpeechInternal = useCallback(async (transcript: string) => {
+    if (processingRef.current) {
+      console.log('Already processing, skipping');
       return;
     }
 
     console.log('Processing user speech:', transcript);
-
+    processingRef.current = true;
     setIsProcessing(true);
     setFinalTranscript(transcript);
     setInterimTranscript('');
@@ -589,8 +623,68 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
     setIsProcessing(false);
     setFinalTranscript('');
-  }, [conversationHistory, interviewTime, getSystemPrompt, callOpenAI, speakText, triggerCodingQuestion, formatTime, totalQuestions, isProcessing]);
+    processingRef.current = false;
+  }, [conversationHistory, interviewTime, getSystemPrompt, callOpenAI, speakText, triggerCodingQuestion, formatTime, totalQuestions]);
 
+  // ✅ NEW: Queue processor with rate limiting
+  const processRequestQueue = useCallback(async () => {
+    if (isProcessingQueueRef.current || requestQueue.length === 0) {
+      return;
+    }
+
+    isProcessingQueueRef.current = true;
+    const transcript = requestQueue[0];
+
+    // ✅ Enforce minimum delay between requests
+    const timeSinceLastRequest = Date.now() - lastRequestTimeRef.current;
+    if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+      const waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
+      console.log(`Rate limiting: waiting ${waitTime}ms before next request`);
+      toast.loading(`Processing in ${Math.ceil(waitTime / 1000)}s...`, { 
+        duration: waitTime,
+        id: 'queue-wait-toast'
+      });
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+
+    toast.dismiss('queue-wait-toast');
+
+    // Process the request
+    await handleUserSpeechInternal(transcript);
+
+    // Remove from queue and update timestamp
+    setRequestQueue(prev => prev.slice(1));
+    lastRequestTimeRef.current = Date.now();
+    isProcessingQueueRef.current = false;
+
+    // Process next in queue if exists
+    setTimeout(() => {
+      if (requestQueue.length > 1) { // Check if more items exist after removal
+        processRequestQueue();
+      }
+    }, 100);
+  }, [requestQueue, handleUserSpeechInternal, MIN_REQUEST_INTERVAL]);
+
+  // Auto-process queue when items are added
+  useEffect(() => {
+    if (requestQueue.length > 0) {
+      console.log('Queue size:', requestQueue.length);
+      processRequestQueue();
+    }
+  }, [requestQueue, processRequestQueue]);
+
+  // ✅ UPDATED: Add to queue instead of processing immediately
+  const handleUserSpeech = useCallback(async (transcript: string) => {
+    if (!transcript.trim()) {
+      return;
+    }
+
+    console.log('Adding to queue:', transcript);
+    setRequestQueue(prev => [...prev, transcript]);
+    toast('Adding your response to queue...', { icon: '⏳', duration: 2000 });
+  }, []);
+
+  // ✅ UPDATED: Speech recognition with batching
   const setupSpeechRecognition = useCallback(() => {
     if (typeof window === 'undefined') return;
 
@@ -613,11 +707,16 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     recognitionRef.current.interimResults = true;
     recognitionRef.current.lang = 'en-US';
 
+    // ✅ NEW: Accumulate speech instead of immediate processing
+    let accumulatedTranscript = '';
+    const SILENCE_DELAY = 2000; // Wait 2s after speech stops
+
     recognitionRef.current.onstart = () => {
       console.log('Speech recognition started');
       setIsListening(true);
       setInterimTranscript('');
       setFinalTranscript('');
+      accumulatedTranscript = ''; // ✅ Reset accumulator
     };
 
     recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
@@ -633,28 +732,43 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         }
       }
 
+      // Update UI with interim results
       if (interim) {
         setInterimTranscript(interim);
         console.log('Interim:', interim);
       }
 
+      // ✅ NEW: Accumulate final transcripts instead of processing immediately
       if (final.trim()) {
-        console.log('Final transcript:', final.trim());
+        accumulatedTranscript += final;
+        console.log('Accumulated so far:', accumulatedTranscript);
 
+        // ✅ Clear previous silence timeout
         if (silenceTimeoutRef.current) {
           clearTimeout(silenceTimeoutRef.current);
-          silenceTimeoutRef.current = null;
         }
 
-        if (recognitionRef.current) {
-          try {
-            recognitionRef.current.stop();
-          } catch (error) {
-            console.error('Error stopping recognition:', error instanceof Error ? error.message : String(error));
+        // ✅ Wait for silence before processing
+        silenceTimeoutRef.current = setTimeout(() => {
+          const fullTranscript = accumulatedTranscript.trim();
+          
+          if (fullTranscript) {
+            console.log('Silence detected. Processing full transcript:', fullTranscript);
+            
+            // Stop recognition
+            if (recognitionRef.current) {
+              try {
+                recognitionRef.current.stop();
+              } catch (error) {
+                console.error('Error stopping recognition:', error instanceof Error ? error.message : String(error));
+              }
+            }
+
+            // ✅ Process the complete accumulated speech
+            handleUserSpeech(fullTranscript);
+            accumulatedTranscript = ''; // Reset
           }
-        }
-
-        handleUserSpeech(final.trim());
+        }, SILENCE_DELAY);
       }
     };
 
@@ -744,6 +858,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     await speakText(greeting);
   }, [formData, speakText]);
 
+  // ✅ UPDATED: Better queue awareness
   const startListening = useCallback(() => {
     if (!recognitionRef.current) {
       toast.error('Speech recognition not available');
@@ -756,8 +871,9 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       return;
     }
 
-    if (isProcessing) {
-      toast.error('⏳ Processing previous response, please wait...');
+    // ✅ Check queue instead of just isProcessing
+    if (isProcessing || requestQueue.length > 0) {
+      toast.error(`⏳ Processing ${requestQueue.length} response(s), please wait...`);
       return;
     }
 
@@ -786,7 +902,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         }
       }, 500);
     }
-  }, [isListening, isSpeaking, isProcessing, setupSpeechRecognition]);
+  }, [isListening, isSpeaking, isProcessing, requestQueue.length, setupSpeechRecognition]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
@@ -890,6 +1006,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       setIsSpeaking(false);
       setIsListening(false);
       setIsProcessing(false);
+      setRequestQueue([]); // ✅ Clear queue
 
       toast.success('Interview saved. You can resume later!');
     }
@@ -1080,6 +1197,27 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </motion.div>
                 </div>
 
+                {/* ✅ NEW: Queue status display */}
+                {requestQueue.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-purple-900/20 border border-purple-500/30 rounded-xl p-4"
+                  >
+                    <div className="flex items-center justify-center gap-3">
+                      <Loader className="w-5 h-5 text-purple-400 animate-spin" />
+                      <div className="text-center">
+                        <p className="text-purple-300 font-medium">
+                          {requestQueue.length} response{requestQueue.length > 1 ? 's' : ''} in queue
+                        </p>
+                        <p className="text-xs text-purple-400 mt-1">
+                          Processing with rate limiting (3s interval)
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
                 {(interimTranscript || finalTranscript) && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -1116,16 +1254,16 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                       <div className="flex items-center justify-center space-x-3">
                         <button
                           onClick={isListening ? stopListening : startListening}
-                          disabled={isSpeaking || isProcessing}
+                          disabled={isSpeaking || isProcessing || requestQueue.length > 0}
                           className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all transform hover:scale-105 ${
                             isListening
                               ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800'
                               : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800'
-                          } ${(isSpeaking || isProcessing) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          } ${(isSpeaking || isProcessing || requestQueue.length > 0) ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                           {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
                           <span className="text-lg">
-                            {isListening ? 'Stop Recording' : isProcessing ? 'Processing...' : 'Click to Speak'}
+                            {isListening ? 'Stop Recording' : isProcessing || requestQueue.length > 0 ? 'Processing...' : 'Click to Speak'}
                           </span>
                         </button>
                       </div>
@@ -1367,6 +1505,20 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                               </div>
                             </div>
                           </div>
+                          {/* ✅ NEW: Queue info in settings */}
+                          <div>
+                            <label className="block text-sm font-medium mb-2">Request Queue</label>
+                            <div className="px-4 py-3 rounded-lg bg-purple-900/20 border border-purple-500/30">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm">Queued:</span>
+                                <span className="text-sm font-semibold text-purple-300">{requestQueue.length}</span>
+                              </div>
+                              <div className="flex items-center justify-between mt-2">
+                                <span className="text-xs text-gray-400">Min interval:</span>
+                                <span className="text-xs text-gray-400">{MIN_REQUEST_INTERVAL / 1000}s</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -1427,7 +1579,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                 </div>
                 <h3 className="text-xl font-bold mb-2">{interview.title}</h3>
                 <p className="text-gray-400 mb-4">{interview.description}</p>
-                <button className="w-full py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg">
+                <button className="w-full py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-800 rounded-lg">
                   Start Interview
                 </button>
               </div>
