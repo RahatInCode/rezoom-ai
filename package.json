@@ -33,6 +33,7 @@
     "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
+    "recharts": "^3.2.1",
     "sweetalert2": "^11.23.0",
     "swiper": "^12.0.2"
   },

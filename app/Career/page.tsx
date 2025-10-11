@@ -168,7 +168,7 @@ const Page = () => {
           <div id="special-reports" className="space-y-4">
             <h1 className="text-[#A053CF] text-3xl font-semibold">Special Reports</h1>
             <p>
-              Even with a well-honed resume and cover letter, there’s a lot of uncertainty when applying for jobs. The below surveys and studies can give you a clearer view of trends in the overall job market, and the hiring conditions you’re likely to find in your target sector.
+              Even with a well-honed resume and cover letter, theres a lot of uncertainty when applying for jobs. The below surveys and studies can give you a clearer view of trends in the overall job market, and the hiring conditions youre likely to find in your target sector.
             </p>
             <GradientLink text="2025 Job Market Report" href="https://example.com/reports" />
           </div>
@@ -183,6 +183,7 @@ const Page = () => {
             </div>
           </div>
         </div>
+
       </section>
       <DeveloperSection />
     </div>

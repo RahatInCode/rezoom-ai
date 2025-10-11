@@ -38,7 +38,7 @@ export default function SignUp() {
         email,
         role : 'user'
       }
-      await fetch("https://rezoom-ai-pi.vercel.app/addUser", {
+      await fetch("http://localhost:5000/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userInfo),
