@@ -34,7 +34,8 @@ import {
   Globe,
   Server,
   CloudLightning,
-  Loader
+  Loader,
+  Bug
 } from 'lucide-react';
 import { type CodingProblem, type TestCase, getRandomProblem } from '../Components/CodingProblems';
 
@@ -155,11 +156,15 @@ const MockInterviewPage = () => {
   const [interimTranscript, setInterimTranscript] = useState('');
   const [finalTranscript, setFinalTranscript] = useState('');
 
-  // ✅ NEW: Request queue and rate limiting
+  // Request queue and rate limiting
   const [requestQueue, setRequestQueue] = useState<string[]>([]);
   const isProcessingQueueRef = useRef(false);
   const lastRequestTimeRef = useRef<number>(0);
-  const MIN_REQUEST_INTERVAL = 3000; // Minimum 3 seconds between API calls
+  const MIN_REQUEST_INTERVAL = 3000;
+
+  // ✅ NEW: Debug state
+  const [debugLog, setDebugLog] = useState<string[]>([]);
+  const [showDebug, setShowDebug] = useState(false);
 
   // Refs
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -167,6 +172,17 @@ const MockInterviewPage = () => {
   const processingRef = useRef(false);
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // ✅ NEW: Persistent transcript ref
+  const accumulatedTranscriptRef = useRef<string>('');
+
+  // ✅ NEW: Debug helper
+  const addDebugLog = useCallback((message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    const logMessage = `[${timestamp}] ${message}`;
+    setDebugLog(prev => [...prev.slice(-30), logMessage]);
+    console.log(logMessage);
+  }, []);
 
   // Save interview state to localStorage
   useEffect(() => {
@@ -364,26 +380,55 @@ If they say "end interview" or "stop", end immediately and thank them politely.
 Remember: Create a comfortable interview environment while assessing talent.`;
   }, [formData, questionNumber, totalQuestions]);
 
-  // ✅ UPDATED: API call with exponential backoff
+  // ✅ UPDATED: API call with validation and logging
   const callOpenAI = useCallback(async (
     messages: ConversationMessage[],
     retryCount = 0
   ): Promise<string | null> => {
     if (!API_KEY) {
       toast.error('API key not configured. Please add NEXT_PUBLIC_OPENAI_API_KEY to .env.local');
+      addDebugLog('❌ API key not configured');
       return null;
     }
 
     if (!API_KEY.startsWith('sk-')) {
       toast.error('Invalid API key format');
+      addDebugLog('❌ Invalid API key format');
+      return null;
+    }
+
+    // ✅ VALIDATE: Check if user messages have content
+    const hasEmptyMessages = messages.some(msg => !msg.content || msg.content.trim() === '');
+    if (hasEmptyMessages) {
+      console.error('❌ Empty message detected in conversation:', messages);
+      addDebugLog('❌ Empty message detected in payload');
+      toast.error('Empty message detected. Please try speaking again.');
       return null;
     }
 
     const MAX_RETRIES = 3;
-    const BASE_DELAY = 2000; // Start with 2 seconds
+    const BASE_DELAY = 2000;
 
     try {
-      console.log(`[${new Date().toISOString()}] API Call initiated (attempt ${retryCount + 1})`);
+      addDebugLog(`📤 API Call initiated (attempt ${retryCount + 1})`);
+
+      const apiPayload = {
+        model: 'gpt-4o-mini',
+        messages: messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        temperature: 0.85,
+        max_tokens: 250,
+        presence_penalty: 0.6,
+        frequency_penalty: 0.3
+      };
+
+      // ✅ DEBUG: Log the last user message
+      const lastUserMsg = messages.filter(m => m.role === 'user').pop();
+      if (lastUserMsg) {
+        addDebugLog(`💬 User said: "${lastUserMsg.content.substring(0, 50)}..."`);
+      }
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -391,24 +436,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${API_KEY}`
         },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          })),
-          temperature: 0.85,
-          max_tokens: 250,
-          presence_penalty: 0.6,
-          frequency_penalty: 0.3
-        })
+        body: JSON.stringify(apiPayload)
       });
 
-      // ✅ Handle 429 with exponential backoff
       if (response.status === 429) {
         if (retryCount < MAX_RETRIES) {
-          const delay = BASE_DELAY * Math.pow(2, retryCount); // 2s, 4s, 8s
-          console.log(`Rate limited. Retrying in ${delay}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+          const delay = BASE_DELAY * Math.pow(2, retryCount);
+          addDebugLog(`⏳ Rate limited. Retrying in ${delay}ms`);
           
           toast.loading(`Rate limited. Retrying in ${delay / 1000}s...`, { 
             duration: delay,
@@ -416,8 +450,9 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           });
 
           await new Promise(resolve => setTimeout(resolve, delay));
-          return callOpenAI(messages, retryCount + 1); // ✅ Recursive retry
+          return callOpenAI(messages, retryCount + 1);
         } else {
+          addDebugLog('❌ Rate limit exceeded - max retries reached');
           toast.error('Rate limit exceeded. Please wait a moment before continuing.', {
             duration: 5000
           });
@@ -427,27 +462,31 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       if (!response.ok) {
         if (response.status === 401) {
+          addDebugLog('❌ Invalid API key (401)');
           toast.error('Invalid API key');
         } else {
           const errorData = await response.json().catch(() => ({}));
           console.error('API Error:', errorData);
+          addDebugLog(`❌ API error: ${response.status}`);
           toast.error('API error occurred');
         }
         return null;
       }
 
       const data = await response.json();
-      toast.dismiss('rate-limit-toast'); // Clear retry toast
-      console.log(`[${new Date().toISOString()}] API Call successful`);
-      return data.choices[0].message.content;
+      toast.dismiss('rate-limit-toast');
+      
+      const aiResponse = data.choices[0].message.content;
+      addDebugLog(`📥 AI response: "${aiResponse.substring(0, 50)}..."`);
+      
+      return aiResponse;
 
     } catch (error) {
       console.error('OpenAI API Error:', error instanceof Error ? error.message : String(error));
+      addDebugLog(`❌ Network error: ${error instanceof Error ? error.message : String(error)}`);
       
-      // ✅ Retry on network errors
       if (retryCount < MAX_RETRIES) {
         const delay = BASE_DELAY * Math.pow(2, retryCount);
-        console.log(`Network error. Retrying in ${delay}ms`);
         await new Promise(resolve => setTimeout(resolve, delay));
         return callOpenAI(messages, retryCount + 1);
       }
@@ -455,12 +494,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       toast.error('Network error. Please check your connection.');
       return null;
     }
-  }, [API_KEY]);
+  }, [API_KEY, addDebugLog]);
 
   const speakText = useCallback(async (text: string) => {
     if (!text) return;
 
     setIsSpeaking(true);
+    addDebugLog(`🔊 Speaking: "${text.substring(0, 50)}..."`);
 
     if (recognitionRef.current && isListening) {
       try {
@@ -480,6 +520,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         utterance.volume = volume / 100;
         utterance.onend = () => {
           setIsSpeaking(false);
+          addDebugLog('✅ TTS finished (browser speech)');
           toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
         };
         window.speechSynthesis.speak(utterance);
@@ -519,6 +560,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       audioRef.current.onended = () => {
         setIsSpeaking(false);
         URL.revokeObjectURL(audioUrl);
+        addDebugLog('✅ TTS finished (OpenAI speech)');
         toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
       };
 
@@ -526,11 +568,14 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         console.error('Audio playback error:', event);
         setIsSpeaking(false);
         URL.revokeObjectURL(audioUrl);
+        addDebugLog('❌ Audio playback error');
       };
 
       await audioRef.current.play();
     } catch (error) {
       console.error('TTS Error:', error instanceof Error ? error.message : String(error));
+      addDebugLog(`❌ TTS error: ${error instanceof Error ? error.message : 'unknown'}`);
+      
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
@@ -546,7 +591,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         setIsSpeaking(false);
       }
     }
-  }, [API_KEY, volume, isListening]);
+  }, [API_KEY, volume, isListening, addDebugLog]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -563,16 +608,17 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     setTestResults([]);
     setShowTestResults(false);
     toast.success(`Coding challenge: ${randomProblem.title}`);
-  }, []);
+    addDebugLog(`💻 Coding challenge triggered: ${randomProblem.title}`);
+  }, [addDebugLog]);
 
-  // ✅ NEW: Internal handler that processes the actual API call
+  // ✅ UPDATED: Internal handler with comprehensive logging
   const handleUserSpeechInternal = useCallback(async (transcript: string) => {
     if (processingRef.current) {
-      console.log('Already processing, skipping');
+      addDebugLog('⏭️ Already processing, skipping');
       return;
     }
 
-    console.log('Processing user speech:', transcript);
+    addDebugLog(`🔄 Processing user speech: "${transcript.substring(0, 50)}..."`);
     processingRef.current = true;
     setIsProcessing(true);
     setFinalTranscript(transcript);
@@ -594,6 +640,9 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     };
 
     const apiMessages = [systemPrompt, ...updatedHistory];
+    
+    addDebugLog(`📊 Sending ${apiMessages.length} messages to API`);
+
     const response = await callOpenAI(apiMessages);
 
     if (response) {
@@ -618,15 +667,16 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       setQuestionNumber(prev => Math.min(prev + 1, totalQuestions));
     } else {
+      addDebugLog('❌ No response from OpenAI');
       toast.error('Failed to get AI response. Please try again.');
     }
 
     setIsProcessing(false);
     setFinalTranscript('');
     processingRef.current = false;
-  }, [conversationHistory, interviewTime, getSystemPrompt, callOpenAI, speakText, triggerCodingQuestion, formatTime, totalQuestions]);
+  }, [conversationHistory, interviewTime, getSystemPrompt, callOpenAI, speakText, triggerCodingQuestion, formatTime, totalQuestions, addDebugLog]);
 
-  // ✅ NEW: Queue processor with rate limiting
+  // ✅ UPDATED: Queue processor
   const processRequestQueue = useCallback(async () => {
     if (isProcessingQueueRef.current || requestQueue.length === 0) {
       return;
@@ -635,11 +685,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     isProcessingQueueRef.current = true;
     const transcript = requestQueue[0];
 
-    // ✅ Enforce minimum delay between requests
+    addDebugLog(`📋 Processing queue item: "${transcript.substring(0, 30)}..."`);
+
     const timeSinceLastRequest = Date.now() - lastRequestTimeRef.current;
     if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
       const waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
-      console.log(`Rate limiting: waiting ${waitTime}ms before next request`);
+      addDebugLog(`⏳ Rate limiting: waiting ${waitTime}ms`);
+      
       toast.loading(`Processing in ${Math.ceil(waitTime / 1000)}s...`, { 
         duration: waitTime,
         id: 'queue-wait-toast'
@@ -649,48 +701,60 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
     toast.dismiss('queue-wait-toast');
 
-    // Process the request
     await handleUserSpeechInternal(transcript);
 
-    // Remove from queue and update timestamp
     setRequestQueue(prev => prev.slice(1));
     lastRequestTimeRef.current = Date.now();
     isProcessingQueueRef.current = false;
 
-    // Process next in queue if exists
     setTimeout(() => {
-      if (requestQueue.length > 1) { // Check if more items exist after removal
+      if (requestQueue.length > 1) {
         processRequestQueue();
       }
     }, 100);
-  }, [requestQueue, handleUserSpeechInternal, MIN_REQUEST_INTERVAL]);
+  }, [requestQueue, handleUserSpeechInternal, MIN_REQUEST_INTERVAL, addDebugLog]);
 
-  // Auto-process queue when items are added
   useEffect(() => {
     if (requestQueue.length > 0) {
-      console.log('Queue size:', requestQueue.length);
+      addDebugLog(`📊 Queue size: ${requestQueue.length}`);
       processRequestQueue();
     }
-  }, [requestQueue, processRequestQueue]);
+  }, [requestQueue, processRequestQueue, addDebugLog]);
 
-  // ✅ UPDATED: Add to queue instead of processing immediately
+  // ✅ UPDATED: Add to queue with validation
   const handleUserSpeech = useCallback(async (transcript: string) => {
-    if (!transcript.trim()) {
+    const trimmed = transcript.trim();
+    
+    if (!trimmed) {
+      addDebugLog('❌ Empty transcript received');
+      toast.error('No speech detected. Please try again.');
       return;
     }
 
-    console.log('Adding to queue:', transcript);
-    setRequestQueue(prev => [...prev, transcript]);
-    toast('Adding your response to queue...', { icon: '⏳', duration: 2000 });
-  }, []);
+    if (trimmed.length < 3) {
+      addDebugLog(`⚠️ Transcript too short: "${trimmed}"`);
+      toast.error('Speech too short. Please speak more clearly.');
+      return;
+    }
 
-  // ✅ UPDATED: Speech recognition with batching
+    addDebugLog(`✅ Adding to queue: "${trimmed.substring(0, 50)}..."`);
+    
+    setRequestQueue(prev => {
+      const newQueue = [...prev, trimmed];
+      return newQueue;
+    });
+    
+    toast.success(`Captured: "${trimmed.substring(0, 50)}${trimmed.length > 50 ? '...' : ''}"`, { duration: 3000 });
+  }, [addDebugLog]);
+
+  // ✅ UPDATED: Speech recognition with persistent ref and logging
   const setupSpeechRecognition = useCallback(() => {
     if (typeof window === 'undefined') return;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast.error('Speech recognition not supported. Please use Chrome or Edge.');
+      addDebugLog('❌ Speech recognition not supported');
       return;
     }
 
@@ -707,16 +771,14 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     recognitionRef.current.interimResults = true;
     recognitionRef.current.lang = 'en-US';
 
-    // ✅ NEW: Accumulate speech instead of immediate processing
-    let accumulatedTranscript = '';
-    const SILENCE_DELAY = 2000; // Wait 2s after speech stops
+    const SILENCE_DELAY = 2000;
 
     recognitionRef.current.onstart = () => {
-      console.log('Speech recognition started');
+      addDebugLog('🎤 Speech recognition started');
       setIsListening(true);
       setInterimTranscript('');
       setFinalTranscript('');
-      accumulatedTranscript = ''; // ✅ Reset accumulator
+      accumulatedTranscriptRef.current = '';
     };
 
     recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
@@ -732,30 +794,27 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         }
       }
 
-      // Update UI with interim results
       if (interim) {
         setInterimTranscript(interim);
-        console.log('Interim:', interim);
+        addDebugLog(`💬 Interim: "${interim.substring(0, 30)}..."`);
       }
 
-      // ✅ NEW: Accumulate final transcripts instead of processing immediately
       if (final.trim()) {
-        accumulatedTranscript += final;
-        console.log('Accumulated so far:', accumulatedTranscript);
+        accumulatedTranscriptRef.current += final;
+        addDebugLog(`✅ Accumulated: "${accumulatedTranscriptRef.current.substring(0, 50)}..."`);
 
-        // ✅ Clear previous silence timeout
+        setFinalTranscript(accumulatedTranscriptRef.current);
+
         if (silenceTimeoutRef.current) {
           clearTimeout(silenceTimeoutRef.current);
         }
 
-        // ✅ Wait for silence before processing
         silenceTimeoutRef.current = setTimeout(() => {
-          const fullTranscript = accumulatedTranscript.trim();
+          const fullTranscript = accumulatedTranscriptRef.current.trim();
+          
+          addDebugLog(`⏱️ Silence detected (${SILENCE_DELAY}ms). Full: "${fullTranscript.substring(0, 50)}..."`);
           
           if (fullTranscript) {
-            console.log('Silence detected. Processing full transcript:', fullTranscript);
-            
-            // Stop recognition
             if (recognitionRef.current) {
               try {
                 recognitionRef.current.stop();
@@ -764,19 +823,27 @@ Remember: Create a comfortable interview environment while assessing talent.`;
               }
             }
 
-            // ✅ Process the complete accumulated speech
             handleUserSpeech(fullTranscript);
-            accumulatedTranscript = ''; // Reset
+            accumulatedTranscriptRef.current = '';
+          } else {
+            addDebugLog('⚠️ Silence timeout but transcript empty - restarting');
+            if (recognitionRef.current && !isListening) {
+              try {
+                recognitionRef.current.start();
+              } catch (error) {
+                console.error('Error restarting recognition:', error);
+              }
+            }
           }
         }, SILENCE_DELAY);
       }
     };
 
     recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error:', event.error);
+      addDebugLog(`❌ Speech error: ${event.error}`);
 
       if (event.error === 'no-speech') {
-        console.log('No speech detected, will retry...');
+        toast('No speech detected. Please try speaking again.', { icon: '🎤' });
         return;
       }
 
@@ -796,7 +863,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     };
 
     recognitionRef.current.onend = () => {
-      console.log('Speech recognition ended');
+      addDebugLog('🛑 Speech recognition ended');
       setIsListening(false);
       setInterimTranscript('');
 
@@ -809,7 +876,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         restartTimeoutRef.current = null;
       }
     };
-  }, [handleUserSpeech]);
+  }, [handleUserSpeech, isListening, addDebugLog]);
 
   useEffect(() => {
     setupSpeechRecognition();
@@ -855,10 +922,10 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     setConversationHistory([aiMessage]);
     setCurrentQuestion(greeting);
     setQuestionNumber(1);
+    addDebugLog('🎬 Interview started');
     await speakText(greeting);
-  }, [formData, speakText]);
+  }, [formData, speakText, addDebugLog]);
 
-  // ✅ UPDATED: Better queue awareness
   const startListening = useCallback(() => {
     if (!recognitionRef.current) {
       toast.error('Speech recognition not available');
@@ -871,7 +938,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       return;
     }
 
-    // ✅ Check queue instead of just isProcessing
     if (isProcessing || requestQueue.length > 0) {
       toast.error(`⏳ Processing ${requestQueue.length} response(s), please wait...`);
       return;
@@ -884,9 +950,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
     try {
       recognitionRef.current.start();
+      addDebugLog('🎤 User clicked microphone - starting recognition');
       toast.success('🎤 Listening... Speak now!', { duration: 2000 });
     } catch (error) {
       console.error('Start listening error:', error instanceof Error ? error.message : String(error));
+      addDebugLog(`❌ Failed to start: ${error instanceof Error ? error.message : 'unknown'}`);
       setIsListening(false);
 
       setupSpeechRecognition();
@@ -902,12 +970,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         }
       }, 500);
     }
-  }, [isListening, isSpeaking, isProcessing, requestQueue.length, setupSpeechRecognition]);
+  }, [isListening, isSpeaking, isProcessing, requestQueue.length, setupSpeechRecognition, addDebugLog]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
       try {
         recognitionRef.current.stop();
+        addDebugLog('🛑 User stopped listening');
         toast('Stopped listening', { icon: '🛑' });
       } catch (error) {
         console.error('Stop listening error:', error instanceof Error ? error.message : String(error));
@@ -915,7 +984,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       setIsListening(false);
       setInterimTranscript('');
     }
-  }, [isListening]);
+  }, [isListening, addDebugLog]);
 
   const runCodeTests = useCallback(() => {
     if (!currentCodingProblem) return;
@@ -1006,11 +1075,45 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       setIsSpeaking(false);
       setIsListening(false);
       setIsProcessing(false);
-      setRequestQueue([]); // ✅ Clear queue
+      setRequestQueue([]);
+      setDebugLog([]);
 
       toast.success('Interview saved. You can resume later!');
     }
   }, []);
+
+  // ✅ NEW: Diagnostic function
+  const runDiagnostics = useCallback(() => {
+    const results = {
+      apiKey: !!API_KEY && API_KEY.startsWith('sk-'),
+      speechRecognition: !!recognitionRef.current,
+      isListening: isListening,
+      queueLength: requestQueue.length,
+      conversationLength: conversationHistory.length,
+      accumulatedText: accumulatedTranscriptRef.current,
+      processingState: processingRef.current
+    };
+
+    console.table(results);
+    addDebugLog('🔍 Diagnostic run - check console');
+
+    const issues = [];
+    if (!results.apiKey) issues.push('❌ API key not configured');
+    if (!results.speechRecognition) issues.push('❌ Speech recognition not available');
+    if (results.queueLength > 5) issues.push('⚠️ Queue backlog detected');
+    if (results.processingState && results.queueLength > 0) issues.push('⚠️ Processing stuck');
+
+    if (issues.length === 0) {
+      toast.success('✅ All systems operational!');
+      addDebugLog('✅ Diagnostics: All systems OK');
+    } else {
+      console.error('Issues found:', issues);
+      toast.error(`Found ${issues.length} issue(s). Check console.`);
+      issues.forEach(issue => addDebugLog(issue));
+    }
+
+    return results;
+  }, [API_KEY, isListening, requestQueue, conversationHistory, addDebugLog]);
 
   const interviewTypes: InterviewCard[] = [
     { id: 1, title: 'System Design', category: 'Technical', icon: <Code className="w-8 h-8 text-blue-400" />, description: 'Design scalable systems' },
@@ -1050,6 +1153,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
               </div>
 
               <div className="flex items-center space-x-3">
+                <button 
+                  onClick={() => setShowDebug(!showDebug)} 
+                  className={`p-2 hover:bg-gray-700 rounded-lg transition-colors ${showDebug ? 'bg-gray-700' : ''}`} 
+                  title="Debug Panel"
+                >
+                  <Bug className="w-5 h-5" />
+                </button>
                 <button onClick={() => setIsPaused(!isPaused)} className="p-2 hover:bg-gray-700 rounded-lg transition-colors" title={isPaused ? 'Resume' : 'Pause'}>
                   {isPaused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
                 </button>
@@ -1073,6 +1183,41 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           <div className="max-w-6xl mx-auto">
             <div className="flex gap-4">
               <div className="flex-1 space-y-8">
+                {/* ✅ Debug Panel */}
+                {showDebug && (
+                  <div className="bg-gray-800 rounded-2xl p-4 border border-yellow-500/30">
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="flex items-center gap-2">
+                        <Bug className="w-5 h-5 text-yellow-400" />
+                        <h4 className="text-sm font-semibold text-yellow-400">Debug Log</h4>
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={runDiagnostics}
+                          className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
+                        >
+                          Run Diagnostics
+                        </button>
+                        <button 
+                          onClick={() => setDebugLog([])}
+                          className="text-xs px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-1 max-h-60 overflow-y-auto text-xs font-mono bg-gray-900 rounded p-3">
+                      {debugLog.length === 0 ? (
+                        <div className="text-gray-500">No debug messages yet. Start speaking to see logs.</div>
+                      ) : (
+                        debugLog.map((log, idx) => (
+                          <div key={idx} className="text-gray-300 hover:bg-gray-800 px-1 rounded">{log}</div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid md:grid-cols-2 gap-8">
                   <motion.div
                     className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-center relative overflow-hidden border border-gray-700"
@@ -1197,7 +1342,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </motion.div>
                 </div>
 
-                {/* ✅ NEW: Queue status display */}
                 {requestQueue.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -1505,7 +1649,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                               </div>
                             </div>
                           </div>
-                          {/* ✅ NEW: Queue info in settings */}
                           <div>
                             <label className="block text-sm font-medium mb-2">Request Queue</label>
                             <div className="px-4 py-3 rounded-lg bg-purple-900/20 border border-purple-500/30">
