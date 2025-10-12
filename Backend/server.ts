@@ -1,39 +1,92 @@
 import dotenv from "dotenv";
 dotenv.config();
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
-
-
-import connectDB from "./config/db";
-
 import bodyParser from "body-parser";
-import { model, Schema } from "mongoose";
+import { model, Schema, Document } from "mongoose";
+
+import admin from "../app/lib/firebaseAdmin";
+import { connectDB } from "./config/db";
+
+
+
+
+
+// ----------------------------------------------
+// 1️⃣ User Collection Type & Model
+// ----------------------------------------------
 
 export interface IUser extends Document {
   name: string;
   email: string;
-  role : string
+  role: string;
+  accessToken?: string;
 }
-// 2️⃣ Mongoose Schema
+
 const userSchema = new Schema<IUser>({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   role: { type: String, required: true },
-  
 });
-const User = model<IUser>("User", userSchema);  // create user collection in mongoose
+
+const User = model<IUser>("User", userSchema);
+
+// ----------------------------------------------
+// 2️⃣ Firebase Token Verify Middleware
+// ----------------------------------------------
+
+export interface AuthenticatedRequest extends Request {
+  user?: admin.auth.DecodedIdToken;
+}
+
+export const verifyToken = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const authHeader = req.headers.authorization;
+  console.log("Middleware triggered! Authorization header:", authHeader);
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    res.status(401).json({ error: "Unauthorized Access" });
+    return;
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decodedUser = await admin.auth().verifyIdToken(token);
+    req.user = decodedUser; // ✅ user info attach
+    console.log("Token verified successfully! User:", decodedUser);
+    next();
+  } catch (error) {
+    console.error("JWT verification failed:", error);
+    res.status(403).json({ error: "Forbidden Access" });
+  }
+};
+
+
+// ----------------------------------------------
+// 3️⃣ Database Connection
+// ----------------------------------------------
 
 connectDB();
+
+// ----------------------------------------------
+// 4️⃣ Express App Setup
+// ----------------------------------------------
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
+// ----------------------------------------------
+// 5️⃣ Routes
+// ----------------------------------------------
 
-//get data when user signUp 
-
-app.post('/users', async (req: Request, res: Response): Promise<void> => {
+// Create user when signing up
+app.post("/users", async (req: Request, res: Response): Promise<void> => {
   console.log("📩 /users route hit with body:", req.body);
   try {
     const { name, email, role } = req.body as IUser;
@@ -53,13 +106,19 @@ app.post('/users', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// ✅ Protected route example
+app.get("/protected", verifyToken, (req: AuthenticatedRequest, res: Response) => {
+  res.json({ message: "You are authorized!", user: req.user });
+});
 
-
-
-app.get("/", (req, res) => {
+// ✅ Default route
+app.get("/", (req: Request, res: Response) => {
   res.send("Backend is running! Welcome to Rezoom AI API.");
 });
 
+// ----------------------------------------------
+// 6️⃣ Start Server
+// ----------------------------------------------
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Backend running on port ${PORT}`));
