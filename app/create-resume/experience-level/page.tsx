@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-const page = () => {
+const Page = () => {
     const [selected, setSelected] = useState(
         {
             NoExp: false,
@@ -122,4 +122,4 @@ const page = () => {
     );
 };
 
-export default page;
+export default Page;

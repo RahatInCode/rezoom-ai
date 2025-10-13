@@ -1,8 +1,8 @@
-'use client'
+"use client"
 import { usePathname } from 'next/navigation';
 import React from 'react';
 
-const page = () => {
+const Page = () => {
     const path = usePathname().split('/')[4]
     return (
         <div>
@@ -11,4 +11,4 @@ const page = () => {
     );
 };
 
-export default page;
+export default Page;

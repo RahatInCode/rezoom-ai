@@ -1,14 +1,6 @@
 "use client";
-import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { MoveRight, Link as LinkIcon, ArrowRight } from "lucide-react";
-import toast, { Toaster } from "react-hot-toast";
-import * as htmlToImage from "html-to-image";
-import jsPDF from "jspdf";
-import { saveAs } from "file-saver";
-import htmlDocx from "html-docx-js/dist/html-docx";
-import OurFeature from "../Components/WhyChooseUS/OurFeature";
-import { AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
 import ResumeAnimtaion from "../../public/ResumeSteps.json"
 import Link from "next/link";

@@ -1,10 +1,10 @@
-'use client'
+"use client"
 import { ArrowRight, Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
-const page = () => {
+const Page = () => {
     const [resumes, setResume] = useState([])
     const [loading , setLoading] = useState(false)
     const [templateSelect , setTemplateSelect] =useState(null)
@@ -129,7 +129,7 @@ const handleCheckBoxOnChange = (e) => {
     );
 };
 
-export default page;
+export default Page;
 
 
 
