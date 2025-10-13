@@ -1,6 +1,6 @@
 [
   {
-    "id": 1,
+    "id": "resume-7227294",
     "image": "/resume/resu-temp1.jpg",
     "name": "Classic Professional",
     "description": "A clean and traditional layout perfect for corporate and academic job applications.",
@@ -8,7 +8,7 @@
     "isTwoColoumn": false
   },
   {
-    "id": 2,
+    "id": "resume-9284726",
     "image": "/resume/resu-temp2.jpg",
     "name": "Modern Minimalist",
     "description": "A sleek and minimal design that focuses on readability and clean structure.",
@@ -16,7 +16,7 @@
     "isTwoColoumn": false
   },
   {
-    "id": 3,
+    "id": "resume-3703619",
     "image": "/resume/resu-temp3.jpg",
     "name": "Elegant Design",
     "description": "A stylish template with balanced use of color and typography for creative professionals.",
@@ -24,7 +24,7 @@
     "isTwoColoumn": false
   },
   {
-    "id": 4,
+    "id": "resume-8205738",
     "image": "/resume/resu-temp4.jpg",
     "name": "Creative Edge",
     "description": "Perfect for designers or artists, this layout adds visual flair while staying professional.",
@@ -32,7 +32,7 @@
     "isTwoColoumn": true
   },
   {
-    "id": 5,
+    "id": "resume-7395603",
     "image": "/resume/resu-temp5.jpg",
     "name": "Corporate Blue",
     "description": "A formal blue-accented template ideal for business, finance, or IT-related positions.",
@@ -40,7 +40,7 @@
     "isTwoColoumn": false
   },
   {
-    "id": 6,
+    "id": "resume-9921643",
     "image": "/resume/resu-temp6.jpg",
     "name": "Simple Focus",
     "description": "Straightforward and distraction-free, designed to highlight your experience and skills.",
@@ -48,7 +48,7 @@
     "isTwoColoumn": true
   },
   {
-    "id": 7,
+    "id": "resume-1452827",
     "image": "/resume/resu-temp7.jpg",
     "name": "Modern Blocks",
     "description": "A block-based structure for an organized and visually balanced presentation.",
@@ -56,7 +56,7 @@
     "isTwoColoumn": true
   },
   {
-    "id": 8,
+    "id": "resume-2847924",
     "image": "/resume/resu-temp8.jpg",
     "name": "Stylish Gradient",
     "description": "A trendy resume with soft gradients and elegant typography for modern job seekers.",
@@ -64,7 +64,7 @@
     "isTwoColoumn": true
   },
   {
-    "id": 9,
+    "id": "resume-7208274",
     "image": "/resume/resu-temp9.jpg",
     "name": "Smart Compact",
     "description": "Compact and smart layout that fits all key information in a single-page design.",

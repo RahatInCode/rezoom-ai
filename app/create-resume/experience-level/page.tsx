@@ -98,7 +98,7 @@ const page = () => {
                         <p className='mb-8 mt-3 text-lg '>Your education background can help us guide you through relevant sections for your resume.</p>
                         <div className='flex flex-wrap  gap-5 '>
                             {
-                            bestDescribeYourself.map( (best , idx)=>  <button onClick={()=>setEduSelect(idx)} className={`btn btn-lg ${eduselect === idx ? "border-2 border-primary" : ""}  btn-outline px-8 p-2 font-normal `} >{best}</button> )
+                            bestDescribeYourself.map( (best , idx)=>  <button onClick={()=>setEduSelect(idx+1)} className={`btn btn-lg ${eduselect === idx+1 ? "border-2 border-primary" : ""}  btn-outline px-8 p-2 font-normal `} >{best}</button> )
                              }
                         </div>
                             <div className='w-full py-5 flex justify-end items-center'>
