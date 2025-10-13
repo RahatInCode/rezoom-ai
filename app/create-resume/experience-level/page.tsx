@@ -83,11 +83,11 @@ const Page = () => {
                     <h1 className='text-center text-5xl '>How long you've been working on?</h1>
                     <p className='mb-8 mt-3 text-lg '>We'll find the best templates for your experience level.</p>
                     <div className='flex flex-wrap  gap-5 '>
-                        <button onClick={()=>handleExperienSelection(0)} className={`btn btn-lg  btn-outline px-8 p-2 font-normal ${selected.NoExp ? 'border-2 border-primary' : ''}`}>No Experience</button>
-                        <button onClick={()=>handleExperienSelection(1)} className={`btn btn-lg  btn-outline px-8 p-2 font-normal ${selected.ThreeYearExp ? 'border-2 border-primary' : ''}`}>0 to 3 Years</button>
-                        <button onClick={()=>handleExperienSelection(2)} className={`btn btn-lg  btn-outline px-8 p-2 font-normal ${selected.FiveYearExp ? 'border-2 border-primary' : ''}`}>3 to 5 Years</button>
-                        <button onClick={()=>handleExperienSelection(3)} className={`btn btn-lg  btn-outline px-8 p-2 font-normal ${selected.SevenYearExp ? 'border-2 border-primary' : ''}`}>5 to 7 Years</button>
-                        <button onClick={()=>handleExperienSelection(4)} className={`btn btn-lg  btn-outline px-8 p-2 font-normal ${selected.MoreSevenExp ? 'border-2 border-primary' : ''}`}>More than 7 Years</button>
+                        <button onClick={()=>handleExperienSelection(0)} className={`btn btn-lg  btn-outline px-8 p-2 font-normal ${selected.NoExp ? "border-2 border-primary" : ""}`}>No Experience</button>
+                        <button onClick={()=>handleExperienSelection(1)} className={`btn btn-lg  btn-outline px-8 p-2 font-normal ${selected.ThreeYearExp ? "border-2 border-primary" : ""}`}>0 to 3 Years</button>
+                        <button onClick={()=>handleExperienSelection(2)} className={`btn btn-lg  btn-outline px-8 p-2 font-normal ${selected.FiveYearExp ? "border-2 border-primary" : ""}`}>3 to 5 Years</button>
+                        <button onClick={()=>handleExperienSelection(3)} className={`btn btn-lg  btn-outline px-8 p-2 font-normal ${selected.SevenYearExp ? "border-2 border-primary" : ""}`}>5 to 7 Years</button>
+                        <button onClick={()=>handleExperienSelection(4)} className={`btn btn-lg  btn-outline px-8 p-2 font-normal ${selected.MoreSevenExp ? "border-2 border-primary" : ""}`}>More than 7 Years</button>
                     </div>
                 </div>
 
@@ -112,7 +112,7 @@ const Page = () => {
                             </div>
                     </div>
                     :
-                    ''
+                    ""
                 }
             
             </div>

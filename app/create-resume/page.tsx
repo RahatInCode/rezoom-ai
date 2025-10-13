@@ -32,7 +32,6 @@ export default function ResumeBuild_Welcome() {
           <Link href="/create-resume/experience-level" className="w-full font-extrabold lg:w-3/4 mt-5 btn btn-primary">Next <ArrowRight /></Link>
         </div>
 
-
         <div className="w-full">
           <Lottie
             animationData={ResumeAnimtaion}
