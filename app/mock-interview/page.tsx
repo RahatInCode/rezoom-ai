@@ -81,6 +81,7 @@ interface SpeechRecognition extends EventTarget {
   onresult: ((event: SpeechRecognitionEvent) => void) | null;
   onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
   onend: (() => void) | null;
+  onstart: (() => void) | null;
 }
 
 declare global {
@@ -137,8 +138,14 @@ const MockInterviewPage = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const processingRef = useRef(false);
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const accumulatedTranscriptRef = useRef<string>('');
   const lastProcessedTranscriptRef = useRef<string>('');
+  const lastUserSpeechTimeRef = useRef<number>(Date.now());
+
+  // Constants
+  const SILENCE_DELAY = 2500; // 2.5 seconds of silence before processing
+  const INACTIVITY_DELAY = 10000; // 10 seconds of no speech triggers follow-up
 
   // Debug helper
   const addDebugLog = useCallback((message: string) => {
@@ -271,14 +278,14 @@ Remember: Create a comfortable interview environment while assessing talent.`;
   }, [formData, questionNumber, totalQuestions]);
 
   // Call Gemini API
-  const callGeminiAPI = useCallback(async (messages: ConversationMessage[]): Promise<string | null> => {
+  const callGeminiAPI = useCallback(async (messages: ConversationMessage[], isFollowUp = false): Promise<string | null> => {
     if (!GEMINI_API_KEY) {
       toast.error('Gemini API key not configured. Please add NEXT_PUBLIC_GEMINI_API_KEY to .env.local');
       addDebugLog('❌ Gemini API key not configured');
       return null;
     }
 
-    if (processingRef.current) {
+    if (processingRef.current && !isFollowUp) {
       addDebugLog('⏭️ Already processing, skipping API call');
       return null;
     }
@@ -287,7 +294,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     setIsProcessing(true);
 
     try {
-      addDebugLog('📤 Calling Gemini API...');
+      addDebugLog(`📤 Calling Gemini API... ${isFollowUp ? '(Follow-up)' : ''}`);
 
       // Build conversation history for Gemini
       const systemPrompt = getSystemPrompt();
@@ -296,7 +303,12 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         .map(msg => `${msg.role === 'user' ? 'User' : 'Sneha'}: ${msg.parts}`)
         .join('\n\n');
 
-      const fullPrompt = `${systemPrompt}\n\n${conversationText}\n\nSneha:`;
+      let fullPrompt = `${systemPrompt}\n\n${conversationText}\n\nSneha:`;
+
+      // If it's a follow-up due to silence, add a prompt
+      if (isFollowUp) {
+        fullPrompt += "\n\n[The candidate hasn't responded. Ask a follow-up question or rephrase to encourage them to speak.]";
+      }
 
       const lastUserMsg = messages.filter(m => m.role === 'user').pop();
       if (lastUserMsg) {
@@ -424,6 +436,10 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         setIsSpeaking(false);
         addDebugLog('✅ TTS finished');
         toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
+        
+        // Reset inactivity timer after AI finishes speaking
+        lastUserSpeechTimeRef.current = Date.now();
+        startInactivityTimer();
       };
 
       utterance.onerror = () => {
@@ -438,6 +454,62 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       toast.error('Speech synthesis not supported');
     }
   }, [volume, isListening, addDebugLog]);
+
+  // Start inactivity timer
+  const startInactivityTimer = useCallback(() => {
+    // Clear existing timer
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+    }
+
+    // Only start timer if interview is active and not paused
+    if (!showMockInterview || isPaused || isSpeaking || isProcessing) {
+      return;
+    }
+
+    addDebugLog('⏰ Starting 10s inactivity timer');
+
+    inactivityTimeoutRef.current = setTimeout(async () => {
+      const timeSinceLastSpeech = Date.now() - lastUserSpeechTimeRef.current;
+      
+      if (timeSinceLastSpeech >= INACTIVITY_DELAY && !isSpeaking && !isProcessing) {
+        addDebugLog('⚠️ User inactive for 10s - asking follow-up');
+        
+        toast('🤔 Still there? Let me ask a follow-up question...', { duration: 3000 });
+        
+        // Generate follow-up question
+        const followUpMessage: ConversationMessage = {
+          role: 'user',
+          parts: '[SILENCE - No response from candidate]',
+          timestamp: formatTime(interviewTime)
+        };
+
+        const updatedHistory = [...conversationHistory, followUpMessage];
+        const response = await callGeminiAPI(updatedHistory, true);
+
+        if (response) {
+          const aiMessage: ConversationMessage = {
+            role: 'model',
+            parts: response,
+            timestamp: formatTime(interviewTime)
+          };
+
+          setConversationHistory([...updatedHistory, aiMessage]);
+          setCurrentQuestion(response);
+          await speakText(response);
+        }
+      }
+    }, INACTIVITY_DELAY);
+  }, [showMockInterview, isPaused, isSpeaking, isProcessing, conversationHistory, interviewTime, callGeminiAPI, speakText, formatTime, addDebugLog]);
+
+  // Clear inactivity timer
+  const clearInactivityTimer = useCallback(() => {
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+      inactivityTimeoutRef.current = null;
+      addDebugLog('⏰ Cleared inactivity timer');
+    }
+  }, [addDebugLog]);
 
   // Trigger coding question
   const triggerCodingQuestion = useCallback(() => {
@@ -472,6 +544,10 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       addDebugLog('⏭️ Already processing, skipping');
       return;
     }
+
+    // Update last speech time and clear inactivity timer
+    lastUserSpeechTimeRef.current = Date.now();
+    clearInactivityTimer();
 
     addDebugLog(`🔄 Processing user speech: "${trimmed.substring(0, 50)}..."`);
     lastProcessedTranscriptRef.current = trimmed;
@@ -516,7 +592,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
     setFinalTranscript('');
     accumulatedTranscriptRef.current = '';
-  }, [conversationHistory, interviewTime, callGeminiAPI, speakText, triggerCodingQuestion, formatTime, totalQuestions, addDebugLog]);
+  }, [conversationHistory, interviewTime, callGeminiAPI, speakText, triggerCodingQuestion, formatTime, totalQuestions, addDebugLog, clearInactivityTimer]);
 
   // Setup speech recognition
   const setupSpeechRecognition = useCallback(() => {
@@ -542,14 +618,14 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     recognitionRef.current.interimResults = true;
     recognitionRef.current.lang = 'en-US';
 
-    const SILENCE_DELAY = 2500;
-
-    recognitionRef.current.start = () => {
+    // ✅ FIX: This was the bug - was set to .start instead of .onstart
+    recognitionRef.current.onstart = () => {
       addDebugLog('🎤 Speech recognition started');
       setIsListening(true);
       setInterimTranscript('');
       setFinalTranscript('');
       accumulatedTranscriptRef.current = '';
+      clearInactivityTimer();
     };
 
     recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
@@ -567,11 +643,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       if (interim) {
         setInterimTranscript(interim);
+        addDebugLog(`💬 Interim: "${interim.substring(0, 30)}..."`);
       }
 
       if (final.trim()) {
         accumulatedTranscriptRef.current += final;
         setFinalTranscript(accumulatedTranscriptRef.current);
+        addDebugLog(`✅ Final: "${final.substring(0, 50)}..."`);
 
         // Clear previous timeout
         if (silenceTimeoutRef.current) {
@@ -582,7 +660,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         silenceTimeoutRef.current = setTimeout(() => {
           const fullTranscript = accumulatedTranscriptRef.current.trim();
 
-          addDebugLog(`⏱️ Silence detected. Full transcript: "${fullTranscript.substring(0, 50)}..."`);
+          addDebugLog(`⏱️ Silence detected (${SILENCE_DELAY}ms). Full: "${fullTranscript.substring(0, 50)}..."`);
 
           if (fullTranscript) {
             if (recognitionRef.current) {
@@ -629,8 +707,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         clearTimeout(silenceTimeoutRef.current);
         silenceTimeoutRef.current = null;
       }
+      
+      // Restart inactivity timer when recognition ends
+      startInactivityTimer();
     };
-  }, [handleUserSpeech, addDebugLog]);
+  }, [handleUserSpeech, addDebugLog, clearInactivityTimer, startInactivityTimer]);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -646,6 +727,9 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       }
       if (silenceTimeoutRef.current) {
         clearTimeout(silenceTimeoutRef.current);
+      }
+      if (inactivityTimeoutRef.current) {
+        clearTimeout(inactivityTimeoutRef.current);
       }
     };
   }, [setupSpeechRecognition]);
@@ -663,6 +747,15 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     };
   }, [showMockInterview, isPaused]);
 
+  // Manage inactivity timer based on interview state
+  useEffect(() => {
+    if (showMockInterview && !isPaused && !isSpeaking && !isProcessing && !isListening) {
+      startInactivityTimer();
+    } else {
+      clearInactivityTimer();
+    }
+  }, [showMockInterview, isPaused, isSpeaking, isProcessing, isListening, startInactivityTimer, clearInactivityTimer]);
+
   // Start interview conversation
   const startInterviewConversation = useCallback(async () => {
     const greeting = `Hello! I'm Sneha, and I'll be your interviewer today for the ${formData.role || 'software engineering'} position. I'm really excited to learn about your background and experience${formData.techStack ? `, especially with ${formData.techStack}` : ''}. This will be a ${formData.duration}-minute conversation. Let's start - could you tell me a bit about yourself and what interests you most about this role?`;
@@ -676,6 +769,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     setConversationHistory([aiMessage]);
     setCurrentQuestion(greeting);
     setQuestionNumber(1);
+    lastUserSpeechTimeRef.current = Date.now();
     addDebugLog('🎬 Interview started');
     await speakText(greeting);
   }, [formData, speakText, addDebugLog]);
@@ -751,6 +845,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     const loadingToast = toast.loading('Running tests...');
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-implied-eval
       const userFunction = new Function('return ' + currentCode)() as (...args: unknown[]) => unknown;
 
       currentCodingProblem.testCases.forEach((testCase) => {
@@ -830,6 +925,8 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         }
       }
 
+      clearInactivityTimer();
+
       setShowMockInterview(false);
       setShowCodeEditor(false);
       setCodeEditorCollapsed(true);
@@ -840,7 +937,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       toast.success('Interview saved. You can resume later!');
     }
-  }, []);
+  }, [clearInactivityTimer]);
 
   // Run diagnostics
   const runDiagnostics = useCallback(() => {
@@ -848,9 +945,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       apiKey: !!GEMINI_API_KEY,
       speechRecognition: !!recognitionRef.current,
       isListening,
+      isSpeaking,
+      isProcessing,
       conversationLength: conversationHistory.length,
       accumulatedText: accumulatedTranscriptRef.current,
-      processingState: processingRef.current
+      processingState: processingRef.current,
+      lastSpeechTime: new Date(lastUserSpeechTimeRef.current).toLocaleTimeString(),
+      timeSinceLastSpeech: `${Math.floor((Date.now() - lastUserSpeechTimeRef.current) / 1000)}s ago`
     };
 
     console.table(results);
@@ -871,7 +972,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     }
 
     return results;
-  }, [GEMINI_API_KEY, isListening, conversationHistory, addDebugLog]);
+  }, [GEMINI_API_KEY, isListening, isSpeaking, isProcessing, conversationHistory, addDebugLog]);
 
   // Interview cards
   const interviewTypes: InterviewCard[] = [
@@ -1428,12 +1529,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     );
   }
 
-  // Landing page
+  // Landing page (keeping the same as before)
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Toaster position="top-center" />
 
-      {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20"></div>
         <div className="relative container mx-auto px-4 py-20 text-center">
@@ -1453,7 +1553,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         </div>
       </section>
 
-      {/* Interview Types */}
       <section id="pick-interview" className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -1487,7 +1586,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         </div>
       </section>
 
-      {/* Resume Builder CTA */}
       <section className="py-20 bg-gray-800/50">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto">
@@ -1501,7 +1599,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         </div>
       </section>
 
-      {/* Setup Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gray-800 rounded-2xl p-8 max-w-md w-full border border-gray-700">
