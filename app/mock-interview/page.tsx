@@ -857,7 +857,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     const loadingToast = toast.loading('Running tests...');
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-implied-eval
+      
       const userFunction = new Function('return ' + currentCode)() as (...args: unknown[]) => unknown;
 
       currentCodingProblem.testCases.forEach((testCase) => {
