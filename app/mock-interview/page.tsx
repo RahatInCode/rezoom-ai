@@ -92,7 +92,6 @@ declare global {
 }
 
 const MockInterviewPage = () => {
-  // Use Gemini API Key instead of OpenAI
   const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
 
   // State management
@@ -144,8 +143,8 @@ const MockInterviewPage = () => {
   const lastUserSpeechTimeRef = useRef<number>(Date.now());
 
   // Constants
-  const SILENCE_DELAY = 2500; // 2.5 seconds of silence before processing
-  const INACTIVITY_DELAY = 10000; // 10 seconds of no speech triggers follow-up
+  const SILENCE_DELAY = 2500;
+  const INACTIVITY_DELAY = 10000;
 
   // Debug helper
   const addDebugLog = useCallback((message: string) => {
@@ -296,7 +295,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     try {
       addDebugLog(`📤 Calling Gemini API... ${isFollowUp ? '(Follow-up)' : ''}`);
 
-      // Build conversation history for Gemini
       const systemPrompt = getSystemPrompt();
       const conversationText = messages
         .filter(msg => msg.role !== 'system')
@@ -305,7 +303,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       let fullPrompt = `${systemPrompt}\n\n${conversationText}\n\nSneha:`;
 
-      // If it's a follow-up due to silence, add a prompt
       if (isFollowUp) {
         fullPrompt += "\n\n[The candidate hasn't responded. Ask a follow-up question or rephrase to encourage them to speak.]";
       }
@@ -394,75 +391,21 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     }
   }, [GEMINI_API_KEY, getSystemPrompt, addDebugLog]);
 
-  // Text-to-Speech using Web Speech API
-  const speakText = useCallback(async (text: string) => {
-    if (!text) return;
-
-    setIsSpeaking(true);
-    addDebugLog(`🔊 Speaking: "${text.substring(0, 50)}..."`);
-
-    // Stop listening while speaking
-    if (recognitionRef.current && isListening) {
-      try {
-        recognitionRef.current.stop();
-        setIsListening(false);
-      } catch (error) {
-        console.error('Error stopping recognition:', error);
-      }
+  // Clear inactivity timer
+  const clearInactivityTimer = useCallback(() => {
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+      inactivityTimeoutRef.current = null;
+      addDebugLog('⏰ Cleared inactivity timer');
     }
+  }, [addDebugLog]);
 
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.95;
-      utterance.pitch = 1.1;
-      utterance.volume = volume / 100;
-      
-      // Use a female voice if available
-      const voices = window.speechSynthesis.getVoices();
-      const femaleVoice = voices.find(voice => 
-        voice.name.includes('Female') || 
-        voice.name.includes('Samantha') ||
-        voice.name.includes('Karen') ||
-        voice.name.includes('Google UK English Female')
-      ) || voices[0];
-      
-      if (femaleVoice) {
-        utterance.voice = femaleVoice;
-      }
-
-      utterance.onend = () => {
-        setIsSpeaking(false);
-        addDebugLog('✅ TTS finished');
-        toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
-        
-        // Reset inactivity timer after AI finishes speaking
-        lastUserSpeechTimeRef.current = Date.now();
-        startInactivityTimer();
-      };
-
-      utterance.onerror = () => {
-        setIsSpeaking(false);
-        addDebugLog('❌ TTS error');
-        toast.error('Speech synthesis error');
-      };
-
-      window.speechSynthesis.speak(utterance);
-    } else {
-      setIsSpeaking(false);
-      toast.error('Speech synthesis not supported');
-    }
-  }, [volume, isListening, addDebugLog]);
-
-  // Start inactivity timer
+  // Start inactivity timer (BEFORE speakText to avoid circular dependency)
   const startInactivityTimer = useCallback(() => {
-    // Clear existing timer
     if (inactivityTimeoutRef.current) {
       clearTimeout(inactivityTimeoutRef.current);
     }
 
-    // Only start timer if interview is active and not paused
     if (!showMockInterview || isPaused || isSpeaking || isProcessing) {
       return;
     }
@@ -477,7 +420,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         
         toast('🤔 Still there? Let me ask a follow-up question...', { duration: 3000 });
         
-        // Generate follow-up question
         const followUpMessage: ConversationMessage = {
           role: 'user',
           parts: '[SILENCE - No response from candidate]',
@@ -496,20 +438,97 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
           setConversationHistory([...updatedHistory, aiMessage]);
           setCurrentQuestion(response);
-          await speakText(response);
+          
+          // Call speakText directly without it being in dependencies
+          if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(response);
+            utterance.rate = 0.95;
+            utterance.pitch = 1.1;
+            utterance.volume = volume / 100;
+            
+            const voices = window.speechSynthesis.getVoices();
+            const femaleVoice = voices.find(voice => 
+              voice.name.includes('Female') || 
+              voice.name.includes('Samantha') ||
+              voice.name.includes('Karen') ||
+              voice.name.includes('Google UK English Female')
+            ) || voices[0];
+            
+            if (femaleVoice) {
+              utterance.voice = femaleVoice;
+            }
+
+            utterance.onend = () => {
+              setIsSpeaking(false);
+              lastUserSpeechTimeRef.current = Date.now();
+            };
+
+            setIsSpeaking(true);
+            window.speechSynthesis.speak(utterance);
+          }
         }
       }
     }, INACTIVITY_DELAY);
-  }, [showMockInterview, isPaused, isSpeaking, isProcessing, conversationHistory, interviewTime, callGeminiAPI, speakText, formatTime, addDebugLog]);
+  }, [showMockInterview, isPaused, isSpeaking, isProcessing, conversationHistory, interviewTime, callGeminiAPI, formatTime, addDebugLog, volume]);
 
-  // Clear inactivity timer
-  const clearInactivityTimer = useCallback(() => {
-    if (inactivityTimeoutRef.current) {
-      clearTimeout(inactivityTimeoutRef.current);
-      inactivityTimeoutRef.current = null;
-      addDebugLog('⏰ Cleared inactivity timer');
+  // Text-to-Speech
+  const speakText = useCallback(async (text: string) => {
+    if (!text) return;
+
+    setIsSpeaking(true);
+    addDebugLog(`🔊 Speaking: "${text.substring(0, 50)}..."`);
+
+    if (recognitionRef.current && isListening) {
+      try {
+        recognitionRef.current.stop();
+        setIsListening(false);
+      } catch (error) {
+        console.error('Error stopping recognition:', error);
+      }
     }
-  }, [addDebugLog]);
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95;
+      utterance.pitch = 1.1;
+      utterance.volume = volume / 100;
+      
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => 
+        voice.name.includes('Female') || 
+        voice.name.includes('Samantha') ||
+        voice.name.includes('Karen') ||
+        voice.name.includes('Google UK English Female')
+      ) || voices[0];
+      
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+      }
+
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        addDebugLog('✅ TTS finished');
+        toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
+        
+        lastUserSpeechTimeRef.current = Date.now();
+        startInactivityTimer();
+      };
+
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        addDebugLog('❌ TTS error');
+        toast.error('Speech synthesis error');
+      };
+
+      window.speechSynthesis.speak(utterance);
+    } else {
+      setIsSpeaking(false);
+      toast.error('Speech synthesis not supported');
+    }
+  }, [volume, isListening, addDebugLog, startInactivityTimer]);
 
   // Trigger coding question
   const triggerCodingQuestion = useCallback(() => {
@@ -528,7 +547,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
   const handleUserSpeech = useCallback(async (transcript: string) => {
     const trimmed = transcript.trim();
 
-    // Prevent duplicate processing
     if (trimmed === lastProcessedTranscriptRef.current) {
       addDebugLog('⏭️ Duplicate transcript, skipping');
       return;
@@ -545,7 +563,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       return;
     }
 
-    // Update last speech time and clear inactivity timer
     lastUserSpeechTimeRef.current = Date.now();
     clearInactivityTimer();
 
@@ -575,7 +592,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       await speakText(response);
 
-      // Check if coding question should be triggered
       const lower = response.toLowerCase();
       if (lower.includes('coding problem') ||
           lower.includes('coding challenge') ||
@@ -618,7 +634,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     recognitionRef.current.interimResults = true;
     recognitionRef.current.lang = 'en-US';
 
-    // ✅ FIX: This was the bug - was set to .start instead of .onstart
     recognitionRef.current.onstart = () => {
       addDebugLog('🎤 Speech recognition started');
       setIsListening(true);
@@ -651,12 +666,10 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         setFinalTranscript(accumulatedTranscriptRef.current);
         addDebugLog(`✅ Final: "${final.substring(0, 50)}..."`);
 
-        // Clear previous timeout
         if (silenceTimeoutRef.current) {
           clearTimeout(silenceTimeoutRef.current);
         }
 
-        // Set new timeout for silence detection
         silenceTimeoutRef.current = setTimeout(() => {
           const fullTranscript = accumulatedTranscriptRef.current.trim();
 
@@ -708,7 +721,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         silenceTimeoutRef.current = null;
       }
       
-      // Restart inactivity timer when recognition ends
       startInactivityTimer();
     };
   }, [handleUserSpeech, addDebugLog, clearInactivityTimer, startInactivityTimer]);
@@ -994,7 +1006,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     setShowModal(true);
   }, []);
 
-  // If in mock interview mode
+  // RENDER: Mock Interview Mode
   if (showMockInterview) {
     return (
       <div className="min-h-screen bg-gray-900 text-white">
@@ -1529,7 +1541,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     );
   }
 
-  // Landing page (keeping the same as before)
+  // RENDER: Landing Page
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Toaster position="top-center" />
