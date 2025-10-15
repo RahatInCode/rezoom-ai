@@ -400,7 +400,39 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     }
   }, [addDebugLog]);
 
-  // Start inactivity timer (BEFORE speakText to avoid circular dependency)
+  // Auto-restart speech recognition
+  const autoRestartListening = useCallback(() => {
+    if (!showMockInterview || isPaused) {
+      addDebugLog('⏭️ Skipping auto-restart (paused or not in interview)');
+      return;
+    }
+
+    setTimeout(() => {
+      if (recognitionRef.current && !isSpeaking && !isProcessing) {
+        try {
+          // Reset transcripts before restarting
+          accumulatedTranscriptRef.current = '';
+          setFinalTranscript('');
+          setInterimTranscript('');
+          lastProcessedTranscriptRef.current = '';
+          
+          recognitionRef.current.start();
+          addDebugLog('🎤 Auto-restarted speech recognition');
+          toast.success('🎤 Listening for your response...', { duration: 2000 });
+        } catch (error) {
+          const err = error as Error;
+          // Ignore "already started" errors
+          if (!err.message.includes('already started')) {
+            console.error('Error auto-restarting recognition:', error);
+            addDebugLog(`❌ Failed to auto-restart: ${err.message}`);
+            toast('Click the microphone to speak', { icon: '🎤', duration: 3000 });
+          }
+        }
+      }
+    }, 500); // Small delay to ensure clean restart
+  }, [showMockInterview, isPaused, isSpeaking, isProcessing, addDebugLog]);
+
+  // Start inactivity timer
   const startInactivityTimer = useCallback(() => {
     if (inactivityTimeoutRef.current) {
       clearTimeout(inactivityTimeoutRef.current);
@@ -439,7 +471,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           setConversationHistory([...updatedHistory, aiMessage]);
           setCurrentQuestion(response);
           
-          // Call speakText directly without it being in dependencies
+          // Speak the follow-up (which will auto-restart listening after)
           if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(response);
@@ -462,6 +494,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
             utterance.onend = () => {
               setIsSpeaking(false);
               lastUserSpeechTimeRef.current = Date.now();
+              autoRestartListening();
             };
 
             setIsSpeaking(true);
@@ -470,19 +503,21 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         }
       }
     }, INACTIVITY_DELAY);
-  }, [showMockInterview, isPaused, isSpeaking, isProcessing, conversationHistory, interviewTime, callGeminiAPI, formatTime, addDebugLog, volume]);
+  }, [showMockInterview, isPaused, isSpeaking, isProcessing, conversationHistory, interviewTime, callGeminiAPI, formatTime, volume, autoRestartListening, addDebugLog]);
 
-  // Text-to-Speech
+  // Text-to-Speech with auto-restart
   const speakText = useCallback(async (text: string) => {
     if (!text) return;
 
     setIsSpeaking(true);
     addDebugLog(`🔊 Speaking: "${text.substring(0, 50)}..."`);
 
+    // Stop recognition while AI is speaking
     if (recognitionRef.current && isListening) {
       try {
         recognitionRef.current.stop();
         setIsListening(false);
+        addDebugLog('🛑 Stopped listening for AI speech');
       } catch (error) {
         console.error('Error stopping recognition:', error);
       }
@@ -510,10 +545,14 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       utterance.onend = () => {
         setIsSpeaking(false);
-        addDebugLog('✅ TTS finished');
-        toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
+        addDebugLog('✅ TTS finished - auto-restarting listening');
         
         lastUserSpeechTimeRef.current = Date.now();
+        
+        // 🔥 KEY FIX: Auto-restart speech recognition
+        autoRestartListening();
+        
+        // Start inactivity timer
         startInactivityTimer();
       };
 
@@ -528,7 +567,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       setIsSpeaking(false);
       toast.error('Speech synthesis not supported');
     }
-  }, [volume, isListening, addDebugLog, startInactivityTimer]);
+  }, [volume, isListening, addDebugLog, autoRestartListening, startInactivityTimer]);
 
   // Trigger coding question
   const triggerCodingQuestion = useCallback(() => {
@@ -555,6 +594,10 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     if (!trimmed || trimmed.length < 3) {
       addDebugLog('❌ Transcript too short or empty');
       toast.error('Speech too short. Please speak more clearly.');
+      // Reset and allow retry
+      accumulatedTranscriptRef.current = '';
+      setFinalTranscript('');
+      autoRestartListening();
       return;
     }
 
@@ -577,6 +620,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
     const updatedHistory = [...conversationHistory, userMessage];
     setConversationHistory(updatedHistory);
+
+    // Reset transcripts immediately after capturing
+    setFinalTranscript('');
+    setInterimTranscript('');
+    accumulatedTranscriptRef.current = '';
 
     const response = await callGeminiAPI(updatedHistory);
 
@@ -604,11 +652,10 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     } else {
       addDebugLog('❌ No response from Gemini');
       toast.error('Failed to get AI response. Please try again.');
+      // Auto-restart listening for retry
+      autoRestartListening();
     }
-
-    setFinalTranscript('');
-    accumulatedTranscriptRef.current = '';
-  }, [conversationHistory, interviewTime, callGeminiAPI, speakText, triggerCodingQuestion, formatTime, totalQuestions, addDebugLog, clearInactivityTimer]);
+  }, [conversationHistory, interviewTime, callGeminiAPI, speakText, triggerCodingQuestion, formatTime, totalQuestions, addDebugLog, clearInactivityTimer, autoRestartListening]);
 
   // Setup speech recognition
   const setupSpeechRecognition = useCallback(() => {
@@ -695,6 +742,8 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       if (event.error === 'no-speech') {
         toast('No speech detected. Please try speaking again.', { icon: '🎤' });
+        // Auto-restart on no-speech
+        setTimeout(() => autoRestartListening(), 1000);
         return;
       }
 
@@ -720,10 +769,8 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         clearTimeout(silenceTimeoutRef.current);
         silenceTimeoutRef.current = null;
       }
-      
-      startInactivityTimer();
     };
-  }, [handleUserSpeech, addDebugLog, clearInactivityTimer, startInactivityTimer]);
+  }, [handleUserSpeech, addDebugLog, clearInactivityTimer, autoRestartListening]);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -758,15 +805,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       if (interval) clearInterval(interval);
     };
   }, [showMockInterview, isPaused]);
-
-  // Manage inactivity timer based on interview state
-  useEffect(() => {
-    if (showMockInterview && !isPaused && !isSpeaking && !isProcessing && !isListening) {
-      startInactivityTimer();
-    } else {
-      clearInactivityTimer();
-    }
-  }, [showMockInterview, isPaused, isSpeaking, isProcessing, isListening, startInactivityTimer, clearInactivityTimer]);
 
   // Start interview conversation
   const startInterviewConversation = useCallback(async () => {
@@ -810,12 +848,26 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     }
 
     try {
+      // Reset transcripts
+      accumulatedTranscriptRef.current = '';
+      setFinalTranscript('');
+      setInterimTranscript('');
+      lastProcessedTranscriptRef.current = '';
+      
       recognitionRef.current.start();
       addDebugLog('🎤 User clicked microphone - starting recognition');
       toast.success('🎤 Listening... Speak now!', { duration: 2000 });
     } catch (error) {
+      const err = error as Error;
       console.error('Start listening error:', error);
-      addDebugLog(`❌ Failed to start: ${error instanceof Error ? error.message : 'unknown'}`);
+      addDebugLog(`❌ Failed to start: ${err.message}`);
+      
+      // Ignore "already started" errors
+      if (err.message.includes('already started')) {
+        setIsListening(true);
+        return;
+      }
+      
       setIsListening(false);
 
       setTimeout(() => {
