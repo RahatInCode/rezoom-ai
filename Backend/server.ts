@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
+
 import bodyParser from "body-parser";
 import { model, Schema, Document } from "mongoose";
 
@@ -80,10 +81,32 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(cors({
+  origin: ["http://localhost:3000"],  // ✅ allow your Next.js frontend
+  credentials: true,
+}));
 
 // ----------------------------------------------
 // 5️⃣ Routes
 // ----------------------------------------------
+
+//  Get all users for admin dashboard
+
+app.get("/users", async (req: Request, res: Response): Promise<void> => {
+  console.log("📡 GET /users route hit");
+
+  try {
+    const users = await User.find(); 
+    res.status(200).json(users); 
+  } catch (error: unknown) {
+    console.error("Error fetching users:", error);
+    if (error instanceof Error) {
+      res.status(500).json({ message: "Error fetching users", error: error.message });
+    } else {
+      res.status(500).json({ message: "Unknown error occurred" });
+    }
+  }
+});
 
 // Create user when signing up
 app.post("/users", async (req: Request, res: Response): Promise<void> => {
@@ -95,7 +118,7 @@ app.post("/users", async (req: Request, res: Response): Promise<void> => {
     res.status(201).json({
       message: "User created successfully!",
       user: savedUser,
-    });
+    }); 
   } catch (error: unknown) {
     console.error("Error creating user:", error);
     if (error instanceof Error) {
@@ -105,6 +128,10 @@ app.post("/users", async (req: Request, res: Response): Promise<void> => {
     }
   }
 });
+
+
+
+
 
 // ✅ Protected route example
 app.get("/protected", verifyToken, (req: AuthenticatedRequest, res: Response) => {
