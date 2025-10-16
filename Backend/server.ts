@@ -17,20 +17,32 @@ import { connectDB } from "./config/db";
 // 1️⃣ User Collection Type & Model
 // ----------------------------------------------
 
+
 export interface IUser extends Document {
-  name: string;
+  username: string;
   email: string;
-  role: string;
-  accessToken?: string;
+  plan: string;
+  joinDate: Date;
+  lastActivity: Date;
+  status: string;
+  // role: string;
 }
 
+
 const userSchema = new Schema<IUser>({
-  name: { type: String, required: true },
+  username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  role: { type: String, required: true },
+  plan: { type: String, default: "Free" },
+  joinDate: { type: Date, default: Date.now },
+  lastActivity: { type: Date, default: Date.now },
+  status: { type: String, default: "active" },
+  // role: { type: String, default: "user" },
 });
 
+
+
 const User = model<IUser>("User", userSchema);
+
 
 // ----------------------------------------------
 // 2️⃣ Firebase Token Verify Middleware
@@ -111,16 +123,27 @@ app.get("/users", async (req: Request, res: Response): Promise<void> => {
 // Create user when signing up
 app.post("/users", async (req: Request, res: Response): Promise<void> => {
   console.log("📩 /users route hit with body:", req.body);
+
   try {
-    const { name, email, role } = req.body as IUser;
-    const newUser = new User({ name, email, role });
+    const { username, email, plan, joinDate, lastActivity, status} = req.body;
+
+    const newUser = new User({
+      username,
+      email,
+      plan: plan || "Free",
+      joinDate: joinDate ? new Date(joinDate) : Date.now(),
+      lastActivity: lastActivity ? new Date(lastActivity) : Date.now(),
+      status: status || "active",
+      // role: role || "user",
+    });
+
     const savedUser = await newUser.save();
     res.status(201).json({
-      message: "User created successfully!",
+      message: "✅ User created successfully!",
       user: savedUser,
-    }); 
+    });
   } catch (error: unknown) {
-    console.error("Error creating user:", error);
+    console.error("❌ Error creating user:", error);
     if (error instanceof Error) {
       res.status(500).json({ message: "Error creating user", error: error.message });
     } else {
@@ -128,7 +151,6 @@ app.post("/users", async (req: Request, res: Response): Promise<void> => {
     }
   }
 });
-
 
 
 
