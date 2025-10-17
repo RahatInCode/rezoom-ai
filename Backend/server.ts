@@ -120,6 +120,7 @@ app.get("/users", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+
 // Create user when signing up
 app.post("/users", async (req: Request, res: Response): Promise<void> => {
   console.log("📩 /users route hit with body:", req.body);
@@ -152,6 +153,27 @@ app.post("/users", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+app.get("/stats", async (req: Request, res: Response) => {
+  try {
+    const totalUsers = await User.countDocuments({});
+    const proUsers = await User.countDocuments({ plan: "Pro" });
+    const freeUsers = await User.countDocuments({ plan: "Free" });
+    const activeUsers = await User.countDocuments({ status: "active" });
+
+   
+    res.status(200).json({
+      totalUsers,
+      proUsers,
+      freeUsers,
+      activeUsers,
+      resumesCreated: 1234, // temporarily static or from another model later
+      simulations: 892,     // same
+    });
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+    res.status(500).json({ message: "Error fetching stats" });
+  }
+});
 
 
 
