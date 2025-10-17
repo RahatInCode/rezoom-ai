@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { Edit3, FileText, Mic, Brain, Settings, Shield, LogOut, Crown, Activity, Clock, TrendingUp } from 'lucide-react';
 

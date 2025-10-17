@@ -16,6 +16,7 @@
     "express": "^5.1.0",
     "file-saver": "^2.0.5",
     "firebase": "^12.3.0",
+    "firebase-admin": "^13.5.0",
     "framer-motion": "^12.23.22",
     "gsap": "^3.13.0",
     "html-docx-js": "^0.1.0",
@@ -33,6 +34,7 @@
     "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
+    "recharts": "^3.2.1",
     "sweetalert2": "^11.23.0",
     "swiper": "^12.0.2"
   },
