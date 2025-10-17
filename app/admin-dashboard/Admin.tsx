@@ -59,6 +59,22 @@ interface ActivityLog {
   timestamp: string;
 }
 
+interface Stats {
+  totalUsers: number;
+  proUsers: number;
+  freeUsers: number;
+  activeUsers: number;
+  resumesCreated: number;
+  simulations: number;
+}
+
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  subtitle?: string;
+  icon: React.ReactNode;
+}
+
 // Dummy Data
 const userGrowthData = [
   { month: 'Jan', users: 120 },
@@ -144,16 +160,101 @@ const AdminDashboard: React.FC = () => {
   );
 
   // Page Components
-  const DashboardPage = () => (
-    <div className="space-y-6">
+  const DashboardPage = () => {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch("http://localhost:5000/stats");
+        if (!res.ok) throw new Error("Failed to fetch stats");
+        const data = await res.json();
+        setStats(data);
+      } catch (err) {
+        console.error("Error fetching stats:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
+
+  if (loading)
+    return (
+      <div className="p-10 text-center text-gray-500">
+        Loading dashboard...
+      </div>
+    );
+
+  if (!stats)
+    return (
+      <div className="p-10 text-center text-red-500">
+        Failed to load stats. Please try again later.
+      </div>
+    );
+
+  // Stat Card component
+  const StatCard = ({
+    title,
+    value,
+    subtitle,
+    icon,
+  }: {
+    title: string;
+    value: string | number;
+    subtitle?: string;
+    icon: React.ReactNode;
+  }) => (
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between mb-4">
+        <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-3 rounded-lg">
+          {icon}
+        </div>
+      </div>
+      <h3 className="text-gray-600 text-sm font-medium mb-1">{title}</h3>
+      <p className="text-3xl font-bold text-gray-900 mb-1">{value}</p>
+      {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
+    </div>
+  );
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen space-y-6">
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">
+        Admin Dashboard
+      </h1>
+
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Users" value="620" subtitle="120 Pro, 500 Free" icon={<Users className="text-purple-600" size={24} />} />
-        <StatCard title="Resumes Created" value="1,234" subtitle="+78 this week" icon={<FileText className="text-blue-600" size={24} />} />
-        <StatCard title="Simulations" value="892" subtitle="85% avg score" icon={<Video className="text-indigo-600" size={24} />} />
-        <StatCard title="Active Users" value="340" subtitle="Last 7 days" icon={<Activity className="text-green-600" size={24} />} />
+        <StatCard
+          title="Total Users"
+          value={stats.totalUsers}
+          subtitle={`${stats.proUsers} Pro, ${stats.freeUsers} Free`}
+          icon={<Users className="text-purple-600" size={24} />}
+        />
+        <StatCard
+          title="Resumes Created"
+          value={stats.resumesCreated}
+          subtitle="+78 this week"
+          icon={<FileText className="text-blue-600" size={24} />}
+        />
+        <StatCard
+          title="Simulations"
+          value={stats.simulations}
+          subtitle="85% avg score"
+          icon={<Video className="text-indigo-600" size={24} />}
+        />
+        <StatCard
+          title="Active Users"
+          value={stats.activeUsers}
+          subtitle="Last 7 days"
+          icon={<Activity className="text-green-600" size={24} />}
+        />
       </div>
 
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* User Growth */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <h3 className="text-lg font-semibold mb-4">User Growth</h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -162,11 +263,17 @@ const AdminDashboard: React.FC = () => {
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
-              <Line type="monotone" dataKey="users" stroke="#8b5cf6" strokeWidth={2} />
+              <Line
+                type="monotone"
+                dataKey="users"
+                stroke="#8b5cf6"
+                strokeWidth={2}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
+        {/* Resumes Per Week */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <h3 className="text-lg font-semibold mb-4">Resumes Per Week</h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -181,40 +288,38 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold mb-4">Simulation Performance</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie data={simulationData} cx="50%" cy="50%" labelLine={false} label={(entry) => entry.name} outerRadius={80} fill="#8884d8" dataKey="value">
-                {simulationData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold mb-4">Recent Admin Activities</h3>
-          <div className="space-y-3">
-            {dummyActivityLogs.slice(0, 5).map((log) => (
-              <div key={log.id} className="flex justify-between items-start p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-sm text-gray-900">{log.action}</p>
-                  <p className="text-xs text-gray-500">By {log.performedBy} • {log.affectedUser}</p>
-                </div>
-                <span className="text-xs text-gray-400">{log.timestamp.split(' ')[1]}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Simulation Performance */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h3 className="text-lg font-semibold mb-4">
+          Simulation Performance
+        </h3>
+        <ResponsiveContainer width="100%" height={250}>
+          <PieChart>
+            <Pie
+              data={simulationData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              outerRadius={80}
+              label={({ name }) => name}
+              dataKey="value"
+            >
+              {simulationData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
+};
 
- 
+
 
 
 
