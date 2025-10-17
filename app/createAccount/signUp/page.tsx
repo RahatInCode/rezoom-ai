@@ -16,48 +16,54 @@ export default function SignUp() {
   const [error, setError] = useState("");
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const name = (form.elements.namedItem("name") as HTMLInputElement)?.value;
-    const email = (form.elements.namedItem("email") as HTMLInputElement)?.value;
-    const password = (form.elements.namedItem("password") as HTMLInputElement)?.value;
+  e.preventDefault();
+  const form = e.currentTarget;
+  const name = (form.elements.namedItem("name") as HTMLInputElement)?.value;
+  const email = (form.elements.namedItem("email") as HTMLInputElement)?.value;
+  const password = (form.elements.namedItem("password") as HTMLInputElement)?.value;
 
-    const passwordExp = /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}/;
-    if (!passwordExp.test(password)) {
-      setError(
-        "Password must include 1 uppercase, 1 lowercase, 1 number, and be at least 6 characters long"
-      );
-      return;
-    }
-    setError("");
+  const passwordExp = /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}/;
+  if (!passwordExp.test(password)) {
+    setError(
+      "Password must include 1 uppercase, 1 lowercase, 1 number, and be at least 6 characters long"
+    );
+    return;
+  }
+  setError("");
 
-    try {
-      await signup(email, password, name);
-      const userInfo = {
-        name,
-        email,
-        role : 'user'
-      }
-      await fetch("http://localhost:5000/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userInfo),
-      });
-      Swal.fire({
-        position: "top-end",
-        title: "Signup successful! Please check your email for verification.",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-    } catch (err) {
-      const fe = err as FirebaseError;
-      setError(
-        fe.code === "auth/email-already-in-use"
-          ? "This email is already registered. Please login instead."
-          : fe.message
-      );
-    }
-  };
+  try {
+    await signup(email, password, name);
+
+    const userInfo = {
+      username: name,
+      email,
+      plan: "Free",
+      joinDate: new Date().toISOString(),
+      lastActivity: new Date().toISOString(),
+      status: "active"
+    };
+
+    await fetch("http://localhost:5000/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userInfo),
+    });
+
+    Swal.fire({
+      position: "top-end",
+      title: "Signup successful! Please check your email for verification.",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+  } catch (err) {
+    const fe = err as FirebaseError;
+    setError(
+      fe.code === "auth/email-already-in-use"
+        ? "This email is already registered. Please login instead."
+        : fe.message
+    );
+  }
+};
 
   const handleResendVerification = async () => {
     if (cooldown > 0) return;

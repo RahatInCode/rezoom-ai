@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Search, Bell, User, Home, Users, FileText, Video, Shield, Activity, Settings, LogOut, ChevronDown, Edit, Trash2, Eye, Download, Flag, Ban, MessageSquare, CheckCircle, AlertTriangle } from 'lucide-react';
 
@@ -16,7 +16,7 @@ interface AdminUser {
 }
 
 interface AppUser {
-  id: string;
+  _id: string;
   username: string;
   email: string;
   plan: UserPlan;
@@ -85,12 +85,9 @@ const simulationData = [
 
 const COLORS = ['#8b5cf6', '#6366f1', '#3b82f6', '#ef4444'];
 
-const dummyUsers: AppUser[] = [
-  { id: '1', username: 'john_doe', email: 'john@example.com', plan: 'pro', joinDate: '2024-01-15', lastActivity: '2 hours ago', status: 'active' },
-  { id: '2', username: 'jane_smith', email: 'jane@example.com', plan: 'free', joinDate: '2024-02-20', lastActivity: '1 day ago', status: 'active' },
-  { id: '3', username: 'mike_wilson', email: 'mike@example.com', plan: 'pro', joinDate: '2024-03-10', lastActivity: '3 days ago', status: 'active' },
-  { id: '4', username: 'sarah_connor', email: 'sarah@example.com', plan: 'free', joinDate: '2024-01-05', lastActivity: '5 hours ago', status: 'banned' }
-];
+
+
+
 
 const dummyResumes: Resume[] = [
   { id: '1', name: 'Software Engineer Resume', username: 'john_doe', createdDate: '2024-06-01', lastEdited: '2024-06-15', status: 'Active' },
@@ -217,7 +214,36 @@ const AdminDashboard: React.FC = () => {
     </div>
   );
 
-  const UsersPage = () => (
+ 
+
+
+
+const UsersPage = () => {
+  const [users, setUsers] = useState<AppUser[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const res = await fetch("http://localhost:5000/users");
+        const data = await res.json();
+        setUsers(data);
+      } catch (err) {
+        console.error("Failed to fetch users:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUsers();
+  }, []);
+
+  if (loading)
+    return (
+      <div className="p-6 text-center text-gray-500">Loading users...</div>
+    );
+
+  return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
       <div className="p-6 border-b border-gray-100">
         <h2 className="text-xl font-bold">User Management</h2>
@@ -236,36 +262,59 @@ const AdminDashboard: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {dummyUsers.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
+            {users.map((user) => (
+              <tr key={user._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.username}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
                 <td className="px-6 py-4">
-                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${user.plan === 'pro' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>
+                  <span
+                    className={`px-3 py-1 text-xs font-medium rounded-full ${
+                      user.plan === "pro"
+                        ? "bg-purple-100 text-purple-700"
+                        : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
                     {user.plan.toUpperCase()}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">{user.joinDate}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">{user.lastActivity}</td>
                 <td className="px-6 py-4">
-                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${user.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  <span
+                    className={`px-3 py-1 text-xs font-medium rounded-full ${
+                      user.status === "active"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
                     {user.status}
                   </span>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex gap-2">
-                    <button className="p-1 hover:bg-gray-100 rounded"><Eye size={16} className="text-gray-600" /></button>
-                    <button className="p-1 hover:bg-gray-100 rounded"><Edit size={16} className="text-blue-600" /></button>
-                    <button className="p-1 hover:bg-gray-100 rounded"><Trash2 size={16} className="text-red-600" /></button>
+                    <button className="p-1 hover:bg-gray-100 rounded">
+                      <Eye size={16} className="text-gray-600" />
+                    </button>
+                    <button className="p-1 hover:bg-gray-100 rounded">
+                      <Edit size={16} className="text-blue-600" />
+                    </button>
+                    <button className="p-1 hover:bg-gray-100 rounded">
+                      <Trash2 size={16} className="text-red-600" />
+                    </button>
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        {users.length === 0 && (
+          <p className="p-6 text-center text-gray-500">No users found.</p>
+        )}
       </div>
     </div>
   );
+};
+
 
   const ResumesPage = () => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
