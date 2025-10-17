@@ -34,7 +34,8 @@ import {
   Globe,
   Server,
   CloudLightning,
-  Loader
+  Loader,
+  Bug
 } from 'lucide-react';
 import { type CodingProblem, type TestCase, getRandomProblem } from '../Components/CodingProblems';
 
@@ -47,8 +48,8 @@ interface TestResult {
 }
 
 interface ConversationMessage {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
+  role: 'user' | 'model' | 'system';
+  parts: string;
   timestamp: string;
 }
 
@@ -60,29 +61,9 @@ interface InterviewCard {
   description: string;
 }
 
-interface SpeechRecognitionAlternative {
-  transcript: string;
-  confidence: number;
-}
-
-interface SpeechRecognitionResult {
-  length: number;
-  item(index: number): SpeechRecognitionAlternative;
-  [index: number]: SpeechRecognitionAlternative;
-  isFinal: boolean;
-}
-
-interface SpeechRecognitionResultList {
-  length: number;
-  item(index: number): SpeechRecognitionResult;
-  [index: number]: SpeechRecognitionResult;
-}
-
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
   resultIndex: number;
-  interpretation: unknown;
-  emma: unknown;
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
@@ -94,7 +75,6 @@ interface SpeechRecognition extends EventTarget {
   continuous: boolean;
   interimResults: boolean;
   lang: string;
-  maxAlternatives: number;
   start: () => void;
   stop: () => void;
   abort: () => void;
@@ -102,13 +82,6 @@ interface SpeechRecognition extends EventTarget {
   onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
   onend: (() => void) | null;
   onstart: (() => void) | null;
-  onaudiostart: (() => void) | null;
-  onaudioend: (() => void) | null;
-  onsoundstart: (() => void) | null;
-  onsoundend: (() => void) | null;
-  onspeechstart: (() => void) | null;
-  onspeechend: (() => void) | null;
-  onnomatch: (() => void) | null;
 }
 
 declare global {
@@ -119,7 +92,7 @@ declare global {
 }
 
 const MockInterviewPage = () => {
-  const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY || '';
+  const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
 
   // State management
   const [showModal, setShowModal] = useState(false);
@@ -140,7 +113,7 @@ const MockInterviewPage = () => {
     duration: '30'
   });
 
-  // Voice and coding states
+  // Voice and conversation states
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([]);
@@ -151,18 +124,44 @@ const MockInterviewPage = () => {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [showTestResults, setShowTestResults] = useState(false);
 
-  // NEW: Interim transcript and better state management
+  // Transcript states
   const [interimTranscript, setInterimTranscript] = useState('');
   const [finalTranscript, setFinalTranscript] = useState('');
+
+  // Debug state
+  const [debugLog, setDebugLog] = useState<string[]>([]);
+  const [showDebug, setShowDebug] = useState(false);
 
   // Refs
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const processingRef = useRef(false);
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const accumulatedTranscriptRef = useRef<string>('');
+  const lastProcessedTranscriptRef = useRef<string>('');
+  const lastUserSpeechTimeRef = useRef<number>(Date.now());
 
-  // Save interview state to localStorage
+  // Constants
+  const SILENCE_DELAY = 2500;
+  const INACTIVITY_DELAY = 10000;
+
+  // Debug helper
+  const addDebugLog = useCallback((message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    const logMessage = `[${timestamp}] ${message}`;
+    setDebugLog(prev => [...prev.slice(-50), logMessage]);
+    console.log(logMessage);
+  }, []);
+
+  // Format time
+  const formatTime = useCallback((seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }, []);
+
+  // Save interview state
   useEffect(() => {
     if (showMockInterview) {
       const interviewState = {
@@ -175,12 +174,12 @@ const MockInterviewPage = () => {
       try {
         localStorage.setItem('interviewState', JSON.stringify(interviewState));
       } catch (error) {
-        console.error('Error saving interview state:', error instanceof Error ? error.message : String(error));
+        console.error('Error saving interview state:', error);
       }
     }
   }, [showMockInterview, conversationHistory, currentQuestion, questionNumber, interviewTime, formData]);
 
-  // Restore interview state on mount
+  // Restore interview state
   useEffect(() => {
     const savedState = localStorage.getItem('interviewState');
     if (savedState) {
@@ -209,17 +208,17 @@ const MockInterviewPage = () => {
             localStorage.removeItem('interviewState');
           }
         }).catch((error) => {
-          console.error('SweetAlert error:', error instanceof Error ? error.message : String(error));
+          console.error('SweetAlert error:', error);
         });
       } catch (error) {
-        console.error('Error restoring interview state:', error instanceof Error ? error.message : String(error));
+        console.error('Error restoring interview state:', error);
         localStorage.removeItem('interviewState');
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Prevent accidental page reload
+  // Prevent accidental reload
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (showMockInterview) {
@@ -232,12 +231,7 @@ const MockInterviewPage = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [showMockInterview]);
 
-  const formatTime = useCallback((seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }, []);
-
+  // System prompt
   const getSystemPrompt = useCallback((): string => {
     return `You are Sneha, a senior ${formData.role || 'Software Engineer'} and experienced technical interviewer at a top-tier tech company.
 
@@ -253,270 +247,329 @@ YOUR PERSONALITY:
 - Clear and articulate communicator
 - Patient but thorough
 - Genuinely interested in the candidate's experience
-Your tone should feel like a real interviewer from a reputable tech company — empathetic, focused, and conversational.
 
-🗣 INTERVIEWING STYLE
+INTERVIEWING STYLE:
+1. Introduction & Rapport:
+   - Start with a warm greeting
+   - Build rapport by asking about their background
 
-Introduction & Rapport
+2. Flow & Progression:
+   - Begin with simple, open-ended questions
+   - Gradually increase difficulty
+   - Ask ONE clear question at a time
+   - Wait for complete answers
 
-Start with a warm greeting and introduce yourself as Sneha.
+3. Acknowledge & Encourage:
+   - React naturally: "That's a great point", "Interesting approach", "I like how you explained that"
 
-Build rapport by asking about their background and comfort level.
+4. Coding & Problem-Solving:
+   - Occasionally introduce coding challenges
+   - Give subtle hints if they struggle
+   - Provide constructive feedback
 
-Example:
-
-“Hi, I'm Sneha. I'll be conducting your mock interview today. How are you feeling?”
-
-Flow & Progression
-
-Begin with simple, open-ended questions.
-
-Gradually increase question difficulty (mix behavioral + technical).
-
-Ask one clear question at a time.
-
-Acknowledge & Encourage
-
-React naturally to answers with brief affirmations:
-
-“That's a great point.”
-“Interesting approach — tell me more.”
-“I like how you explained that.”
-
-Coding & Problem-Solving
-
-Occasionally introduce small coding or logic challenges:
-
-“Let's try a quick coding problem.”
-
-Wait patiently for the candidate's response.
-
-Give subtle hints if they struggle but don't reveal the full solution.
-
-Afterward, give short, constructive feedback:
-
-“Good attempt! You structured it well, though you could optimize by…”
-
-Conclusion
-
-End politely, summarize overall feedback, and thank them for participating.
-
-Example:
-
-“That wraps up our interview. You handled the questions thoughtfully — keep practicing and you’ll do great in real interviews!”
-
-⚙️ BEHAVIORAL RULES (Realtime Handling)
-
-Voice + Text Output
-
-Speak all responses and display them as text.
-
-Maintain natural pacing with short pauses.
-
-Add small fillers (“Hmm”, “Alright”, “I see”) for realism — not too often.
-
-Turn Detection & Timing
-
-Wait until the user finishes speaking.
-
-Treat ~2 seconds of silence as end of speech.
-
-Never interrupt the user; listen fully.
-
-Speech Recognition Failures
-
-If speech is unclear or missing:
-
-“I did not quite catch that — could you please repeat your answer?”
-
-Do not display system messages like "no speech detected" or "rate limit exceeded".
-
-Retry once automatically.
-
-If it happens 3 times, gracefully end with:
-
-“It seems we're having audio issues. Let's reconnect and continue later.”
-
-Error Handling
-
-On API rate-limit or timeout, pause 2 seconds and retry once.
-
-During processing delays, show “Sneha is listening…” or a waveform animation (if supported).
-
-Response Limits
-
-Keep each response under 3 sentences.
-
-Keep each voice reply under 15 seconds for smooth streaming.
-
-User Commands
-
-If the user says “repeat”, repeat your last question.
-
-If they say “end interview” or “stop”, end immediately and thank them politely.
+5. Response Guidelines:
+   - Keep responses under 3 sentences
+   - Speak naturally and conversationally
+   - Don't repeat yourself unless asked
+   - Move forward with new questions
 
 Remember: Create a comfortable interview environment while assessing talent.`;
   }, [formData, questionNumber, totalQuestions]);
 
-  const callOpenAI = useCallback(async (messages: ConversationMessage[]): Promise<string | null> => {
-    if (!API_KEY) {
-      toast.error('API key not configured. Please add NEXT_PUBLIC_OPENAI_API_KEY to .env.local');
+  // Call Gemini API
+  const callGeminiAPI = useCallback(async (messages: ConversationMessage[], isFollowUp = false): Promise<string | null> => {
+    if (!GEMINI_API_KEY) {
+      toast.error('Gemini API key not configured. Please add NEXT_PUBLIC_GEMINI_API_KEY to .env.local');
+      addDebugLog('❌ Gemini API key not configured');
       return null;
     }
 
-    if (!API_KEY.startsWith('sk-')) {
-      toast.error('Invalid API key format');
-      return null;
-    }
-
-    if (processingRef.current) {
-      console.log('Already processing, skipping API call');
+    if (processingRef.current && !isFollowUp) {
+      addDebugLog('⏭️ Already processing, skipping API call');
       return null;
     }
 
     processingRef.current = true;
+    setIsProcessing(true);
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          })),
-          temperature: 0.85,
-          max_tokens: 250,
-          presence_penalty: 0.6,
-          frequency_penalty: 0.3
-        })
-      });
+      addDebugLog(`📤 Calling Gemini API... ${isFollowUp ? '(Follow-up)' : ''}`);
+
+      const systemPrompt = getSystemPrompt();
+      const conversationText = messages
+        .filter(msg => msg.role !== 'system')
+        .map(msg => `${msg.role === 'user' ? 'User' : 'Sneha'}: ${msg.parts}`)
+        .join('\n\n');
+
+      let fullPrompt = `${systemPrompt}\n\n${conversationText}\n\nSneha:`;
+
+      if (isFollowUp) {
+        fullPrompt += "\n\n[The candidate hasn't responded. Ask a follow-up question or rephrase to encourage them to speak.]";
+      }
+
+      const lastUserMsg = messages.filter(m => m.role === 'user').pop();
+      if (lastUserMsg) {
+        addDebugLog(`💬 User said: "${lastUserMsg.parts.substring(0, 50)}..."`);
+      }
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: fullPrompt
+              }]
+            }],
+            generationConfig: {
+              temperature: 0.85,
+              maxOutputTokens: 250,
+              topP: 0.95,
+              topK: 40
+            },
+            safetySettings: [
+              {
+                category: "HARM_CATEGORY_HARASSMENT",
+                threshold: "BLOCK_NONE"
+              },
+              {
+                category: "HARM_CATEGORY_HATE_SPEECH",
+                threshold: "BLOCK_NONE"
+              },
+              {
+                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                threshold: "BLOCK_NONE"
+              },
+              {
+                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                threshold: "BLOCK_NONE"
+              }
+            ]
+          })
+        }
+      );
 
       if (!response.ok) {
-        if (response.status === 401) {
-          toast.error('Invalid API key');
-        } else if (response.status === 429) {
+        const errorText = await response.text();
+        console.error('Gemini API Error:', errorText);
+        addDebugLog(`❌ API error: ${response.status}`);
+        
+        if (response.status === 429) {
           toast.error('Rate limit exceeded. Please wait a moment...');
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('API Error:', errorData);
-          toast.error('API error occurred');
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          return null;
         }
+        
+        toast.error('Failed to get AI response');
         return null;
       }
 
       const data = await response.json();
-      return data.choices[0].message.content;
+      
+      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+        addDebugLog('❌ Invalid response structure from Gemini');
+        return null;
+      }
+
+      const aiResponse = data.candidates[0].content.parts[0].text.trim();
+      addDebugLog(`📥 AI response: "${aiResponse.substring(0, 50)}..."`);
+
+      return aiResponse;
+
     } catch (error) {
-      console.error('OpenAI API Error:', error instanceof Error ? error.message : String(error));
+      console.error('Gemini API Error:', error);
+      addDebugLog(`❌ Network error: ${error instanceof Error ? error.message : String(error)}`);
       toast.error('Network error. Please check your connection.');
       return null;
     } finally {
       processingRef.current = false;
+      setIsProcessing(false);
     }
-  }, [API_KEY]);
+  }, [GEMINI_API_KEY, getSystemPrompt, addDebugLog]);
 
+  // Clear inactivity timer
+  const clearInactivityTimer = useCallback(() => {
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+      inactivityTimeoutRef.current = null;
+      addDebugLog('⏰ Cleared inactivity timer');
+    }
+  }, [addDebugLog]);
+
+  // Auto-restart speech recognition
+  const autoRestartListening = useCallback(() => {
+    if (!showMockInterview || isPaused) {
+      addDebugLog('⏭️ Skipping auto-restart (paused or not in interview)');
+      return;
+    }
+
+    setTimeout(() => {
+      if (recognitionRef.current && !isSpeaking && !isProcessing) {
+        try {
+          // Reset transcripts before restarting
+          accumulatedTranscriptRef.current = '';
+          setFinalTranscript('');
+          setInterimTranscript('');
+          lastProcessedTranscriptRef.current = '';
+          
+          recognitionRef.current.start();
+          addDebugLog('🎤 Auto-restarted speech recognition');
+          toast.success('🎤 Listening for your response...', { duration: 2000 });
+        } catch (error) {
+          const err = error as Error;
+          // Ignore "already started" errors
+          if (!err.message.includes('already started')) {
+            console.error('Error auto-restarting recognition:', error);
+            addDebugLog(`❌ Failed to auto-restart: ${err.message}`);
+            toast('Click the microphone to speak', { icon: '🎤', duration: 3000 });
+          }
+        }
+      }
+    }, 500); // Small delay to ensure clean restart
+  }, [showMockInterview, isPaused, isSpeaking, isProcessing, addDebugLog]);
+
+  // Start inactivity timer
+  const startInactivityTimer = useCallback(() => {
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+    }
+
+    if (!showMockInterview || isPaused || isSpeaking || isProcessing) {
+      return;
+    }
+
+    addDebugLog('⏰ Starting 10s inactivity timer');
+
+    inactivityTimeoutRef.current = setTimeout(async () => {
+      const timeSinceLastSpeech = Date.now() - lastUserSpeechTimeRef.current;
+      
+      if (timeSinceLastSpeech >= INACTIVITY_DELAY && !isSpeaking && !isProcessing) {
+        addDebugLog('⚠️ User inactive for 10s - asking follow-up');
+        
+        toast('🤔 Still there? Let me ask a follow-up question...', { duration: 3000 });
+        
+        const followUpMessage: ConversationMessage = {
+          role: 'user',
+          parts: '[SILENCE - No response from candidate]',
+          timestamp: formatTime(interviewTime)
+        };
+
+        const updatedHistory = [...conversationHistory, followUpMessage];
+        const response = await callGeminiAPI(updatedHistory, true);
+
+        if (response) {
+          const aiMessage: ConversationMessage = {
+            role: 'model',
+            parts: response,
+            timestamp: formatTime(interviewTime)
+          };
+
+          setConversationHistory([...updatedHistory, aiMessage]);
+          setCurrentQuestion(response);
+          
+          // Speak the follow-up (which will auto-restart listening after)
+          if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(response);
+            utterance.rate = 0.95;
+            utterance.pitch = 1.1;
+            utterance.volume = volume / 100;
+            
+            const voices = window.speechSynthesis.getVoices();
+            const femaleVoice = voices.find(voice => 
+              voice.name.includes('Female') || 
+              voice.name.includes('Samantha') ||
+              voice.name.includes('Karen') ||
+              voice.name.includes('Google UK English Female')
+            ) || voices[0];
+            
+            if (femaleVoice) {
+              utterance.voice = femaleVoice;
+            }
+
+            utterance.onend = () => {
+              setIsSpeaking(false);
+              lastUserSpeechTimeRef.current = Date.now();
+              autoRestartListening();
+            };
+
+            setIsSpeaking(true);
+            window.speechSynthesis.speak(utterance);
+          }
+        }
+      }
+    }, INACTIVITY_DELAY);
+  }, [showMockInterview, isPaused, isSpeaking, isProcessing, conversationHistory, interviewTime, callGeminiAPI, formatTime, volume, autoRestartListening, addDebugLog]);
+
+  // Text-to-Speech with auto-restart
   const speakText = useCallback(async (text: string) => {
     if (!text) return;
 
     setIsSpeaking(true);
+    addDebugLog(`🔊 Speaking: "${text.substring(0, 50)}..."`);
 
+    // Stop recognition while AI is speaking
     if (recognitionRef.current && isListening) {
       try {
         recognitionRef.current.stop();
         setIsListening(false);
+        addDebugLog('🛑 Stopped listening for AI speech');
       } catch (error) {
-        console.error('Error stopping recognition:', error instanceof Error ? error.message : String(error));
+        console.error('Error stopping recognition:', error);
       }
     }
 
-    if (!API_KEY) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.95;
-        utterance.pitch = 1.1;
-        utterance.volume = volume / 100;
-        utterance.onend = () => {
-          setIsSpeaking(false);
-          toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
-        };
-        window.speechSynthesis.speak(utterance);
-      }
-      return;
-    }
-
-    try {
-      const response = await fetch('https://api.openai.com/v1/audio/speech', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'tts-1',
-          voice: 'nova',
-          input: text,
-          speed: 0.95
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`TTS API failed with status: ${response.status}`);
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95;
+      utterance.pitch = 1.1;
+      utterance.volume = volume / 100;
+      
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => 
+        voice.name.includes('Female') || 
+        voice.name.includes('Samantha') ||
+        voice.name.includes('Karen') ||
+        voice.name.includes('Google UK English Female')
+      ) || voices[0];
+      
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
       }
 
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-
-      audioRef.current = new Audio(audioUrl);
-      audioRef.current.volume = volume / 100;
-
-      audioRef.current.onended = () => {
+      utterance.onend = () => {
         setIsSpeaking(false);
-        URL.revokeObjectURL(audioUrl);
-        toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
+        addDebugLog('✅ TTS finished - auto-restarting listening');
+        
+        lastUserSpeechTimeRef.current = Date.now();
+        
+        // 🔥 KEY FIX: Auto-restart speech recognition
+        autoRestartListening();
+        
+        // Start inactivity timer
+        startInactivityTimer();
       };
 
-      audioRef.current.onerror = (event) => {
-        console.error('Audio playback error:', event);
+      utterance.onerror = () => {
         setIsSpeaking(false);
-        URL.revokeObjectURL(audioUrl);
+        addDebugLog('❌ TTS error');
+        toast.error('Speech synthesis error');
       };
 
-      await audioRef.current.play();
-    } catch (error) {
-      console.error('TTS Error:', error instanceof Error ? error.message : String(error));
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.95;
-        utterance.pitch = 1.1;
-        utterance.volume = volume / 100;
-        utterance.onend = () => {
-          setIsSpeaking(false);
-          toast.success('🎤 Your turn! Click the microphone to speak', { duration: 3000 });
-        };
-        window.speechSynthesis.speak(utterance);
-      } else {
-        setIsSpeaking(false);
-      }
+      window.speechSynthesis.speak(utterance);
+    } else {
+      setIsSpeaking(false);
+      toast.error('Speech synthesis not supported');
     }
-  }, [API_KEY, volume, isListening]);
+  }, [volume, isListening, addDebugLog, autoRestartListening, startInactivityTimer]);
 
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
-    }
-  }, [volume]);
-
+  // Trigger coding question
   const triggerCodingQuestion = useCallback(() => {
     const randomProblem = getRandomProblem();
     setCurrentCodingProblem(randomProblem);
@@ -526,46 +579,59 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     setTestResults([]);
     setShowTestResults(false);
     toast.success(`Coding challenge: ${randomProblem.title}`);
-  }, []);
+    addDebugLog(`💻 Coding challenge triggered: ${randomProblem.title}`);
+  }, [addDebugLog]);
 
+  // Handle user speech
   const handleUserSpeech = useCallback(async (transcript: string) => {
-    if (!transcript.trim()) {
+    const trimmed = transcript.trim();
+
+    if (trimmed === lastProcessedTranscriptRef.current) {
+      addDebugLog('⏭️ Duplicate transcript, skipping');
       return;
     }
 
-    if (processingRef.current || isProcessing) {
-      console.log('Already processing, ignoring new transcript');
+    if (!trimmed || trimmed.length < 3) {
+      addDebugLog('❌ Transcript too short or empty');
+      toast.error('Speech too short. Please speak more clearly.');
+      // Reset and allow retry
+      accumulatedTranscriptRef.current = '';
+      setFinalTranscript('');
+      autoRestartListening();
       return;
     }
 
-    console.log('Processing user speech:', transcript);
+    if (processingRef.current) {
+      addDebugLog('⏭️ Already processing, skipping');
+      return;
+    }
 
-    setIsProcessing(true);
-    setFinalTranscript(transcript);
-    setInterimTranscript('');
+    lastUserSpeechTimeRef.current = Date.now();
+    clearInactivityTimer();
+
+    addDebugLog(`🔄 Processing user speech: "${trimmed.substring(0, 50)}..."`);
+    lastProcessedTranscriptRef.current = trimmed;
 
     const userMessage: ConversationMessage = {
       role: 'user',
-      content: transcript,
+      parts: trimmed,
       timestamp: formatTime(interviewTime)
     };
 
     const updatedHistory = [...conversationHistory, userMessage];
     setConversationHistory(updatedHistory);
 
-    const systemPrompt: ConversationMessage = {
-      role: 'system',
-      content: getSystemPrompt(),
-      timestamp: new Date().toISOString()
-    };
+    // Reset transcripts immediately after capturing
+    setFinalTranscript('');
+    setInterimTranscript('');
+    accumulatedTranscriptRef.current = '';
 
-    const apiMessages = [systemPrompt, ...updatedHistory];
-    const response = await callOpenAI(apiMessages);
+    const response = await callGeminiAPI(updatedHistory);
 
     if (response) {
       const aiMessage: ConversationMessage = {
-        role: 'assistant',
-        content: response,
+        role: 'model',
+        parts: response,
         timestamp: formatTime(interviewTime)
       };
 
@@ -584,19 +650,21 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       setQuestionNumber(prev => Math.min(prev + 1, totalQuestions));
     } else {
+      addDebugLog('❌ No response from Gemini');
       toast.error('Failed to get AI response. Please try again.');
+      // Auto-restart listening for retry
+      autoRestartListening();
     }
+  }, [conversationHistory, interviewTime, callGeminiAPI, speakText, triggerCodingQuestion, formatTime, totalQuestions, addDebugLog, clearInactivityTimer, autoRestartListening]);
 
-    setIsProcessing(false);
-    setFinalTranscript('');
-  }, [conversationHistory, interviewTime, getSystemPrompt, callOpenAI, speakText, triggerCodingQuestion, formatTime, totalQuestions, isProcessing]);
-
+  // Setup speech recognition
   const setupSpeechRecognition = useCallback(() => {
     if (typeof window === 'undefined') return;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast.error('Speech recognition not supported. Please use Chrome or Edge.');
+      addDebugLog('❌ Speech recognition not supported');
       return;
     }
 
@@ -604,7 +672,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       try {
         recognitionRef.current.stop();
       } catch (error) {
-        console.error('Recognition stop error:', error instanceof Error ? error.message : String(error));
+        console.error('Recognition stop error:', error);
       }
     }
 
@@ -614,10 +682,12 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     recognitionRef.current.lang = 'en-US';
 
     recognitionRef.current.onstart = () => {
-      console.log('Speech recognition started');
+      addDebugLog('🎤 Speech recognition started');
       setIsListening(true);
       setInterimTranscript('');
       setFinalTranscript('');
+      accumulatedTranscriptRef.current = '';
+      clearInactivityTimer();
     };
 
     recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
@@ -635,34 +705,45 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       if (interim) {
         setInterimTranscript(interim);
-        console.log('Interim:', interim);
+        addDebugLog(`💬 Interim: "${interim.substring(0, 30)}..."`);
       }
 
       if (final.trim()) {
-        console.log('Final transcript:', final.trim());
+        accumulatedTranscriptRef.current += final;
+        setFinalTranscript(accumulatedTranscriptRef.current);
+        addDebugLog(`✅ Final: "${final.substring(0, 50)}..."`);
 
         if (silenceTimeoutRef.current) {
           clearTimeout(silenceTimeoutRef.current);
-          silenceTimeoutRef.current = null;
         }
 
-        if (recognitionRef.current) {
-          try {
-            recognitionRef.current.stop();
-          } catch (error) {
-            console.error('Error stopping recognition:', error instanceof Error ? error.message : String(error));
+        silenceTimeoutRef.current = setTimeout(() => {
+          const fullTranscript = accumulatedTranscriptRef.current.trim();
+
+          addDebugLog(`⏱️ Silence detected (${SILENCE_DELAY}ms). Full: "${fullTranscript.substring(0, 50)}..."`);
+
+          if (fullTranscript) {
+            if (recognitionRef.current) {
+              try {
+                recognitionRef.current.stop();
+              } catch (error) {
+                console.error('Error stopping recognition:', error);
+              }
+            }
+
+            handleUserSpeech(fullTranscript);
           }
-        }
-
-        handleUserSpeech(final.trim());
+        }, SILENCE_DELAY);
       }
     };
 
     recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error:', event.error);
+      addDebugLog(`❌ Speech error: ${event.error}`);
 
       if (event.error === 'no-speech') {
-        console.log('No speech detected, will retry...');
+        toast('No speech detected. Please try speaking again.', { icon: '🎤' });
+        // Auto-restart on no-speech
+        setTimeout(() => autoRestartListening(), 1000);
         return;
       }
 
@@ -676,13 +757,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         toast.error('🎤 Microphone access denied. Please enable it in browser settings.');
       } else if (event.error === 'network') {
         toast.error('🌐 Network error. Check your connection.');
-      } else if (event.error !== 'no-speech') {
-        toast.error(`Speech error: ${event.error}`);
       }
     };
 
     recognitionRef.current.onend = () => {
-      console.log('Speech recognition ended');
+      addDebugLog('🛑 Speech recognition ended');
       setIsListening(false);
       setInterimTranscript('');
 
@@ -690,13 +769,10 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         clearTimeout(silenceTimeoutRef.current);
         silenceTimeoutRef.current = null;
       }
-      if (restartTimeoutRef.current) {
-        clearTimeout(restartTimeoutRef.current);
-        restartTimeoutRef.current = null;
-      }
     };
-  }, [handleUserSpeech]);
+  }, [handleUserSpeech, addDebugLog, clearInactivityTimer, autoRestartListening]);
 
+  // Initialize speech recognition
   useEffect(() => {
     setupSpeechRecognition();
 
@@ -705,18 +781,19 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         try {
           recognitionRef.current.stop();
         } catch (error) {
-          console.error('Cleanup error:', error instanceof Error ? error.message : String(error));
+          console.error('Cleanup error:', error);
         }
       }
       if (silenceTimeoutRef.current) {
         clearTimeout(silenceTimeoutRef.current);
       }
-      if (restartTimeoutRef.current) {
-        clearTimeout(restartTimeoutRef.current);
+      if (inactivityTimeoutRef.current) {
+        clearTimeout(inactivityTimeoutRef.current);
       }
     };
   }, [setupSpeechRecognition]);
 
+  // Interview timer
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
     if (showMockInterview && !isPaused) {
@@ -729,21 +806,25 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     };
   }, [showMockInterview, isPaused]);
 
+  // Start interview conversation
   const startInterviewConversation = useCallback(async () => {
-    const greeting = `Hello! I'm Sneha, and I'll be your interviewer today for the ${formData.role || 'software engineering'} position. I'm really excited to learn about your background and experience, especially with ${formData.techStack || 'your tech stack'}. This will be a ${formData.duration}-minute conversation. Let's start - could you tell me a bit about yourself and what interests you most about this role?`;
+    const greeting = `Hello! I'm Sneha, and I'll be your interviewer today for the ${formData.role || 'software engineering'} position. I'm really excited to learn about your background and experience${formData.techStack ? `, especially with ${formData.techStack}` : ''}. This will be a ${formData.duration}-minute conversation. Let's start - could you tell me a bit about yourself and what interests you most about this role?`;
 
     const aiMessage: ConversationMessage = {
-      role: 'assistant',
-      content: greeting,
+      role: 'model',
+      parts: greeting,
       timestamp: '00:00'
     };
 
     setConversationHistory([aiMessage]);
     setCurrentQuestion(greeting);
     setQuestionNumber(1);
+    lastUserSpeechTimeRef.current = Date.now();
+    addDebugLog('🎬 Interview started');
     await speakText(greeting);
-  }, [formData, speakText]);
+  }, [formData, speakText, addDebugLog]);
 
+  // Start listening
   const startListening = useCallback(() => {
     if (!recognitionRef.current) {
       toast.error('Speech recognition not available');
@@ -757,7 +838,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     }
 
     if (isProcessing) {
-      toast.error('⏳ Processing previous response, please wait...');
+      toast.error('⏳ Processing your previous response...');
       return;
     }
 
@@ -767,40 +848,60 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     }
 
     try {
+      // Reset transcripts
+      accumulatedTranscriptRef.current = '';
+      setFinalTranscript('');
+      setInterimTranscript('');
+      lastProcessedTranscriptRef.current = '';
+      
       recognitionRef.current.start();
+      addDebugLog('🎤 User clicked microphone - starting recognition');
       toast.success('🎤 Listening... Speak now!', { duration: 2000 });
     } catch (error) {
-      console.error('Start listening error:', error instanceof Error ? error.message : String(error));
+      const err = error as Error;
+      console.error('Start listening error:', error);
+      addDebugLog(`❌ Failed to start: ${err.message}`);
+      
+      // Ignore "already started" errors
+      if (err.message.includes('already started')) {
+        setIsListening(true);
+        return;
+      }
+      
       setIsListening(false);
 
-      setupSpeechRecognition();
-
       setTimeout(() => {
-        if (recognitionRef.current) {
-          try {
-            recognitionRef.current.start();
-          } catch (retryError) {
-            console.error('Retry start error:', retryError instanceof Error ? retryError.message : String(retryError));
-            toast.error('Could not start microphone. Please try again.');
+        setupSpeechRecognition();
+        setTimeout(() => {
+          if (recognitionRef.current) {
+            try {
+              recognitionRef.current.start();
+            } catch (retryError) {
+              console.error('Retry start error:', retryError);
+              toast.error('Could not start microphone. Please try again.');
+            }
           }
-        }
-      }, 500);
+        }, 500);
+      }, 100);
     }
-  }, [isListening, isSpeaking, isProcessing, setupSpeechRecognition]);
+  }, [isListening, isSpeaking, isProcessing, setupSpeechRecognition, addDebugLog]);
 
+  // Stop listening
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
       try {
         recognitionRef.current.stop();
+        addDebugLog('🛑 User stopped listening');
         toast('Stopped listening', { icon: '🛑' });
       } catch (error) {
-        console.error('Stop listening error:', error instanceof Error ? error.message : String(error));
+        console.error('Stop listening error:', error);
       }
       setIsListening(false);
       setInterimTranscript('');
     }
-  }, [isListening]);
+  }, [isListening, addDebugLog]);
 
+  // Run code tests
   const runCodeTests = useCallback(() => {
     if (!currentCodingProblem) return;
 
@@ -808,6 +909,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     const loadingToast = toast.loading('Running tests...');
 
     try {
+      
       const userFunction = new Function('return ' + currentCode)() as (...args: unknown[]) => unknown;
 
       currentCodingProblem.testCases.forEach((testCase) => {
@@ -845,13 +947,15 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     }
   }, [currentCodingProblem, currentCode, speakText]);
 
-  const handleSubmitCode = useCallback(async () => {
+  // Handle code submission
+  const handleSubmitCode = useCallback(() => {
     runCodeTests();
   }, [runCodeTests]);
 
+  // Start interview
   const handleStartInterview = useCallback(() => {
-    if (!API_KEY) {
-      toast.error('API key not configured. Please check your .env.local file');
+    if (!GEMINI_API_KEY) {
+      toast.error('Gemini API key not configured. Please check your .env.local file');
       return;
     }
 
@@ -859,8 +963,9 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     setShowMockInterview(true);
     toast.success('Interview started! Good luck! 🎯');
     startInterviewConversation();
-  }, [API_KEY, startInterviewConversation]);
+  }, [GEMINI_API_KEY, startInterviewConversation]);
 
+  // Leave interview
   const handleLeaveInterview = useCallback(async () => {
     const result = await Swal.fire({
       title: 'Leave Interview?',
@@ -880,9 +985,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         try {
           recognitionRef.current.stop();
         } catch (error) {
-          console.error('Error stopping recognition:', error instanceof Error ? error.message : String(error));
+          console.error('Error stopping recognition:', error);
         }
       }
+
+      clearInactivityTimer();
 
       setShowMockInterview(false);
       setShowCodeEditor(false);
@@ -890,11 +997,48 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       setIsSpeaking(false);
       setIsListening(false);
       setIsProcessing(false);
+      setDebugLog([]);
 
       toast.success('Interview saved. You can resume later!');
     }
-  }, []);
+  }, [clearInactivityTimer]);
 
+  // Run diagnostics
+  const runDiagnostics = useCallback(() => {
+    const results = {
+      apiKey: !!GEMINI_API_KEY,
+      speechRecognition: !!recognitionRef.current,
+      isListening,
+      isSpeaking,
+      isProcessing,
+      conversationLength: conversationHistory.length,
+      accumulatedText: accumulatedTranscriptRef.current,
+      processingState: processingRef.current,
+      lastSpeechTime: new Date(lastUserSpeechTimeRef.current).toLocaleTimeString(),
+      timeSinceLastSpeech: `${Math.floor((Date.now() - lastUserSpeechTimeRef.current) / 1000)}s ago`
+    };
+
+    console.table(results);
+    addDebugLog('🔍 Diagnostic run - check console');
+
+    const issues = [];
+    if (!results.apiKey) issues.push('❌ Gemini API key not configured');
+    if (!results.speechRecognition) issues.push('❌ Speech recognition not available');
+    if (results.processingState) issues.push('⚠️ Processing stuck');
+
+    if (issues.length === 0) {
+      toast.success('✅ All systems operational!');
+      addDebugLog('✅ Diagnostics: All systems OK');
+    } else {
+      console.error('Issues found:', issues);
+      toast.error(`Found ${issues.length} issue(s). Check console.`);
+      issues.forEach(issue => addDebugLog(issue));
+    }
+
+    return results;
+  }, [GEMINI_API_KEY, isListening, isSpeaking, isProcessing, conversationHistory, addDebugLog]);
+
+  // Interview cards
   const interviewTypes: InterviewCard[] = [
     { id: 1, title: 'System Design', category: 'Technical', icon: <Code className="w-8 h-8 text-blue-400" />, description: 'Design scalable systems' },
     { id: 2, title: 'Business Analyst', category: 'Non-Technical', icon: <TrendingUp className="w-8 h-8 text-green-400" />, description: 'Business analysis' },
@@ -908,16 +1052,19 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     { id: 10, title: 'Web Performance', category: 'Technical', icon: <CloudLightning className="w-8 h-8 text-yellow-600" />, description: 'Optimization & SEO' }
   ];
 
+  // Handle card click
   const handleCardClick = useCallback((card: InterviewCard) => {
     setFormData(prev => ({ ...prev, interviewType: card.category }));
     setShowModal(true);
   }, []);
 
+  // RENDER: Mock Interview Mode
   if (showMockInterview) {
     return (
       <div className="min-h-screen bg-gray-900 text-white">
         <Toaster position="top-center" reverseOrder={false} />
 
+        {/* Header */}
         <div className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
@@ -933,17 +1080,39 @@ Remember: Create a comfortable interview environment while assessing talent.`;
               </div>
 
               <div className="flex items-center space-x-3">
-                <button onClick={() => setIsPaused(!isPaused)} className="p-2 hover:bg-gray-700 rounded-lg transition-colors" title={isPaused ? 'Resume' : 'Pause'}>
+                <button 
+                  onClick={() => setShowDebug(!showDebug)} 
+                  className={`p-2 hover:bg-gray-700 rounded-lg transition-colors ${showDebug ? 'bg-gray-700' : ''}`} 
+                  title="Debug Panel"
+                >
+                  <Bug className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={() => setIsPaused(!isPaused)} 
+                  className="p-2 hover:bg-gray-700 rounded-lg transition-colors" 
+                  title={isPaused ? 'Resume' : 'Pause'}
+                >
                   {isPaused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
                 </button>
-                <button onClick={() => setShowTranscript(!showTranscript)} className={`p-2 hover:bg-gray-700 rounded-lg transition-colors ${showTranscript ? 'bg-gray-700' : ''}`} title="Transcript">
+                <button 
+                  onClick={() => setShowTranscript(!showTranscript)} 
+                  className={`p-2 hover:bg-gray-700 rounded-lg transition-colors ${showTranscript ? 'bg-gray-700' : ''}`} 
+                  title="Transcript"
+                >
                   <FileText className="w-5 h-5" />
                 </button>
-                <button onClick={() => setShowSettings(!showSettings)} className={`p-2 hover:bg-gray-700 rounded-lg transition-colors ${showSettings ? 'bg-gray-700' : ''}`} title="Settings">
+                <button 
+                  onClick={() => setShowSettings(!showSettings)} 
+                  className={`p-2 hover:bg-gray-700 rounded-lg transition-colors ${showSettings ? 'bg-gray-700' : ''}`} 
+                  title="Settings"
+                >
                   <Settings className="w-5 h-5" />
                 </button>
                 <div className="h-6 w-px bg-gray-700"></div>
-                <button onClick={handleLeaveInterview} className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm transition-colors">
+                <button 
+                  onClick={handleLeaveInterview} 
+                  className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm transition-colors"
+                >
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline">Leave</span>
                 </button>
@@ -952,11 +1121,49 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           </div>
         </div>
 
+        {/* Main Content */}
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex gap-4">
               <div className="flex-1 space-y-8">
+                {/* Debug Panel */}
+                {showDebug && (
+                  <div className="bg-gray-800 rounded-2xl p-4 border border-yellow-500/30">
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="flex items-center gap-2">
+                        <Bug className="w-5 h-5 text-yellow-400" />
+                        <h4 className="text-sm font-semibold text-yellow-400">Debug Log</h4>
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={runDiagnostics}
+                          className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
+                        >
+                          Run Diagnostics
+                        </button>
+                        <button 
+                          onClick={() => setDebugLog([])}
+                          className="text-xs px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-1 max-h-60 overflow-y-auto text-xs font-mono bg-gray-900 rounded p-3">
+                      {debugLog.length === 0 ? (
+                        <div className="text-gray-500">No debug messages yet. Start speaking to see logs.</div>
+                      ) : (
+                        debugLog.map((log, idx) => (
+                          <div key={idx} className="text-gray-300 hover:bg-gray-800 px-1 rounded">{log}</div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Interviewer and Candidate */}
                 <div className="grid md:grid-cols-2 gap-8">
+                  {/* AI Interviewer */}
                   <motion.div
                     className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-center relative overflow-hidden border border-gray-700"
                     animate={{
@@ -1000,7 +1207,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                         </div>
                       </motion.div>
                       <h3 className="text-2xl font-bold text-white mb-1">Sneha</h3>
-                      <p className="text-sm text-gray-400 mb-3">AI Interviewer</p>
+                      <p className="text-sm text-gray-400 mb-3">AI Interviewer (Gemini Pro)</p>
                       <motion.div
                         className="w-3 h-3 rounded-full mx-auto"
                         animate={{
@@ -1021,6 +1228,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                     </motion.div>
                   </motion.div>
 
+                  {/* Candidate */}
                   <motion.div
                     className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-center relative overflow-hidden border border-gray-700"
                     animate={{
@@ -1080,6 +1288,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </motion.div>
                 </div>
 
+                {/* Live Transcript */}
                 {(interimTranscript || finalTranscript) && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -1100,6 +1309,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </motion.div>
                 )}
 
+                {/* Current Question */}
                 <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
                   <div className="text-center">
                     <div className="flex items-center justify-center space-x-2 mb-4">
@@ -1158,6 +1368,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </div>
                 </div>
 
+                {/* Code Editor */}
                 {showCodeEditor && currentCodingProblem && (
                   <div className="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700">
                     <div
@@ -1276,6 +1487,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </div>
                 )}
 
+                {/* Repeat Question Button */}
                 <div className="flex justify-center">
                   <button
                     onClick={() => currentQuestion && speakText(currentQuestion)}
@@ -1288,6 +1500,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                 </div>
               </div>
 
+              {/* Sidebar */}
               <AnimatePresence>
                 {(showTranscript || showSettings) && (
                   <motion.div
@@ -1308,12 +1521,12 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                           {conversationHistory.map((msg, idx) => (
                             <div key={idx} className="text-sm">
                               <div className="flex justify-between mb-1">
-                                <span className={`font-semibold ${msg.role === 'assistant' ? 'text-blue-400' : 'text-green-400'}`}>
-                                  {msg.role === 'assistant' ? 'Sneha' : 'You'}
+                                <span className={`font-semibold ${msg.role === 'model' ? 'text-blue-400' : 'text-green-400'}`}>
+                                  {msg.role === 'model' ? 'Sneha' : 'You'}
                                 </span>
                                 <span className="text-xs text-gray-500">{msg.timestamp}</span>
                               </div>
-                              <p className="text-gray-300 leading-relaxed">{msg.content}</p>
+                              <p className="text-gray-300 leading-relaxed">{msg.parts}</p>
                             </div>
                           ))}
                         </div>
@@ -1346,13 +1559,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                             </div>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-2">API Status</label>
+                            <label className="block text-sm font-medium mb-2">Gemini API Status</label>
                             <div className={`px-4 py-3 rounded-lg ${
-                              API_KEY ? 'bg-green-900/20 border border-green-500/30' : 'bg-red-900/20 border border-red-500/30'
+                              GEMINI_API_KEY ? 'bg-green-900/20 border border-green-500/30' : 'bg-red-900/20 border border-red-500/30'
                             }`}>
                               <div className="flex items-center space-x-2">
-                                <div className={`w-2 h-2 rounded-full ${API_KEY ? 'bg-green-400' : 'bg-red-400'}`}></div>
-                                <span className="text-sm">{API_KEY ? 'Connected' : 'Not Set'}</span>
+                                <div className={`w-2 h-2 rounded-full ${GEMINI_API_KEY ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                                <span className="text-sm">{GEMINI_API_KEY ? 'Connected' : 'Not Set'}</span>
                               </div>
                             </div>
                           </div>
@@ -1380,6 +1593,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     );
   }
 
+  // RENDER: Landing Page
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Toaster position="top-center" />
@@ -1391,7 +1605,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Ace Your Next Interview with AI
             </h1>
-            <p className="text-xl text-gray-300 mb-8">Practice with real-time voice AI and coding challenges</p>
+            <p className="text-xl text-gray-300 mb-8">Practice with real-time voice AI powered by Google Gemini and coding challenges</p>
             <button
               onClick={() => document.getElementById('pick-interview')?.scrollIntoView({ behavior: 'smooth' })}
               className="inline-flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl text-lg font-semibold transition-all transform hover:scale-105"
@@ -1427,7 +1641,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                 </div>
                 <h3 className="text-xl font-bold mb-2">{interview.title}</h3>
                 <p className="text-gray-400 mb-4">{interview.description}</p>
-                <button className="w-full py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg">
+                <button className="w-full py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-800 rounded-lg">
                   Start Interview
                 </button>
               </div>
@@ -1463,7 +1677,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
               <div>
                 <label className="block text-sm font-medium mb-2">Interview Type</label>
                 <div className="flex space-x-4">
-                  <label className="flex items-center">
+                  <label className="flex items-center cursor-pointer">
                     <input
                       type="radio"
                       name="type"
@@ -1474,7 +1688,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                     />
                     Technical
                   </label>
-                  <label className="flex items-center">
+                  <label className="flex items-center cursor-pointer">
                     <input
                       type="radio"
                       name="type"
@@ -1500,7 +1714,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Tech Stack</label>
+                <label className="block text-sm font-medium mb-2">Tech Stack (Optional)</label>
                 <input
                   type="text"
                   value={formData.techStack}
@@ -1525,13 +1739,19 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
               <button
                 onClick={handleStartInterview}
-                disabled={!API_KEY}
-                className={`w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold ${
-                  !API_KEY ? 'opacity-50 cursor-not-allowed' : ''
+                disabled={!GEMINI_API_KEY}
+                className={`w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold transition-all ${
+                  !GEMINI_API_KEY ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
-                Start Interview
+                {GEMINI_API_KEY ? 'Start Interview' : 'API Key Not Configured'}
               </button>
+              
+              {!GEMINI_API_KEY && (
+                <p className="text-xs text-red-400 text-center">
+                  Please add NEXT_PUBLIC_GEMINI_API_KEY to your .env.local file
+                </p>
+              )}
             </div>
           </div>
         </div>
