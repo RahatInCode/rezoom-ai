@@ -89,9 +89,10 @@ const Page: React.FC = () => {
       <h1 className="text-center text-5xl">
         Here Is The Best Templates For You
       </h1>
-      <p className="mb-8 mt-3 text-lg text-center">
-        We'll find the best templates for your experience level.
-      </p>
+     <p className="mb-8 mt-3 text-lg">
+  We&apos;ll find the best templates for your experience level.
+</p>
+
 
       <div className="flex flex-col gap-2 md:flex-row justify-center w-full">
         {/* Filter bar for small devices */}

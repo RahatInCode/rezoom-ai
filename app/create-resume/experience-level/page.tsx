@@ -61,8 +61,9 @@ export default function Page() {
         <div className="w-full text-center p-4">
           <h1 className="text-5xl font-bold">How long have you been working?</h1>
           <p className="mb-8 mt-3 text-lg">
-            We'll find the best templates for your experience level.
-          </p>
+  We&apos;ll find the best templates for your experience level.
+</p>
+
 
           <div className="flex flex-wrap justify-center gap-5">
             {[
