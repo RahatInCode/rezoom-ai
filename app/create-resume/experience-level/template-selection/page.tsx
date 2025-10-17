@@ -1,13 +1,31 @@
 "use client";
+
 import { ArrowRight, Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
-const Page = () => {
-  const [resumes, setResume] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [templateSelect, setTemplateSelect] = useState(null);
+// ✅ Type Definitions
+interface ResumeTemplate {
+  id: string;
+  image: string;
+  name: string;
+  description: string;
+  isWithPhoto: boolean;
+  isTwoColoumn: boolean;
+}
+
+interface TemplateCardProps {
+  resum: ResumeTemplate;
+  setTemplateSelect: (id: string) => void;
+  templateSelect: string | null;
+}
+
+const Page: React.FC = () => {
+  const [allResumes, setAllResumes] = useState<ResumeTemplate[]>([]);
+  const [resumes, setResumes] = useState<ResumeTemplate[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [templateSelect, setTemplateSelect] = useState<string | null>(null);
   const [isCheck, setChecked] = useState({
     WithPhoto: false,
     NoPhoto: false,
@@ -20,8 +38,9 @@ const Page = () => {
     try {
       setLoading(true);
       const res = await fetch("/resume-templates.json");
-      const data = await res.json();
-      setResume(data || []);
+      const data: ResumeTemplate[] = await res.json();
+      setAllResumes(data || []);
+      setResumes(data || []);
     } catch (error) {
       console.error("Error fetching templates:", error);
     } finally {
@@ -33,52 +52,43 @@ const Page = () => {
     getAllResumes();
   }, []);
 
-  // ✅ Filter handler
-  const handleCheckBoxOnChange = (e) => {
-    const { name, checked } = e.target;
-    setChecked((prev) => {
-      const updated = { ...prev, [name]: checked };
-      return updated;
-    });
+  // ✅ Apply filters
+  const applyFilter = (updated: typeof isCheck) => {
+    let filtered = allResumes;
 
-    setTimeout(() => {
-      applyFilter(name, checked);
-    }, 0);
+    if (updated.WithPhoto) filtered = filtered.filter((r) => r.isWithPhoto);
+    if (updated.NoPhoto) filtered = filtered.filter((r) => !r.isWithPhoto);
+    if (updated.OneCol) filtered = filtered.filter((r) => !r.isTwoColoumn);
+    if (updated.TwoCol) filtered = filtered.filter((r) => r.isTwoColoumn);
+
+    setResumes(filtered);
   };
 
-  // ✅ Apply filters properly
-  const applyFilter = (name, checked) => {
-    if (checked) {
-      let filtered = [];
-      if (name === "WithPhoto")
-        filtered = resumes.filter((r) => r.isWithPhoto === true);
-      else if (name === "NoPhoto")
-        filtered = resumes.filter((r) => r.isWithPhoto === false);
-      else if (name === "OneCol")
-        filtered = resumes.filter((r) => r.isTwoColoumn === false);
-      else if (name === "TwoCol")
-        filtered = resumes.filter((r) => r.isTwoColoumn === true);
-
-      setResume(filtered);
-    } else {
-      getAllResumes();
-    }
+  // ✅ Checkbox handler
+  const handleCheckBoxOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    const updated = { ...isCheck, [name]: checked };
+    setChecked(updated);
+    applyFilter(updated);
   };
 
   // ✅ Clear filter
   const handleClearFilter = () => {
-    setChecked({
+    const reset = {
       WithPhoto: false,
       NoPhoto: false,
       OneCol: false,
       TwoCol: false,
-    });
-    getAllResumes();
+    };
+    setChecked(reset);
+    setResumes(allResumes);
   };
 
   return (
     <div className="w-full p-7 lg:p-12 3xl:p-18 min-h-[calc(100vh-60px)]">
-      <h1 className="text-center text-5xl">Here Is The Best Templates For You</h1>
+      <h1 className="text-center text-5xl">
+        Here Is The Best Templates For You
+      </h1>
       <p className="mb-8 mt-3 text-lg text-center">
         We'll find the best templates for your experience level.
       </p>
@@ -155,9 +165,9 @@ const Page = () => {
           </div>
         ) : (
           <div className="w-full md:w-3/4 min-h-96 justify-items-center space-y-5 md:space-y-0 gap-5 md:grid md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5">
-            {resumes.map((resum, idx) => (
+            {resumes.map((resum) => (
               <TemplateCard
-                key={idx}
+                key={resum.id}
                 resum={resum}
                 templateSelect={templateSelect}
                 setTemplateSelect={setTemplateSelect}
@@ -184,18 +194,21 @@ const Page = () => {
 
 export default Page;
 
-const TemplateCard = ({ resum, setTemplateSelect, templateSelect }) => {
+// ✅ Template Card Component
+const TemplateCard: React.FC<TemplateCardProps> = ({
+  resum,
+  setTemplateSelect,
+  templateSelect,
+}) => {
   return (
     <div
       onClick={() => setTemplateSelect(resum.id)}
       className={`w-3/4 md:w-full min-h-96 border-2 ${
-        templateSelect === resum.id
-          ? "border-blue-500"
-          : "border-gray-600"
+        templateSelect === resum.id ? "border-blue-500" : "border-gray-600"
       }`}
     >
       <Image
-        alt="Resume Template"
+        alt={resum.name}
         width={500}
         height={700}
         quality={100}
