@@ -176,7 +176,7 @@ const HighlightFeature: React.FC = () => {
     }, []);
 
     return (
-        <section className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+        <section className="min-h-screen bg-[linear-gradient(180deg,rgba(245,255,248,0.9)_0%,rgba(232,250,236,0.85)_40%,rgba(255,255,255,0.98)_100%)]">
             {/* Header */}
             <div className="text-center py-20 px-4">
                 <div className="container mx-auto">
