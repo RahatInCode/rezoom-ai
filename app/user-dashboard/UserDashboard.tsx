@@ -255,10 +255,10 @@ const MyAccount = () => {
   <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/0 via-red-100/40 to-red-100/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
 </button>
 
-        </div>
+        </div> 
       </div>
     </div>
-  );
+  ); 
 };
 
 export default MyAccount;
