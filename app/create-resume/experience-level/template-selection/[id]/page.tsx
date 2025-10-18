@@ -67,7 +67,7 @@ const Page = () => {
         </AnimatePresence>
 
         {/* Bottom Buttons (Preview / Next / Submit) */}
-        <div className="w-full flex justify-end gap-3 mt-5 ">
+        <div className="w-full flex justify-end gap-3 mt-5">
           {currentStep > 0 && (
             <button
               onClick={prevStep}

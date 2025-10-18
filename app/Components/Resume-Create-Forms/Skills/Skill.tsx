@@ -28,12 +28,12 @@ const Skill = () => {
 
   const removeSoftSkill = (index: number) => {
     const updated = softSkills.filter((_, i) => i !== index);
-    setSoftSkills(updated.length ? updated : [""]);
+    setSoftSkills(updated.length ? updated : [""]); // prevent empty array
   };
 
   return (
     <div className="w-full space-y-6">
-      {/* Technical Skills */}
+      {/* Technical Skills Section */}
       <div className="w-full p-5 space-y-3 border rounded-lg bg-white">
         <p className="font-bold text-3xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
           Technical Skills
@@ -56,12 +56,15 @@ const Skill = () => {
             )}
           </div>
         ))}
-        <button className="btn w-full border-dotted mt-2" onClick={addTechnicalSkill}>
+        <button
+          className="btn w-full border-dotted mt-2"
+          onClick={addTechnicalSkill}
+        >
           + Add Another Technical Skill
         </button>
       </div>
 
-      {/* Soft Skills */}
+      {/* Soft Skills Section */}
       <div className="w-full p-5 space-y-3 border rounded-lg bg-white">
         <p className="font-bold text-3xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
           Soft Skills
@@ -84,7 +87,10 @@ const Skill = () => {
             )}
           </div>
         ))}
-        <button className="btn w-full border-dotted mt-2" onClick={addSoftSkill}>
+        <button
+          className="btn w-full border-dotted mt-2"
+          onClick={addSoftSkill}
+        >
           + Add Another Soft Skill
         </button>
       </div>
