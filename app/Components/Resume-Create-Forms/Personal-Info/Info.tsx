@@ -3,37 +3,43 @@ import Image from "next/image";
 import React, { useState } from "react";
 import NoPerson from "../../../../public/NoPerson.png";
 
-type PersonalInfoProps = {
-  personalInfo: {
-    name: string;
-    surname: string;
-    city: string;
-    country: string;
-    phone: string;
-    email: string;
-    photo?: string;
-  };
-  setPersonalInfo: React.Dispatch<React.SetStateAction<any>>;
+type PersonalInfoData = {
+  name: string;
+  surname: string;
+  city: string;
+  country: string;
+  phone: string;
+  email: string;
+  photo?: string;
 };
+
+type PersonalInfoProps = {
+  personalInfo: PersonalInfoData;
+  setPersonalInfo: React.Dispatch<React.SetStateAction<PersonalInfoData>>;
+};
+
 
 const Info: React.FC<PersonalInfoProps> = ({ personalInfo, setPersonalInfo }) => {
   const [preview, setPreview] = useState<string>(personalInfo.photo || "");
 
-  const handleChange = (field: string, value: string) => {
-    setPersonalInfo((prev: any) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+const handleChange = (field: keyof PersonalInfoData, value: string) => {
+  setPersonalInfo((prev: PersonalInfoData) => ({
+    ...prev,
+    [field]: value,
+  }));
+};
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const imageUrl = URL.createObjectURL(file);
-      setPreview(imageUrl);
-      setPersonalInfo((prev: any) => ({ ...prev, photo: imageUrl }));
-    }
-  };
+const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files && e.target.files[0]) {
+    const file = e.target.files[0];
+    const imageUrl = URL.createObjectURL(file);
+    setPreview(imageUrl);
+    setPersonalInfo((prev: PersonalInfoData) => ({
+      ...prev,
+      photo: imageUrl,
+    }));
+  }
+};
 
   return (
     <div className="w-full space-y-8">

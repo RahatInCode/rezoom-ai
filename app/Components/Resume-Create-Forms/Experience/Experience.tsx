@@ -19,11 +19,16 @@ interface ExperienceProps {
 
 const Experience: React.FC<ExperienceProps> = ({ experiences, setExperiences }) => {
   // --- Handle Input Change ---
-  const handleTextChange = (index: number, field: keyof ExperienceData, value: string | boolean) => {
-    const updated = [...experiences];
-    (updated[index][field] as any) = value;
-    setExperiences(updated);
-  };
+const handleTextChange = <K extends keyof ExperienceData>(
+  index: number,
+  field: K,
+  value: ExperienceData[K]
+) => {
+  const updated = [...experiences];
+  updated[index][field] = value; // now fully type-safe
+  setExperiences(updated);
+};
+
 
   // --- Add Experience ---
   const addExperience = () => {
