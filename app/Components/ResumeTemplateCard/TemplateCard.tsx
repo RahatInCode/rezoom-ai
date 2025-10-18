@@ -56,3 +56,18 @@ const TemplateCard: React.FC<TemplateCardProps> = ({ template }) => {
 };
 
 export default TemplateCard;
+
+
+    // <div className="group w-full h-96 mx-auto [perspective:1000px] cursor-pointer">
+    //   <div className="relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+    //     {/* Front Side */}
+    //     <div className="absolute w-full h-full [backface-visibility:hidden] flex items-center justify-center rounded-md bg-white border border-gray-200">
+    //       <Image alt="Resume image" src={template.image} fill className="w-full h-full" />
+    //     </div>
+
+    //     {/* Back Side */}
+    //     <div className="absolute w-full h-full [backface-visibility:hidden] flex items-center bg-white justify-center rounded-md [transform:rotateY(180deg)]">
+    //       <Link href={"/create-resume"} className="btn btn-primary btn-sm lg:btn">Use this template</Link>
+    //     </div>
+    //   </div>
+    // </div>

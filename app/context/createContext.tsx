@@ -11,6 +11,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   sendPasswordResetEmail,
+  getIdToken,
 } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../utils/firebaseConfig";
@@ -18,6 +19,7 @@ import { FirebaseError } from "firebase/app";
 
 type AuthContextType = {
   user: User | null;
+  accessToken: string | null;
   loading: boolean;
   signup: (email: string, password: string, name?: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
@@ -26,6 +28,7 @@ type AuthContextType = {
   sendVerificationEmail: () => Promise<void>;
   googleLogin: () => Promise<void>;
    resetPassword: (email: string) => Promise<void>;
+   
 };
 
 const RootContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +36,7 @@ const RootContext = createContext<AuthContextType | undefined>(undefined);
 export const RootProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   // signup
   const signup = async (email: string, password: string, name?: string) => {
@@ -56,6 +60,7 @@ export const RootProvider = ({ children }: { children: React.ReactNode }) => {
   // Logout
   const logout = async () => {
     await signOut(auth);
+    setAccessToken(null);
   };
 
   const resetPassword = async (email: string) => {
@@ -74,6 +79,8 @@ export const RootProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const result = await signInWithPopup(auth, provider);
       setUser(result.user); // set user in context
+      const token = await getIdToken(result.user); // ✅ accessToken নেয়া হলো
+      setAccessToken(token);
       alert(`Welcome ${result.user.displayName || "User"}`);
     } catch (err) {
       const error = err as FirebaseError; // Type-safe
@@ -83,18 +90,27 @@ export const RootProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // Track user state
+  // ✅ Track user state & get accessToken
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        const token = await getIdToken(currentUser);
+        setAccessToken(token);
+        
+      } else {
+        setAccessToken(null);
+      }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
+
   return (
     <RootContext.Provider
-      value={{ user, loading, signup, login, logout, setUser, sendVerificationEmail, googleLogin , resetPassword}}
+      value={{accessToken, user, loading, signup, login, logout, setUser, sendVerificationEmail, googleLogin , resetPassword}}
     >
       {children}
     </RootContext.Provider>
