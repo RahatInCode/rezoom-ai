@@ -261,3 +261,4 @@ const MyAccount: React.FC = () => {
 };
 
 export default MyAccount;
+
