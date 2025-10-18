@@ -1,8 +1,9 @@
 "use client";
 import { X } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-interface EducationData {
+export interface EducationData {
   degree: string;
   institute: string;
   startDate: string;
@@ -11,28 +12,36 @@ interface EducationData {
   cgpa: string;
 }
 
-const Education = () => {
-  const [educations, setEducations] = useState<EducationData[]>([
-    { degree: "", institute: "", startDate: "", endDate: "", currentlyStudying: false, cgpa: "" },
-  ]);
+interface EducationProps {
+  educations: EducationData[];
+  setEducations: React.Dispatch<React.SetStateAction<EducationData[]>>;
+}
 
-const handleChange = (
-  index: number,
-  field: keyof EducationData,
-  value: string | boolean
-) => {
-  const updated = [...educations];
-  updated[index] = {
-    ...updated[index],
-    [field]: value as EducationData[typeof field], // ✅ type assertion
+const Education: React.FC<EducationProps> = ({ educations, setEducations }) => {
+  const handleChange = (
+    index: number,
+    field: keyof EducationData,
+    value: string | boolean
+  ) => {
+    const updated = [...educations];
+    updated[index] = {
+      ...updated[index],
+      [field]: value as EducationData[typeof field],
+    };
+    setEducations(updated);
   };
-  setEducations(updated);
-};
 
   const addEducation = () => {
     setEducations([
       ...educations,
-      { degree: "", institute: "", startDate: "", endDate: "", currentlyStudying: false, cgpa: "" },
+      {
+        degree: "",
+        institute: "",
+        startDate: "",
+        endDate: "",
+        currentlyStudying: false,
+        cgpa: "",
+      },
     ]);
   };
 
@@ -41,34 +50,51 @@ const handleChange = (
     setEducations(
       updated.length
         ? updated
-        : [{ degree: "", institute: "", startDate: "", endDate: "", currentlyStudying: false, cgpa: "" }]
-    ); // always keep at least one
+        : [
+            {
+              degree: "",
+              institute: "",
+              startDate: "",
+              endDate: "",
+              currentlyStudying: false,
+              cgpa: "",
+            },
+          ]
+    );
   };
 
   return (
     <div className="w-full space-y-6">
-      
-
+      {/* Header */}
       <div className="space-y-3 text-start">
-        <p className="sm:w-full font-bold text-5xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent md:w-3/4">
+        <p className="font-bold text-5xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
           Tell us about your education
         </p>
-        <p className="text-xl font-semibold text-gray-700">We will start with your latest education</p>
+        <p className="text-xl font-semibold text-gray-700">
+          We’ll start with your latest education
+        </p>
       </div>
 
-      <div className="space-y-8">
+      {/* Education Fields */}
+      <AnimatePresence>
         {educations.map((edu, idx) => (
-          <div key={idx} className="relative w-full p-5 border rounded-lg bg-white space-y-5">
-            {/* Remove education section */}
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="relative w-full p-5 border rounded-lg bg-white space-y-5 shadow-sm"
+          >
             {educations.length > 1 && (
               <X
                 size={20}
-                className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-red-500"
+                className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-red-500 transition"
                 onClick={() => removeEducation(idx)}
               />
             )}
 
-            <div className="w-full flex flex-col md:flex-row md:gap-5 space-y-5 md:space-y-0">
+            <div className="flex flex-col md:flex-row md:gap-5 space-y-5 md:space-y-0">
               <div className="w-full">
                 <label className="text-sm">Degree Name*</label>
                 <input
@@ -76,7 +102,9 @@ const handleChange = (
                   className="input w-full"
                   placeholder="Degree Name"
                   value={edu.degree}
-                  onChange={(e) => handleChange(idx, "degree", e.target.value)}
+                  onChange={(e) =>
+                    handleChange(idx, "degree", e.target.value)
+                  }
                 />
               </div>
               <div className="w-full">
@@ -86,19 +114,23 @@ const handleChange = (
                   className="input w-full"
                   placeholder="Institute Name"
                   value={edu.institute}
-                  onChange={(e) => handleChange(idx, "institute", e.target.value)}
+                  onChange={(e) =>
+                    handleChange(idx, "institute", e.target.value)
+                  }
                 />
               </div>
             </div>
 
-            <div className="w-full flex flex-col md:flex-row md:gap-5 space-y-5 md:space-y-0">
+            <div className="flex flex-col md:flex-row md:gap-5 space-y-5 md:space-y-0">
               <div className="w-full">
                 <label className="text-sm">Start Date*</label>
                 <input
                   type="date"
                   className="input w-full"
                   value={edu.startDate}
-                  onChange={(e) => handleChange(idx, "startDate", e.target.value)}
+                  onChange={(e) =>
+                    handleChange(idx, "startDate", e.target.value)
+                  }
                 />
               </div>
               <div className="w-full">
@@ -107,7 +139,9 @@ const handleChange = (
                   type="date"
                   className="input w-full"
                   value={edu.endDate}
-                  onChange={(e) => handleChange(idx, "endDate", e.target.value)}
+                  onChange={(e) =>
+                    handleChange(idx, "endDate", e.target.value)
+                  }
                   disabled={edu.currentlyStudying}
                 />
               </div>
@@ -118,7 +152,9 @@ const handleChange = (
                 type="checkbox"
                 className="checkbox"
                 checked={edu.currentlyStudying}
-                onChange={(e) => handleChange(idx, "currentlyStudying", e.target.checked)}
+                onChange={(e) =>
+                  handleChange(idx, "currentlyStudying", e.target.checked)
+                }
               />
               <p>Currently Studying</p>
             </div>
@@ -134,13 +170,17 @@ const handleChange = (
                 disabled={edu.currentlyStudying}
               />
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </AnimatePresence>
 
-      <button className="btn w-full border-dotted" onClick={addEducation}>
+      <motion.button
+        whileTap={{ scale: 0.98 }}
+        className="btn w-full border-dotted"
+        onClick={addEducation}
+      >
         + Add Another Education
-      </button>
+      </motion.button>
     </div>
   );
 };

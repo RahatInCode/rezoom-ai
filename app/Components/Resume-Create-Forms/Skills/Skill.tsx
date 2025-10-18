@@ -1,34 +1,59 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { X } from "lucide-react";
 
-const Skill = () => {
-  const [technicalSkills, setTechnicalSkills] = useState<string[]>([""]);
-  const [softSkills, setSoftSkills] = useState<string[]>([""]);
+// ✅ Step 1: Export type for parent
+export interface SkillData {
+  technicalSkills: string[];
+  softSkills: string[];
+}
 
-  const addTechnicalSkill = () => setTechnicalSkills([...technicalSkills, ""]);
-  const addSoftSkill = () => setSoftSkills([...softSkills, ""]);
+interface SkillProps {
+  skills: SkillData;
+  setSkills: React.Dispatch<React.SetStateAction<SkillData>>;
+}
+
+const Skill: React.FC<SkillProps> = ({ skills, setSkills }) => {
+  const { technicalSkills, softSkills } = skills;
+
+  const addTechnicalSkill = () =>
+    setSkills({
+      ...skills,
+      technicalSkills: [...technicalSkills, ""],
+    });
+
+  const addSoftSkill = () =>
+    setSkills({
+      ...skills,
+      softSkills: [...softSkills, ""],
+    });
 
   const handleTechnicalChange = (index: number, value: string) => {
     const updated = [...technicalSkills];
     updated[index] = value;
-    setTechnicalSkills(updated);
+    setSkills({ ...skills, technicalSkills: updated });
   };
 
   const handleSoftChange = (index: number, value: string) => {
     const updated = [...softSkills];
     updated[index] = value;
-    setSoftSkills(updated);
+    setSkills({ ...skills, softSkills: updated });
   };
 
   const removeTechnicalSkill = (index: number) => {
     const updated = technicalSkills.filter((_, i) => i !== index);
-    setTechnicalSkills(updated.length ? updated : [""]); // prevent empty array
+    setSkills({
+      ...skills,
+      technicalSkills: updated.length ? updated : [""],
+    });
   };
 
   const removeSoftSkill = (index: number) => {
     const updated = softSkills.filter((_, i) => i !== index);
-    setSoftSkills(updated.length ? updated : [""]); // prevent empty array
+    setSkills({
+      ...skills,
+      softSkills: updated.length ? updated : [""],
+    });
   };
 
   return (
@@ -56,10 +81,7 @@ const Skill = () => {
             )}
           </div>
         ))}
-        <button
-          className="btn w-full border-dotted mt-2"
-          onClick={addTechnicalSkill}
-        >
+        <button className="btn w-full border-dotted mt-2" onClick={addTechnicalSkill}>
           + Add Another Technical Skill
         </button>
       </div>
@@ -87,10 +109,7 @@ const Skill = () => {
             )}
           </div>
         ))}
-        <button
-          className="btn w-full border-dotted mt-2"
-          onClick={addSoftSkill}
-        >
+        <button className="btn w-full border-dotted mt-2" onClick={addSoftSkill}>
           + Add Another Soft Skill
         </button>
       </div>
