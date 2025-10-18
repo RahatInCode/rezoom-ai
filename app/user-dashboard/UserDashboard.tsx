@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import {
   Edit3,
@@ -14,14 +14,26 @@ import {
   Clock,
 } from "lucide-react";
 
-const MyAccount = () => {
-  const [user, setUser] = useState<any>(null);
+// ✅ Define proper User type
+type User = {
+  name: string;
+  email: string | null;
+  avatar: string;
+  plan: string;
+  resumeCount: number;
+  lastSimulation: string;
+  aiScore: number;
+  memberSince: string;
+};
+
+const MyAccount: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser: FirebaseUser | null) => {
       if (currentUser) {
         setUser({
           name: currentUser.displayName || "User",
@@ -36,18 +48,18 @@ const MyAccount = () => {
           memberSince: "Jan 2024",
         });
       } else {
-        // 🚨 If no user, redirect to home
-        router.push("/");
+        router.push("/"); // Redirect if not logged in
       }
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, [router]);
 
   const handleSignOut = async () => {
     const auth = getAuth();
     await signOut(auth);
-    router.push("/createAccount/signUp"); // 👈 Redirect to home after logout
+    router.push("/createAccount/signUp");
   };
 
   if (loading)
@@ -57,7 +69,7 @@ const MyAccount = () => {
       </div>
     );
 
-  if (!user) return null; 
+  if (!user) return null;
 
   const featureCards = [
     {
@@ -140,9 +152,7 @@ const MyAccount = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-xl">{user.plan} Plan</h3>
-                <p className="text-white/80 text-sm">
-                  Member since {user.memberSince}
-                </p>
+                <p className="text-white/80 text-sm">Member since {user.memberSince}</p>
               </div>
             </div>
             <button className="px-6 py-2 bg-white text-violet-700 font-semibold rounded-xl hover:bg-slate-100 transition-all shadow-lg hover:shadow-xl hover:scale-105">
@@ -165,9 +175,7 @@ const MyAccount = () => {
                 </div>
               </div>
               <div className="flex-1 text-center md:text-left">
-                <h2 className="text-3xl font-bold text-slate-800 mb-1">
-                  {user.name}
-                </h2>
+                <h2 className="text-3xl font-bold text-slate-800 mb-1">{user.name}</h2>
                 <p className="text-slate-600 mb-4 flex items-center justify-center md:justify-start gap-2">
                   <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
                   {user.email}
@@ -200,12 +208,8 @@ const MyAccount = () => {
                 >
                   <Icon className="w-7 h-7 text-slate-800" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">
-                  {card.title}
-                </h3>
-                <p className="text-3xl font-bold text-slate-700 mb-1">
-                  {card.value}
-                </p>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">{card.title}</h3>
+                <p className="text-3xl font-bold text-slate-700 mb-1">{card.value}</p>
                 <p className="text-sm text-slate-600">{card.label}</p>
               </div>
             );
@@ -214,9 +218,7 @@ const MyAccount = () => {
 
         {/* Recent Activity */}
         <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/50">
-          <h3 className="text-2xl font-bold text-slate-800 mb-6">
-            Recent Activity
-          </h3>
+          <h3 className="text-2xl font-bold text-slate-800 mb-6">Recent Activity</h3>
           <div className="space-y-4">
             {recentActivity.map((activity, idx) => {
               const ActivityIcon = activity.icon;
@@ -229,9 +231,7 @@ const MyAccount = () => {
                     <ActivityIcon className="w-6 h-6 text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-slate-800">
-                      {activity.action}
-                    </p>
+                    <p className="font-semibold text-slate-800">{activity.action}</p>
                     <p className="text-sm text-slate-600">{activity.item}</p>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -246,19 +246,18 @@ const MyAccount = () => {
 
         {/* Logout */}
         <div className="flex justify-center mt-8">
-     <button
-  onClick={handleSignOut}
-  className="group border-2 relative inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-slate-700 border-violet-600  bg-gradient-to-r from-slate-50 to-white shadow-sm transition-all duration-300 hover:from-red-50 hover:to-rose-50 hover:text-red-600 hover:border-red-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
->
-  <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:text-red-600" />
-  <span className="transition-colors duration-300">Sign Out</span>
-  <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/0 via-red-100/40 to-red-100/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
-</button>
-
-        </div> 
+          <button
+            onClick={handleSignOut}
+            className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-slate-700 border-2 border-violet-600 bg-gradient-to-r from-slate-50 to-white shadow-sm transition-all duration-300 hover:from-red-50 hover:to-rose-50 hover:text-red-600 hover:border-red-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
+          >
+            <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:text-red-600" />
+            <span className="transition-colors duration-300">Sign Out</span>
+            <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/0 via-red-100/40 to-red-100/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+          </button>
+        </div>
       </div>
     </div>
-  ); 
+  );
 };
 
 export default MyAccount;
