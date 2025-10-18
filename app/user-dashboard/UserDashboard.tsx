@@ -140,6 +140,13 @@ const MyAccount: React.FC = () => {
               Manage your profile and see your activity insights
             </p>
           </div>
+          {/* <button
+            onClick={() => alert("Edit Profile Modal/Redirect here")}
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
+            <Edit3 className="w-4 h-4" />
+            Edit Profile
+          </button> */}
         </div>
 
         {/* Subscription Banner */}
