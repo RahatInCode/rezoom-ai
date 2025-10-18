@@ -18,7 +18,7 @@ measurementId: process.env.NEXT_PUBLIC_FIREBASE_measurementId,
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 let analytics;
 if (typeof window !== "undefined") {
   analytics = getAnalytics(app);

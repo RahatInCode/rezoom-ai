@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
+import { useRouter } from "next/navigation";
 import {
   Edit3,
   FileText,
@@ -13,12 +14,26 @@ import {
   Clock,
 } from "lucide-react";
 
-const MyAccount = () => {
-  const [user, setUser] = useState<any>(null);
+// ✅ Define proper User type
+type User = {
+  name: string;
+  email: string | null;
+  avatar: string;
+  plan: string;
+  resumeCount: number;
+  lastSimulation: string;
+  aiScore: number;
+  memberSince: string;
+};
+
+const MyAccount: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser: FirebaseUser | null) => {
       if (currentUser) {
         setUser({
           name: currentUser.displayName || "User",
@@ -33,18 +48,28 @@ const MyAccount = () => {
           memberSince: "Jan 2024",
         });
       } else {
-        setUser(null);
+        router.push("/"); // Redirect if not logged in
       }
+      setLoading(false);
     });
-    return () => unsubscribe();
-  }, []);
 
-  if (!user)
+    return () => unsubscribe();
+  }, [router]);
+
+  const handleSignOut = async () => {
+    const auth = getAuth();
+    await signOut(auth);
+    router.push("/createAccount/signUp");
+  };
+
+  if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center text-slate-600">
-        Loading your account...
+        Checking authentication...
       </div>
     );
+
+  if (!user) return null;
 
   const featureCards = [
     {
@@ -53,7 +78,6 @@ const MyAccount = () => {
       value: user.resumeCount,
       label: "Total Resumes",
       icon: FileText,
-      gradient: "from-blue-500 to-cyan-500",
       bgGradient: "from-blue-500/10 to-cyan-500/10",
     },
     {
@@ -62,7 +86,6 @@ const MyAccount = () => {
       value: user.lastSimulation,
       label: "Last Simulation",
       icon: Mic,
-      gradient: "from-violet-500 to-purple-500",
       bgGradient: "from-violet-500/10 to-purple-500/10",
     },
     {
@@ -71,7 +94,6 @@ const MyAccount = () => {
       value: `${user.aiScore}%`,
       label: "Performance Score",
       icon: Brain,
-      gradient: "from-emerald-500 to-teal-500",
       bgGradient: "from-emerald-500/10 to-teal-500/10",
     },
     {
@@ -80,7 +102,6 @@ const MyAccount = () => {
       value: "Manage",
       label: "Security & Preferences",
       icon: Settings,
-      gradient: "from-orange-500 to-pink-500",
       bgGradient: "from-orange-500/10 to-pink-500/10",
     },
   ];
@@ -119,13 +140,6 @@ const MyAccount = () => {
               Manage your profile and see your activity insights
             </p>
           </div>
-          {/* <button
-            onClick={() => alert("Edit Profile Modal/Redirect here")}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
-          >
-            <Edit3 className="w-4 h-4" />
-            Edit Profile
-          </button> */}
         </div>
 
         {/* Subscription Banner */}
@@ -138,9 +152,7 @@ const MyAccount = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-xl">{user.plan} Plan</h3>
-                <p className="text-white/80 text-sm">
-                  Member since {user.memberSince}
-                </p>
+                <p className="text-white/80 text-sm">Member since {user.memberSince}</p>
               </div>
             </div>
             <button className="px-6 py-2 bg-white text-violet-700 font-semibold rounded-xl hover:bg-slate-100 transition-all shadow-lg hover:shadow-xl hover:scale-105">
@@ -163,21 +175,19 @@ const MyAccount = () => {
                 </div>
               </div>
               <div className="flex-1 text-center md:text-left">
-                <h2 className="text-3xl font-bold text-slate-800 mb-1">
-                  {user.name}
-                </h2>
+                <h2 className="text-3xl font-bold text-slate-800 mb-1">{user.name}</h2>
                 <p className="text-slate-600 mb-4 flex items-center justify-center md:justify-start gap-2">
                   <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
                   {user.email}
                 </p>
                 <div className="flex justify-center md:justify-start gap-3">
-                   <button
-            onClick={() => alert("Edit Profile Modal/Redirect here")}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
-          >
-            <Edit3 className="w-4 h-4" />
-            Edit Profile
-          </button>
+                  <button
+                    onClick={() => alert("Edit Profile Modal/Redirect here")}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    Edit Profile
+                  </button>
                 </div>
               </div>
             </div>
@@ -198,12 +208,8 @@ const MyAccount = () => {
                 >
                   <Icon className="w-7 h-7 text-slate-800" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">
-                  {card.title}
-                </h3>
-                <p className="text-3xl font-bold text-slate-700 mb-1">
-                  {card.value}
-                </p>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">{card.title}</h3>
+                <p className="text-3xl font-bold text-slate-700 mb-1">{card.value}</p>
                 <p className="text-sm text-slate-600">{card.label}</p>
               </div>
             );
@@ -212,9 +218,7 @@ const MyAccount = () => {
 
         {/* Recent Activity */}
         <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/50">
-          <h3 className="text-2xl font-bold text-slate-800 mb-6">
-            Recent Activity
-          </h3>
+          <h3 className="text-2xl font-bold text-slate-800 mb-6">Recent Activity</h3>
           <div className="space-y-4">
             {recentActivity.map((activity, idx) => {
               const ActivityIcon = activity.icon;
@@ -227,9 +231,7 @@ const MyAccount = () => {
                     <ActivityIcon className="w-6 h-6 text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-slate-800">
-                      {activity.action}
-                    </p>
+                    <p className="font-semibold text-slate-800">{activity.action}</p>
                     <p className="text-sm text-slate-600">{activity.item}</p>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -245,11 +247,12 @@ const MyAccount = () => {
         {/* Logout */}
         <div className="flex justify-center mt-8">
           <button
-            onClick={() => getAuth().signOut()}
-            className="px-6 py-3 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 hover:shadow-lg border border-slate-200 hover:border-red-200"
+            onClick={handleSignOut}
+            className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-slate-700 border-2 border-violet-600 bg-gradient-to-r from-slate-50 to-white shadow-sm transition-all duration-300 hover:from-red-50 hover:to-rose-50 hover:text-red-600 hover:border-red-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
           >
-            <LogOut className="w-5 h-5" />
-            Sign Out
+            <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:text-red-600" />
+            <span className="transition-colors duration-300">Sign Out</span>
+            <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/0 via-red-100/40 to-red-100/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
           </button>
         </div>
       </div>
@@ -258,3 +261,4 @@ const MyAccount = () => {
 };
 
 export default MyAccount;
+
