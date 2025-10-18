@@ -7,7 +7,13 @@ import Skill from "../../../../Components/Resume-Create-Forms/Skills/Skill";
 import Experience from "../../../../Components/Resume-Create-Forms/Experience/Experience";
 
 const steps = ["Personal Information", "Education", "Skills", "Experience"];
-const components = [<Info />, <Education />, <Skill />, <Experience />];
+const components = [
+  <Info key="info" />,
+  <Education key="education" />,
+  <Skill key="skill" />,
+  <Experience key="experience" />,
+];
+
 
 const Page = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -33,7 +39,7 @@ const Page = () => {
       <div className="w-full md:w-1/5 bg-gradient-to-r from-pink-500 to-blue-600 text-white flex justify-center items-center md:items-start p-5 md:h-screen sticky top-0">
         <ul className="steps md:steps-vertical w-full max-w-xs">
           {steps.map((step, idx) => (
-            <li key={idx} className={`step ${idx <= currentStep ? "step-primary" : ""}`}>
+            <li key={idx}  className={`step ${idx <= currentStep ? "step-primary" : ""}`}>
               {step}
             </li>
           ))}

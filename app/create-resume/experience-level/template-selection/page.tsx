@@ -64,7 +64,6 @@ const Page: React.FC = () => {
     setResumes(filtered);
   };
 
-  // ✅ Checkbox handler
   const handleCheckBoxOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
     const updated = { ...isCheck, [name]: checked };
@@ -89,10 +88,9 @@ const Page: React.FC = () => {
       <h1 className="text-center text-5xl">
         Here Is The Best Templates For You
       </h1>
-     <p className="mb-8 mt-3 text-lg">
-  We&apos;ll find the best templates for your experience level.
-</p>
-
+      <p className="mb-8 mt-3 text-lg">
+        We&apos;ll find the best templates for your experience level.
+      </p>
 
       <div className="flex flex-col gap-2 md:flex-row justify-center w-full">
         {/* Filter bar for small devices */}
@@ -166,9 +164,9 @@ const Page: React.FC = () => {
           </div>
         ) : (
           <div className="w-full md:w-3/4 min-h-96 justify-items-center space-y-5 md:space-y-0 gap-5 md:grid md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5">
-            {resumes.map((resum) => (
+            {resumes.map((resum , idx) => (
               <TemplateCard
-                key={resum.id}
+                key={idx}
                 resum={resum}
                 templateSelect={templateSelect}
                 setTemplateSelect={setTemplateSelect}
