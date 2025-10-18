@@ -45,7 +45,7 @@ const OurFeature = () => {
 export default OurFeature;
 const FeatureCard = ({ftrs})=>{
     return(
-                        <div className="flex flex-col items-center bg-white px-3 py-8 rounded-lg border border-gray-300/80 max-w-[272px] text-sm text-center text-gray-500">
+                        <div className="flex flex-col items-center bg-[linear-gradient(180deg,rgba(245,255,248,0.9)_0%,rgba(232,250,236,0.85)_40%,rgba(255,255,255,0.98)_100%)] px-3 py-8 rounded-lg border border-gray-300/80 max-w-[272px] text-sm text-center text-gray-500">
                     <div className="mb-4 p-5 rounded-full bg-primary text-white">
                         {ftrs.icon}
                     </div>

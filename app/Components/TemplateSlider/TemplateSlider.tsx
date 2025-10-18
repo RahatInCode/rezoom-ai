@@ -267,7 +267,7 @@ const TemplateSlider: React.FC = () => {
     };
 
     return (
-        <section ref={sectionRef} className="py-24  bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
+        <section ref={sectionRef} className="py-24  bg-[linear-gradient(180deg,rgba(245,255,248,0.9)_0%,rgba(232,250,236,0.85)_40%,rgba(255,255,255,0.98)_100%)] dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
             {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-full">
                 <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-indigo-200/20 rounded-full blur-3xl" />
