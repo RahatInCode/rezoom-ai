@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 import {
   Edit3,
   FileText,
@@ -15,6 +16,8 @@ import {
 
 const MyAccount = () => {
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const auth = getAuth();
@@ -33,18 +36,28 @@ const MyAccount = () => {
           memberSince: "Jan 2024",
         });
       } else {
-        setUser(null);
+        // 🚨 If no user, redirect to home
+        router.push("/");
       }
+      setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
-  if (!user)
+  const handleSignOut = async () => {
+    const auth = getAuth();
+    await signOut(auth);
+    router.push("/createAccount/signUp"); // 👈 Redirect to home after logout
+  };
+
+  if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center text-slate-600">
-        Loading your account...
+        Checking authentication...
       </div>
     );
+
+  if (!user) return null; 
 
   const featureCards = [
     {
@@ -53,7 +66,6 @@ const MyAccount = () => {
       value: user.resumeCount,
       label: "Total Resumes",
       icon: FileText,
-      gradient: "from-blue-500 to-cyan-500",
       bgGradient: "from-blue-500/10 to-cyan-500/10",
     },
     {
@@ -62,7 +74,6 @@ const MyAccount = () => {
       value: user.lastSimulation,
       label: "Last Simulation",
       icon: Mic,
-      gradient: "from-violet-500 to-purple-500",
       bgGradient: "from-violet-500/10 to-purple-500/10",
     },
     {
@@ -71,7 +82,6 @@ const MyAccount = () => {
       value: `${user.aiScore}%`,
       label: "Performance Score",
       icon: Brain,
-      gradient: "from-emerald-500 to-teal-500",
       bgGradient: "from-emerald-500/10 to-teal-500/10",
     },
     {
@@ -80,7 +90,6 @@ const MyAccount = () => {
       value: "Manage",
       label: "Security & Preferences",
       icon: Settings,
-      gradient: "from-orange-500 to-pink-500",
       bgGradient: "from-orange-500/10 to-pink-500/10",
     },
   ];
@@ -119,13 +128,6 @@ const MyAccount = () => {
               Manage your profile and see your activity insights
             </p>
           </div>
-          {/* <button
-            onClick={() => alert("Edit Profile Modal/Redirect here")}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
-          >
-            <Edit3 className="w-4 h-4" />
-            Edit Profile
-          </button> */}
         </div>
 
         {/* Subscription Banner */}
@@ -171,13 +173,13 @@ const MyAccount = () => {
                   {user.email}
                 </p>
                 <div className="flex justify-center md:justify-start gap-3">
-                   <button
-            onClick={() => alert("Edit Profile Modal/Redirect here")}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
-          >
-            <Edit3 className="w-4 h-4" />
-            Edit Profile
-          </button>
+                  <button
+                    onClick={() => alert("Edit Profile Modal/Redirect here")}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    Edit Profile
+                  </button>
                 </div>
               </div>
             </div>
@@ -244,13 +246,15 @@ const MyAccount = () => {
 
         {/* Logout */}
         <div className="flex justify-center mt-8">
-          <button
-            onClick={() => getAuth().signOut()}
-            className="px-6 py-3 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 hover:shadow-lg border border-slate-200 hover:border-red-200"
-          >
-            <LogOut className="w-5 h-5" />
-            Sign Out
-          </button>
+     <button
+  onClick={handleSignOut}
+  className="group border-2 relative inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-slate-700 border-violet-600  bg-gradient-to-r from-slate-50 to-white shadow-sm transition-all duration-300 hover:from-red-50 hover:to-rose-50 hover:text-red-600 hover:border-red-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
+>
+  <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:text-red-600" />
+  <span className="transition-colors duration-300">Sign Out</span>
+  <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/0 via-red-100/40 to-red-100/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+</button>
+
         </div>
       </div>
     </div>

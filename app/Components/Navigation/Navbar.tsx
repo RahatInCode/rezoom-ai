@@ -1,39 +1,9 @@
 'use client';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import BuildButton from '../../Elements/BuildButton';
-
-// Type definitions
-interface ButtonProps {
-  asChild?: boolean;
-  className?: string;
-  variant?: 'default' | 'ghost' | 'glass';
-  size?: 'default' | 'sm' | 'icon';
-  children?: React.ReactNode;
-  onClick?: () => void;
-}
-
-interface NavigationMenuProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-interface NavigationMenuListProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-interface NavigationMenuItemProps {
-  children: React.ReactNode;
-  className?: string;
-  key?: number;
-}
-
-interface NavigationMenuLinkProps {
-  href: string;
-  className?: string;
-  children: React.ReactNode;
-}
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import app from '../../utils/firebaseConfig';
 
 // Icon Components
 const MenuIcon: React.FC = () => (
@@ -64,11 +34,8 @@ const MenuIcon: React.FC = () => (
   </svg>
 );
 
-
-
-// UI Components
 const Logo: React.FC = () => (
-  <div className="flex  items-center justify-center gap-2">
+  <div className="flex items-center justify-center gap-2">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 200 200" width="28" height="28">
       <g clipPath="url(#cs_clip_1_glass)">
         <mask id="cs_mask_1_glass" style={{ maskType: "alpha" }} width="200" height="186" x="0" y="7" maskUnits="userSpaceOnUse">
@@ -99,135 +66,75 @@ const Logo: React.FC = () => (
         </clipPath>
       </defs>
     </svg>
-    <Link href='/'><span  className="font-bold text-lg tracking-wider text-gray-900 dark:text-white">Rezoom.AI</span></Link>
+    <Link href="/">
+      <span className="font-bold text-lg tracking-wider text-gray-900 dark:text-white">Rezoom.AI</span>
+    </Link>
   </div>
 );
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ asChild = false, className = '', variant = 'default', size = 'default', children, ...props }, ref) => {
-    const Comp = asChild ? 'span' : 'button';
-    const baseClasses = "inline-flex items-center justify-center rounded-xl text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 backdrop-blur-sm";
-
-    const variantClasses: Record<string, string> = {
-      default: "bg-gray-900 dark:bg-white text-gray-100 dark:text-gray-900 border border-gray-800 dark:border-gray-300 hover:bg-gray-800 dark:hover:bg-gray-100 hover:border-gray-700 dark:hover:border-gray-400 shadow-lg hover:shadow-xl",
-      ghost: "hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white backdrop-blur-sm",
-      glass: "bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 shadow-2xl hover:shadow-3xl backdrop-blur-md"
-    };
-
-    const sizeClasses: Record<string, string> = {
-      default: "h-10 px-4 py-2",
-      sm: "h-9 rounded-lg px-3",
-      icon: "h-10 w-10",
-    };
-
-    const elementProps = props as React.HTMLAttributes<HTMLElement>;
-    return (
-      <Comp
-        className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-        ref={ref}
-        {...elementProps}
-      >
-        {children}
-      </Comp>
-    );
-  }
-);
-Button.displayName = 'Button';
-
-const NavigationMenu: React.FC<NavigationMenuProps> = ({ children, className = '' }) => (
-  <nav className={`relative z-10 ${className}`}>{children}</nav>
-);
-
-const NavigationMenuList: React.FC<NavigationMenuListProps> = ({ children, className = '' }) => (
-  <ul className={`flex items-center ${className}`}>{children}</ul>
-);
-
-const NavigationMenuItem: React.FC<NavigationMenuItemProps> = ({ children, className = '', ...props }) => (
-  <li className={`list-none ${className}`} {...props}>{children}</li>
-);
-
-const NavigationMenuLink: React.FC<NavigationMenuLinkProps> = ({ href, className = '', children }) => (
-  <Link
-    href={href}
-    className={`block px-3 py-2 transition-all duration-300 ${className}`}
-  >
-    {children}
-  </Link>
-);
-
-
-// Main  Header Component
-const navigationLinks = [
-  // { href: "/ResumeExamples", label: "Resume Examples" },
-  { href: "/resume-templates", label: "Resume Templates" },
-  { href: "/Career", label: "Career Center" },
-  { href: "/mock-interview", label: "Mock Interview" },
-  { href: "/ats-checker", label: "ATS Checker" },
-  { href: "/ai", label: "CV Generator" },
-  { href: "/user-dashboard", label: "My Account" },
-];
-
-
-
-
 function Navbar() {
-  // const id = useId(); //jodi use koren tyle call koren nahole delete maren
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const auth = getAuth(app);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, [auth]);
+
+  const navigationLinks = [
+    { href: "/resume-templates", label: "Resume Templates" },
+    { href: "/Career", label: "Career Center" },
+    { href: "/mock-interview", label: "Mock Interview" },
+    { href: "/ats-checker", label: "ATS Checker" },
+    { href: "/ai", label: "CV Generator" },
+  ];
+
+  // Show only if user logged in
+  if (user) {
+    navigationLinks.push({ href: "/user-dashboard", label: "My Account" });
+  }
 
   return (
-    <header className="  rounded-2xl w-full backdrop-blur-xl bg-white/80 dark:bg-black/80 border-b border-gray-200 dark:border-gray-700 shadow-2xl">
+    <header className="rounded-2xl w-full backdrop-blur-xl bg-white/80 dark:bg-black/80 border-b border-gray-200 dark:border-gray-700 shadow-2xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <div className="flex-shrink-0">
-           
-              <Logo />
-            
+            <Logo />
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
-            <NavigationMenu>
-              <NavigationMenuList className="">
+            <nav>
+              <ul className="flex items-center">
                 {navigationLinks.map((link, index) => (
-                  <NavigationMenuItem key={index}>
-                    <NavigationMenuLink
+                  <li key={index} className="list-none">
+                    <Link
                       href={link.href}
-                      className="text-gray-700 text-sm dark:text-gray-200 hover:text-gray-900 dark:hover:text-white font-medium relative group transition-all duration-300"
+                      className="text-gray-700 text-sm dark:text-gray-200 hover:text-gray-900 dark:hover:text-white font-medium relative group transition-all duration-300 block px-3 py-2"
                     >
                       {link.label}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all duration-300 group-hover:w-full"></span>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
+                    </Link>
+                  </li>
                 ))}
-              </NavigationMenuList>
-            </NavigationMenu>
+              </ul>
+            </nav>
           </div>
 
           <div className="flex items-center gap-4">
-           
-
-            {/* CTA Button */}
-            <div  className=" sm:flex">
-             <BuildButton buttonName={"ResumeBuild"} />
-            </div>
-
-            {/* Signup button design here */}
-            <div  className=" sm:flex">
-             <BuildButton buttonName={"RegisterButton"}/>
-            </div>
-
-            {/* Mobile menu button */}
+            <BuildButton buttonName={"ResumeBuild"} />
+            <BuildButton buttonName={"RegisterButton"} />
             <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="group text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+              <button
+                className="group text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 h-10 w-10 flex items-center justify-center rounded-lg"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-expanded={isMenuOpen}
               >
                 <MenuIcon />
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -245,7 +152,6 @@ function Navbar() {
                   {link.label}
                 </Link>
               ))}
-             
             </div>
           </div>
         )}
@@ -254,4 +160,4 @@ function Navbar() {
   );
 }
 
-export default Navbar
+export default Navbar;
