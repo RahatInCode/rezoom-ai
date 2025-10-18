@@ -3,7 +3,7 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import BuildButton from '../../Elements/BuildButton';
 import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import app from '../../utils/firebaseConfig';
+import { app } from '../../utils/firebaseConfig';
 
 // Icon Components
 const MenuIcon: React.FC = () => (
