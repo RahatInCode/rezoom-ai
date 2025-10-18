@@ -1,8 +1,8 @@
 "use client";
+import React from "react";
 import { X } from "lucide-react";
-import React, { useState } from "react";
 
-interface ExperienceData {
+export interface ExperienceData {
   title: string;
   employer: string;
   location: string;
@@ -12,149 +12,144 @@ interface ExperienceData {
   currentlyWorking: boolean;
 }
 
-const Experience = () => {
-  const [experiences, setExperiences] = useState<ExperienceData[]>([
-    { title: "", employer: "", location: "", remote: false, startDate: "", endDate: "", currentlyWorking: false },
-  ]);
+interface ExperienceProps {
+  experiences: ExperienceData[];
+  setExperiences: React.Dispatch<React.SetStateAction<ExperienceData[]>>;
+}
 
-  const handleTextChange = (index: number, field: keyof Omit<ExperienceData, "remote" | "currentlyWorking">, value: string) => {
-    setExperiences((prev) => {
-      const updated = [...prev];
-      updated[index][field] = value;
-      return updated;
-    });
-  };
+const Experience: React.FC<ExperienceProps> = ({ experiences, setExperiences }) => {
+  // --- Handle Input Change ---
+const handleTextChange = <K extends keyof ExperienceData>(
+  index: number,
+  field: K,
+  value: ExperienceData[K]
+) => {
+  const updated = [...experiences];
+  updated[index][field] = value; // now fully type-safe
+  setExperiences(updated);
+};
 
-  const handleCheckboxChange = (index: number, field: "remote" | "currentlyWorking", value: boolean) => {
-    setExperiences((prev) => {
-      const updated = [...prev];
-      updated[index][field] = value;
-      // if currentlyWorking checked, clear endDate
-      if (field === "currentlyWorking" && value) updated[index].endDate = "";
-      return updated;
-    });
-  };
 
+  // --- Add Experience ---
   const addExperience = () => {
-    setExperiences((prev) => [
-      ...prev,
+    setExperiences([
+      ...experiences,
       { title: "", employer: "", location: "", remote: false, startDate: "", endDate: "", currentlyWorking: false },
     ]);
   };
 
+  // --- Remove Experience ---
   const removeExperience = (index: number) => {
-    setExperiences((prev) => {
-      const updated = prev.filter((_, i) => i !== index);
-      return updated.length ? updated : [
-        { title: "", employer: "", location: "", remote: false, startDate: "", endDate: "", currentlyWorking: false },
-      ];
-    });
+    const updated = experiences.filter((_, i) => i !== index);
+    setExperiences(updated.length ? updated : [
+      { title: "", employer: "", location: "", remote: false, startDate: "", endDate: "", currentlyWorking: false },
+    ]);
   };
 
   return (
     <div className="w-full space-y-6">
-      <div className="space-y-3 text-start">
-        <p className="sm:w-full font-bold text-5xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent md:w-3/4">
-          Tell us about your most recent job
+      <div className="w-full p-5 space-y-3 border rounded-lg bg-white">
+        <p className="font-bold text-3xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+          Experience
         </p>
-        <p className="text-xl font-semibold text-gray-700">We will start there and work backward</p>
-      </div>
 
-      <div className="space-y-8">
         {experiences.map((exp, idx) => (
-          <div key={idx} className="relative w-full p-5 border rounded-lg bg-white space-y-5">
-            {/* Remove experience button */}
+          <div key={idx} className="relative space-y-4 border p-4 rounded-lg">
+            {/* Remove Button */}
             {experiences.length > 1 && (
               <X
-                size={20}
+                size={22}
                 className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-red-500"
                 onClick={() => removeExperience(idx)}
               />
             )}
 
-            <div className="w-full flex flex-col md:flex-row md:gap-5 space-y-5 md:space-y-0">
-              <div className="w-full">
-                <label className="text-sm">Title*</label>
-                <input
-                  type="text"
-                  className="input w-full"
-                  placeholder="Job Title"
-                  value={exp.title}
-                  onChange={(e) => handleTextChange(idx, "title", e.target.value)}
-                />
-              </div>
-              <div className="w-full">
-                <label className="text-sm">Employer*</label>
-                <input
-                  type="text"
-                  className="input w-full"
-                  placeholder="Employer"
-                  value={exp.employer}
-                  onChange={(e) => handleTextChange(idx, "employer", e.target.value)}
-                />
-              </div>
+            {/* Title */}
+            <div>
+              <label className="font-semibold">Job Title</label>
+              <input
+                type="text"
+                placeholder="Enter job title"
+                className="input input-bordered w-full"
+                value={exp.title}
+                onChange={(e) => handleTextChange(idx, "title", e.target.value)}
+              />
             </div>
 
-            <div className="w-full flex flex-col md:flex-row md:items-center gap-3">
-              <div className="flex-1">
-                <label className="text-sm">Job Location*</label>
-                <input
-                  type="text"
-                  className="input w-full"
-                  placeholder="Job Location"
-                  value={exp.location}
-                  onChange={(e) => handleTextChange(idx, "location", e.target.value)}
-                />
-              </div>
-              <div className="flex items-center gap-2 mt-2 md:mt-0">
-                <input
-                  type="checkbox"
-                  className="checkbox"
-                  checked={exp.remote}
-                  onChange={(e) => handleCheckboxChange(idx, "remote", e.target.checked)}
-                />
-                <p>Remote</p>
-              </div>
+            {/* Employer */}
+            <div>
+              <label className="font-semibold">Employer / Company</label>
+              <input
+                type="text"
+                placeholder="Enter employer or company"
+                className="input input-bordered w-full"
+                value={exp.employer}
+                onChange={(e) => handleTextChange(idx, "employer", e.target.value)}
+              />
             </div>
 
-            <div className="w-full flex flex-col md:flex-row md:gap-5 space-y-5 md:space-y-0">
-              <div className="w-full">
-                <label className="text-sm">Start Date*</label>
+            {/* Location */}
+            <div>
+              <label className="font-semibold">Location</label>
+              <input
+                type="text"
+                placeholder="Enter job location"
+                className="input input-bordered w-full"
+                value={exp.location}
+                onChange={(e) => handleTextChange(idx, "location", e.target.value)}
+              />
+            </div>
+
+            {/* Remote Checkbox */}
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={exp.remote}
+                onChange={(e) => handleTextChange(idx, "remote", e.target.checked)}
+              />
+              <span>Remote Position</span>
+            </div>
+
+            {/* Dates */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="font-semibold">Start Date</label>
                 <input
-                  type="date"
-                  className="input w-full"
+                  type="month"
+                  className="input input-bordered w-full"
                   value={exp.startDate}
                   onChange={(e) => handleTextChange(idx, "startDate", e.target.value)}
                 />
               </div>
-              <div className="w-full">
-                <label className="text-sm">End Date</label>
+
+              <div>
+                <label className="font-semibold">End Date</label>
                 <input
-                  type="date"
-                  className="input w-full"
+                  type="month"
+                  className="input input-bordered w-full"
                   value={exp.endDate}
-                  onChange={(e) => handleTextChange(idx, "endDate", e.target.value)}
                   disabled={exp.currentlyWorking}
+                  onChange={(e) => handleTextChange(idx, "endDate", e.target.value)}
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-2 mt-2">
+            {/* Currently Working Checkbox */}
+            <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
-                className="checkbox"
                 checked={exp.currentlyWorking}
-                onChange={(e) => handleCheckboxChange(idx, "currentlyWorking", e.target.checked)}
+                onChange={(e) => handleTextChange(idx, "currentlyWorking", e.target.checked)}
               />
-              <p>Currently Working</p>
+              <span>Currently Working Here</span>
             </div>
           </div>
         ))}
-      </div>
 
-      <button className="btn w-full border-dotted" onClick={addExperience}>
-        + Add Another Experience
-      </button>
+        <button className="btn w-full border-dotted mt-2" onClick={addExperience}>
+          + Add Another Experience
+        </button>
+      </div>
     </div>
   );
 };
