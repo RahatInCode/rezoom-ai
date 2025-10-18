@@ -19,7 +19,7 @@ const plans: Plan[] = [
     price: "$0",
     period: "forever",
     features: [
-      "1 Resume Download / month",
+      "10 Resume Download / month",
       "Basic Templates",
       "Sample Interview Questions",
       "No AI Interview Feedback",
