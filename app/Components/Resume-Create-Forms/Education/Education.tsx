@@ -16,15 +16,18 @@ const Education = () => {
     { degree: "", institute: "", startDate: "", endDate: "", currentlyStudying: false, cgpa: "" },
   ]);
 
-  const handleChange = (
-    index: number,
-    field: keyof EducationData,
-    value: string | boolean
-  ) => {
-    const updated = [...educations];
-    updated[index][field] = value;
-    setEducations(updated);
+const handleChange = (
+  index: number,
+  field: keyof EducationData,
+  value: string | boolean
+) => {
+  const updated = [...educations];
+  updated[index] = {
+    ...updated[index],
+    [field]: value as EducationData[typeof field], // ✅ type assertion
   };
+  setEducations(updated);
+};
 
   const addEducation = () => {
     setEducations([
