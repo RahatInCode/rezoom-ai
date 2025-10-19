@@ -20,10 +20,10 @@ export default function Home() {
       <FeaturesSection />
       <HighlightFeature />
       <ResumeShowcase />
-      <MarqueeSection />
       <ReviewSection />
       <HeroMediaSection />
       <PricingSection />
+      <MarqueeSection />
       <FAQ />
     </main>
   );

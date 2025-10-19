@@ -143,7 +143,7 @@ const MarqueeSection = () => {
               className="text-3xl md:text-4xl font-bold text-slate-900 mb-3"
               style={{ fontFamily: 'Inter, sans-serif' }}
             >
-              What Our Users Say
+              Here is the Hype!
             </h2>
             <div className="w-20 h-1 bg-gradient-to-r from-emerald-500 to-emerald-600 mx-auto rounded-full"></div>
           </motion.div>
