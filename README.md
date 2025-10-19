@@ -1,7 +1,7 @@
 🧑‍💼 AI Powered Resume Builder & Interview Simulator
 
 An intelligent platform to create ATS-friendly resumes and practice interviews with AI — helping job seekers boost confidence, polish their skills, and land their dream jobs.
-
+https://ibb.co.com/Kpy52RbK
 ✨ Built with modern technologies, animations, and AI integration for a smooth, professional, and engaging user experience.
 
 🚀 Features
