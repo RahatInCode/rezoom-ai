@@ -8,6 +8,7 @@ import HeroMediaSection from "./Components/HeroMediaSection/HeroMediaSection";
 import FAQ from "./Components/FAQ/FAQ";
 import PricingSection from "./pricing-section/PricingSection";
 import FeaturesSection from "./Components/FeaturesSection/FeaturesSection";
+import MarqueeSection from "./Components/marquee/MarqueeSection";
 
 
 export default function Home() {
@@ -19,6 +20,7 @@ export default function Home() {
       <FeaturesSection />
       <HighlightFeature />
       <ResumeShowcase />
+      <MarqueeSection />
       <ReviewSection />
       <HeroMediaSection />
       <PricingSection />
