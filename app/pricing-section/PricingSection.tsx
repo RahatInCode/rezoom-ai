@@ -19,7 +19,7 @@ const plans: Plan[] = [
     price: "$0",
     period: "forever",
     features: [
-      "1 Resume Download / month",
+      "10 Resume Download / month",
       "Basic Templates",
       "Sample Interview Questions",
       "No AI Interview Feedback",
@@ -60,7 +60,7 @@ const plans: Plan[] = [
 
 export default function PricingSection() {
   return (
-    <section className="py-20 bg-gradient-to-b from-slate-50 to-white">
+    <section className="py-20 bg-[linear-gradient(180deg,rgba(245,255,248,0.9)_0%,rgba(232,250,236,0.85)_40%,rgba(255,255,255,0.98)_100%)]">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">

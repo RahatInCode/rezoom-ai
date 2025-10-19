@@ -214,7 +214,7 @@ const HeroMediaSection: React.FC = () => {
     }, []);
 
     return (
-        <section ref={heroRef} className="relative min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 overflow-hidden">
+        <section ref={heroRef} className="relative min-h-screen bg-[linear-gradient(180deg,rgba(245,255,248,0.9)_0%,rgba(232,250,236,0.85)_40%,rgba(255,255,255,0.98)_100%)] dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 overflow-hidden">
             {/* Background decoration */}
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
