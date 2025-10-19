@@ -191,8 +191,8 @@ const MockInterviewPage = () => {
           text: 'You have an ongoing interview. Would you like to continue?',
           icon: 'question',
           showCancelButton: true,
-          confirmButtonColor: '#3b82f6',
-          cancelButtonColor: '#6b7280',
+          confirmButtonColor: '#10b981',
+          cancelButtonColor: '#64748b',
           confirmButtonText: 'Yes, resume it!',
           cancelButtonText: 'Start fresh'
         }).then((result) => {
@@ -429,7 +429,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           }
         }
       }
-    }, 500); // Small delay to ensure clean restart
+    }, 500);
   }, [showMockInterview, isPaused, isSpeaking, isProcessing, addDebugLog]);
 
   // Start inactivity timer
@@ -549,10 +549,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         
         lastUserSpeechTimeRef.current = Date.now();
         
-        // 🔥 KEY FIX: Auto-restart speech recognition
         autoRestartListening();
-        
-        // Start inactivity timer
         startInactivityTimer();
       };
 
@@ -594,7 +591,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     if (!trimmed || trimmed.length < 3) {
       addDebugLog('❌ Transcript too short or empty');
       toast.error('Speech too short. Please speak more clearly.');
-      // Reset and allow retry
       accumulatedTranscriptRef.current = '';
       setFinalTranscript('');
       autoRestartListening();
@@ -621,7 +617,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     const updatedHistory = [...conversationHistory, userMessage];
     setConversationHistory(updatedHistory);
 
-    // Reset transcripts immediately after capturing
     setFinalTranscript('');
     setInterimTranscript('');
     accumulatedTranscriptRef.current = '';
@@ -652,7 +647,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     } else {
       addDebugLog('❌ No response from Gemini');
       toast.error('Failed to get AI response. Please try again.');
-      // Auto-restart listening for retry
       autoRestartListening();
     }
   }, [conversationHistory, interviewTime, callGeminiAPI, speakText, triggerCodingQuestion, formatTime, totalQuestions, addDebugLog, clearInactivityTimer, autoRestartListening]);
@@ -742,7 +736,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
       if (event.error === 'no-speech') {
         toast('No speech detected. Please try speaking again.', { icon: '🎤' });
-        // Auto-restart on no-speech
         setTimeout(() => autoRestartListening(), 1000);
         return;
       }
@@ -848,7 +841,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     }
 
     try {
-      // Reset transcripts
       accumulatedTranscriptRef.current = '';
       setFinalTranscript('');
       setInterimTranscript('');
@@ -862,7 +854,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       console.error('Start listening error:', error);
       addDebugLog(`❌ Failed to start: ${err.message}`);
       
-      // Ignore "already started" errors
       if (err.message.includes('already started')) {
         setIsListening(true);
         return;
@@ -973,7 +964,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280',
+      cancelButtonColor: '#64748b',
       confirmButtonText: 'Yes, leave',
       cancelButtonText: 'Stay'
     });
@@ -1040,16 +1031,16 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
   // Interview cards
   const interviewTypes: InterviewCard[] = [
-    { id: 1, title: 'System Design', category: 'Technical', icon: <Code className="w-8 h-8 text-blue-400" />, description: 'Design scalable systems' },
-    { id: 2, title: 'Business Analyst', category: 'Non-Technical', icon: <TrendingUp className="w-8 h-8 text-green-400" />, description: 'Business analysis' },
-    { id: 3, title: 'Mobile Development', category: 'Technical', icon: <Smartphone className="w-8 h-8 text-purple-400" />, description: 'iOS/Android' },
-    { id: 4, title: 'SQL & Database', category: 'Technical', icon: <Database className="w-8 h-8 text-yellow-400" />, description: 'Database design' },
-    { id: 5, title: 'Cybersecurity', category: 'Technical', icon: <Shield className="w-8 h-8 text-red-400" />, description: 'Security protocols' },
-    { id: 6, title: 'Sales & Marketing', category: 'Non-Technical', icon: <Users className="w-8 h-8 text-pink-400" />, description: 'Sales strategies' },
-    { id: 7, title: 'Front-End', category: 'Technical', icon: <Code className="w-8 h-8 text-indigo-400" />, description: 'React, Angular, Vue' },
-    { id: 8, title: 'Back-End', category: 'Technical', icon: <Server className="w-8 h-8 text-teal-400" />, description: 'Node.js, APIs' },
-    { id: 9, title: 'Full-Stack', category: 'Technical', icon: <Globe className="w-8 h-8 text-orange-400" />, description: 'End-to-end development' },
-    { id: 10, title: 'Web Performance', category: 'Technical', icon: <CloudLightning className="w-8 h-8 text-yellow-600" />, description: 'Optimization & SEO' }
+    { id: 1, title: 'System Design', category: 'Technical', icon: <Code className="w-8 h-8 text-emerald-400" />, description: 'Design scalable systems' },
+    { id: 2, title: 'Business Analyst', category: 'Non-Technical', icon: <TrendingUp className="w-8 h-8 text-emerald-500" />, description: 'Business analysis' },
+    { id: 3, title: 'Mobile Development', category: 'Technical', icon: <Smartphone className="w-8 h-8 text-emerald-400" />, description: 'iOS/Android' },
+    { id: 4, title: 'SQL & Database', category: 'Technical', icon: <Database className="w-8 h-8 text-emerald-500" />, description: 'Database design' },
+    { id: 5, title: 'Cybersecurity', category: 'Technical', icon: <Shield className="w-8 h-8 text-emerald-400" />, description: 'Security protocols' },
+    { id: 6, title: 'Sales & Marketing', category: 'Non-Technical', icon: <Users className="w-8 h-8 text-emerald-500" />, description: 'Sales strategies' },
+    { id: 7, title: 'Front-End', category: 'Technical', icon: <Code className="w-8 h-8 text-emerald-400" />, description: 'React, Angular, Vue' },
+    { id: 8, title: 'Back-End', category: 'Technical', icon: <Server className="w-8 h-8 text-emerald-500" />, description: 'Node.js, APIs' },
+    { id: 9, title: 'Full-Stack', category: 'Technical', icon: <Globe className="w-8 h-8 text-emerald-400" />, description: 'End-to-end development' },
+    { id: 10, title: 'Web Performance', category: 'Technical', icon: <CloudLightning className="w-8 h-8 text-emerald-500" />, description: 'Optimization & SEO' }
   ];
 
   // Handle card click
@@ -1061,57 +1052,77 @@ Remember: Create a comfortable interview environment while assessing talent.`;
   // RENDER: Mock Interview Mode
   if (showMockInterview) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white">
-        <Toaster position="top-center" reverseOrder={false} />
+      // Updated: Changed background from dark gray/blue to light emerald/sage
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-white text-slate-900">
+        {/* Updated: Toast with emerald colors */}
+        <Toaster 
+          position="top-center" 
+          reverseOrder={false}
+          toastOptions={{
+            success: {
+              style: {
+                background: '#065f46',
+                color: '#fff',
+              },
+              iconTheme: {
+                primary: '#10b981',
+                secondary: '#fff',
+              },
+            },
+          }}
+        />
 
-        {/* Header */}
-        <div className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-3">
+        {/* Updated: Header with white background and emerald accents */}
+        <div className="bg-white border-b border-emerald-100 sticky top-0 z-50 shadow-lg">
+          <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-6">
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 text-blue-400" />
-                  <span className="text-lg font-semibold">{formatTime(interviewTime)}</span>
-                  <span className="text-sm text-gray-400">/ {formData.duration}:00</span>
+              <div className="flex items-center space-x-8">
+                {/* Updated: Emerald clock icon */}
+                <div className="flex items-center space-x-3">
+                  <Clock className="w-6 h-6 text-emerald-600" />
+                  <span className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>{formatTime(interviewTime)}</span>
+                  <span className="text-sm text-slate-500 font-medium">/ {formData.duration}:00</span>
                 </div>
-                <div className="hidden md:block text-sm text-gray-400">
+                <div className="hidden md:block text-sm text-slate-600 font-semibold">
                   {formData.role || 'General'} • {formData.interviewType}
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3">
+              {/* Updated: Icon buttons with emerald hover states */}
+              <div className="flex items-center space-x-2">
                 <button 
                   onClick={() => setShowDebug(!showDebug)} 
-                  className={`p-2 hover:bg-gray-700 rounded-lg transition-colors ${showDebug ? 'bg-gray-700' : ''}`} 
+                  className={`p-2.5 hover:bg-emerald-50 rounded-xl transition-all duration-200 ${showDebug ? 'bg-emerald-100 text-emerald-700' : 'text-slate-600'}`} 
                   title="Debug Panel"
                 >
                   <Bug className="w-5 h-5" />
                 </button>
                 <button 
                   onClick={() => setIsPaused(!isPaused)} 
-                  className="p-2 hover:bg-gray-700 rounded-lg transition-colors" 
+                  className="p-2.5 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 rounded-xl transition-all duration-200" 
                   title={isPaused ? 'Resume' : 'Pause'}
                 >
                   {isPaused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
                 </button>
                 <button 
                   onClick={() => setShowTranscript(!showTranscript)} 
-                  className={`p-2 hover:bg-gray-700 rounded-lg transition-colors ${showTranscript ? 'bg-gray-700' : ''}`} 
+                  className={`p-2.5 hover:bg-emerald-50 rounded-xl transition-all duration-200 ${showTranscript ? 'bg-emerald-100 text-emerald-700' : 'text-slate-600'}`} 
                   title="Transcript"
                 >
                   <FileText className="w-5 h-5" />
                 </button>
                 <button 
                   onClick={() => setShowSettings(!showSettings)} 
-                  className={`p-2 hover:bg-gray-700 rounded-lg transition-colors ${showSettings ? 'bg-gray-700' : ''}`} 
+                  className={`p-2.5 hover:bg-emerald-50 rounded-xl transition-all duration-200 ${showSettings ? 'bg-emerald-100 text-emerald-700' : 'text-slate-600'}`} 
                   title="Settings"
                 >
                   <Settings className="w-5 h-5" />
                 </button>
-                <div className="h-6 w-px bg-gray-700"></div>
+                <div className="h-6 w-px bg-slate-300 mx-2"></div>
+                {/* Updated: Red leave button with rounded-full */}
                 <button 
                   onClick={handleLeaveInterview} 
-                  className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm transition-colors"
+                  className="flex items-center space-x-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 rounded-full text-sm text-white font-bold transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
                 >
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline">Leave</span>
@@ -1121,55 +1132,56 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex gap-4">
+        {/* Updated: Main Content with better spacing */}
+        <div className="container mx-auto px-6 py-10">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex gap-6">
               <div className="flex-1 space-y-8">
-                {/* Debug Panel */}
+                {/* Updated: Debug Panel with emerald accents */}
                 {showDebug && (
-                  <div className="bg-gray-800 rounded-2xl p-4 border border-yellow-500/30">
-                    <div className="flex justify-between items-center mb-3">
-                      <div className="flex items-center gap-2">
-                        <Bug className="w-5 h-5 text-yellow-400" />
-                        <h4 className="text-sm font-semibold text-yellow-400">Debug Log</h4>
+                  <div className="bg-white rounded-2xl p-6 border-l-4 border-emerald-500 shadow-xl">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-3">
+                        <Bug className="w-5 h-5 text-emerald-600" />
+                        <h4 className="text-base font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Debug Log</h4>
                       </div>
                       <div className="flex gap-2">
+                        {/* Updated: Emerald button */}
                         <button 
                           onClick={runDiagnostics}
-                          className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
+                          className="text-xs px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold transition-all duration-200 shadow-lg hover:scale-105"
                         >
                           Run Diagnostics
                         </button>
                         <button 
                           onClick={() => setDebugLog([])}
-                          className="text-xs px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                          className="text-xs px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-full font-semibold transition-all duration-200"
                         >
                           Clear
                         </button>
                       </div>
                     </div>
-                    <div className="space-y-1 max-h-60 overflow-y-auto text-xs font-mono bg-gray-900 rounded p-3">
+                    <div className="space-y-1 max-h-60 overflow-y-auto text-xs font-mono bg-slate-50 rounded-xl p-4 border border-slate-200">
                       {debugLog.length === 0 ? (
-                        <div className="text-gray-500">No debug messages yet. Start speaking to see logs.</div>
+                        <div className="text-slate-500">No debug messages yet. Start speaking to see logs.</div>
                       ) : (
                         debugLog.map((log, idx) => (
-                          <div key={idx} className="text-gray-300 hover:bg-gray-800 px-1 rounded">{log}</div>
+                          <div key={idx} className="text-slate-700 hover:bg-emerald-50 px-2 py-1 rounded">{log}</div>
                         ))
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* Interviewer and Candidate */}
+                {/* Updated: Interviewer and Candidate cards with white backgrounds and emerald accents */}
                 <div className="grid md:grid-cols-2 gap-8">
-                  {/* AI Interviewer */}
+                  {/* Updated: AI Interviewer with white card and emerald glow */}
                   <motion.div
-                    className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-center relative overflow-hidden border border-gray-700"
+                    className="bg-white rounded-2xl p-10 text-center relative overflow-hidden border-2 border-slate-200 shadow-xl"
                     animate={{
                       boxShadow: isSpeaking
-                        ? ['0 0 20px rgba(59, 130, 246, 0.5)', '0 0 40px rgba(139, 92, 246, 0.6)', '0 0 20px rgba(59, 130, 246, 0.5)']
-                        : '0 0 0px rgba(0, 0, 0, 0)'
+                        ? ['0 0 0px rgba(16, 185, 129, 0)', '0 0 30px rgba(16, 185, 129, 0.4)', '0 0 0px rgba(16, 185, 129, 0)']
+                        : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                     }}
                     transition={{ duration: 1.5, repeat: isSpeaking ? Infinity : 0, ease: "easeInOut" }}
                   >
@@ -1178,41 +1190,44 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                         <motion.div
                           className="absolute inset-0 pointer-events-none"
                           initial={{ opacity: 0 }}
-                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          animate={{ opacity: [0.1, 0.2, 0.1] }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                          style={{ background: 'radial-gradient(circle at center, rgba(59, 130, 246, 0.2), transparent 70%)' }}
+                          style={{ background: 'radial-gradient(circle at center, rgba(16, 185, 129, 0.1), transparent 70%)' }}
                         />
                       )}
                     </AnimatePresence>
 
                     <motion.div
                       className="relative z-10"
-                      animate={{ scale: isSpeaking ? [1, 1.05, 1] : 1 }}
+                      animate={{ scale: isSpeaking ? [1, 1.02, 1] : 1 }}
                       transition={{ duration: 1.5, repeat: isSpeaking ? Infinity : 0, ease: "easeInOut" }}
                     >
+                      {/* Updated: Emerald avatar ring */}
                       <motion.div
-                        className="w-32 h-32 mx-auto mb-6 rounded-full flex items-center justify-center relative"
+                        className="w-36 h-36 mx-auto mb-6 rounded-full flex items-center justify-center relative"
                         animate={{
                           background: isSpeaking
-                            ? ['linear-gradient(135deg, rgb(59, 130, 246), rgb(139, 92, 246))', 'linear-gradient(135deg, rgb(139, 92, 246), rgb(236, 72, 153))', 'linear-gradient(135deg, rgb(59, 130, 246), rgb(139, 92, 246))']
-                            : 'linear-gradient(135deg, rgb(59, 130, 246), rgb(139, 92, 246))'
+                            ? ['linear-gradient(135deg, rgb(16, 185, 129), rgb(5, 150, 105))', 'linear-gradient(135deg, rgb(5, 150, 105), rgb(4, 120, 87))', 'linear-gradient(135deg, rgb(16, 185, 129), rgb(5, 150, 105))']
+                            : 'linear-gradient(135deg, rgb(16, 185, 129), rgb(5, 150, 105))'
                         }}
                         transition={{ duration: 2, repeat: isSpeaking ? Infinity : 0, ease: "easeInOut" }}
                       >
-                        <div className="w-28 h-28 bg-gray-900 rounded-full flex items-center justify-center">
-                          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                            <User className="w-12 h-12 text-white" />
+                        <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg">
+                          <div className="w-28 h-28 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg">
+                            <User className="w-14 h-14 text-white" />
                           </div>
                         </div>
                       </motion.div>
-                      <h3 className="text-2xl font-bold text-white mb-1">Sneha</h3>
-                      <p className="text-sm text-gray-400 mb-3">AI Interviewer (Gemini Pro)</p>
+                      <h3 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Sneha</h3>
+                      <p className="text-sm text-slate-600 mb-4 font-medium">AI Interviewer (Gemini Pro)</p>
+                      {/* Updated: Emerald status indicator */}
                       <motion.div
-                        className="w-3 h-3 rounded-full mx-auto"
+                        className="w-3 h-3 rounded-full mx-auto shadow-lg"
                         animate={{
-                          backgroundColor: isSpeaking ? '#4ade80' : '#6b7280',
-                          scale: isSpeaking ? [1, 1.3, 1] : 1
+                          backgroundColor: isSpeaking ? '#10b981' : '#cbd5e1',
+                          scale: isSpeaking ? [1, 1.4, 1] : 1,
+                          boxShadow: isSpeaking ? ['0 0 0px rgba(16, 185, 129, 0)', '0 0 10px rgba(16, 185, 129, 0.8)', '0 0 0px rgba(16, 185, 129, 0)'] : 'none'
                         }}
                         transition={{ duration: 0.8, repeat: isSpeaking ? Infinity : 0, ease: "easeInOut" }}
                       />
@@ -1220,7 +1235,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                         <motion.p
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="text-sm text-green-400 mt-2 font-medium"
+                          className="text-sm text-emerald-600 mt-3 font-bold"
                         >
                           Speaking...
                         </motion.p>
@@ -1228,13 +1243,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                     </motion.div>
                   </motion.div>
 
-                  {/* Candidate */}
+                  {/* Updated: Candidate card with white background and emerald listening state */}
                   <motion.div
-                    className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-center relative overflow-hidden border border-gray-700"
+                    className="bg-white rounded-2xl p-10 text-center relative overflow-hidden border-2 border-slate-200 shadow-xl"
                     animate={{
                       boxShadow: isListening
-                        ? ['0 0 20px rgba(34, 197, 94, 0.5)', '0 0 40px rgba(34, 197, 94, 0.6)', '0 0 20px rgba(34, 197, 94, 0.5)']
-                        : '0 0 0px rgba(0, 0, 0, 0)'
+                        ? ['0 0 0px rgba(16, 185, 129, 0)', '0 0 30px rgba(16, 185, 129, 0.4)', '0 0 0px rgba(16, 185, 129, 0)']
+                        : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                     }}
                     transition={{ duration: 1.5, repeat: isListening ? Infinity : 0, ease: "easeInOut" }}
                   >
@@ -1243,25 +1258,27 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                         <motion.div
                           className="absolute inset-0 pointer-events-none"
                           initial={{ opacity: 0 }}
-                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          animate={{ opacity: [0.1, 0.2, 0.1] }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                          style={{ background: 'radial-gradient(circle at center, rgba(34, 197, 94, 0.2), transparent 70%)' }}
+                          style={{ background: 'radial-gradient(circle at center, rgba(16, 185, 129, 0.1), transparent 70%)' }}
                         />
                       )}
                     </AnimatePresence>
 
                     <div className="relative z-10">
-                      <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-gray-600 to-gray-700 rounded-full flex items-center justify-center border-4 border-gray-500">
-                        <User className="w-16 h-16 text-gray-300" />
+                      <div className="w-36 h-36 mx-auto mb-6 bg-gradient-to-br from-slate-300 to-slate-400 rounded-full flex items-center justify-center border-4 border-slate-300 shadow-xl">
+                        <User className="w-16 h-16 text-white" />
                       </div>
-                      <h3 className="text-2xl font-bold text-white mb-1">You</h3>
-                      <p className="text-sm text-gray-400 mb-3">Candidate</p>
+                      <h3 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>You</h3>
+                      <p className="text-sm text-slate-600 mb-4 font-medium">Candidate</p>
+                      {/* Updated: Emerald listening indicator */}
                       <motion.div
-                        className="w-3 h-3 rounded-full mx-auto"
+                        className="w-3 h-3 rounded-full mx-auto shadow-lg"
                         animate={{
-                          backgroundColor: isListening ? '#4ade80' : '#6b7280',
-                          scale: isListening ? [1, 1.3, 1] : 1
+                          backgroundColor: isListening ? '#10b981' : '#cbd5e1',
+                          scale: isListening ? [1, 1.4, 1] : 1,
+                          boxShadow: isListening ? ['0 0 0px rgba(16, 185, 129, 0)', '0 0 10px rgba(16, 185, 129, 0.8)', '0 0 0px rgba(16, 185, 129, 0)'] : 'none'
                         }}
                         transition={{ duration: 0.8, repeat: isListening ? Infinity : 0, ease: "easeInOut" }}
                       />
@@ -1269,7 +1286,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                         <motion.p
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="text-sm text-green-400 mt-2 font-medium"
+                          className="text-sm text-emerald-600 mt-3 font-bold"
                         >
                           Listening...
                         </motion.p>
@@ -1278,7 +1295,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                         <motion.p
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="text-sm text-blue-400 mt-2 font-medium flex items-center justify-center gap-2"
+                          className="text-sm text-emerald-600 mt-3 font-bold flex items-center justify-center gap-2"
                         >
                           <Loader className="w-4 h-4 animate-spin" />
                           Processing...
@@ -1288,78 +1305,83 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </motion.div>
                 </div>
 
-                {/* Live Transcript */}
+                {/* Updated: Live Transcript with emerald border and white background */}
                 {(interimTranscript || finalTranscript) && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4"
+                    className="bg-emerald-50 border-l-4 border-emerald-500 rounded-xl p-6 shadow-lg"
                   >
-                    <div className="flex items-start gap-2">
-                      <Mic className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                    <div className="flex items-start gap-3">
+                      <Mic className="w-6 h-6 text-emerald-600 mt-1 flex-shrink-0" />
                       <div className="flex-1">
-                        <p className="text-sm text-gray-400 mb-1">You&apos;re saying:</p>
-                        <p className="text-white">
+                        <p className="text-sm text-slate-600 mb-2 font-semibold" style={{ fontFamily: 'Inter, sans-serif' }}>You&apos;re saying:</p>
+                        <p className="text-slate-900 text-lg leading-relaxed font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
                           {finalTranscript}
-                          <span className="text-gray-400">{interimTranscript}</span>
-                          <span className="inline-block w-1 h-4 bg-blue-400 ml-1 animate-pulse"></span>
+                          <span className="text-slate-500">{interimTranscript}</span>
+                          <span className="inline-block w-0.5 h-5 bg-emerald-600 ml-1 animate-pulse"></span>
                         </p>
                       </div>
                     </div>
                   </motion.div>
                 )}
 
-                {/* Current Question */}
-                <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
+                {/* Updated: Current Question card with white background and emerald accents */}
+                <div className="bg-white rounded-2xl p-10 border-2 border-slate-200 shadow-2xl">
                   <div className="text-center">
-                    <div className="flex items-center justify-center space-x-2 mb-4">
-                      <h4 className="text-xl font-semibold text-white">Current Question</h4>
-                      <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm font-medium">
+                    <div className="flex items-center justify-center space-x-3 mb-6">
+                      <h4 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Current Question</h4>
+                      {/* Updated: Emerald badge */}
+                      <span className="px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-sm font-bold border-2 border-emerald-300">
                         {questionNumber} / {totalQuestions}
                       </span>
                     </div>
-                    <p className="text-lg text-gray-300 leading-relaxed mb-6 min-h-[60px]">
+                    <p className="text-lg text-slate-700 leading-relaxed mb-8 min-h-[60px] font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
                       {currentQuestion || 'Waiting for AI interviewer...'}
                     </p>
 
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="flex items-center justify-center space-x-3">
+                    <div className="flex flex-col items-center space-y-5">
+                      {/* Updated: Emerald microphone button with rounded-full */}
+                      <div className="flex items-center justify-center space-x-4">
                         <button
                           onClick={isListening ? stopListening : startListening}
                           disabled={isSpeaking || isProcessing}
-                          className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all transform hover:scale-105 ${
+                          className={`flex items-center space-x-3 px-10 py-5 rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-2xl ${
                             isListening
-                              ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800'
-                              : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800'
+                              ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white'
+                              : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white'
                           } ${(isSpeaking || isProcessing) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          style={{ fontFamily: 'Inter, sans-serif' }}
                         >
-                          {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
-                          <span className="text-lg">
+                          {isListening ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7" />}
+                          <span>
                             {isListening ? 'Stop Recording' : isProcessing ? 'Processing...' : 'Click to Speak'}
                           </span>
                         </button>
                       </div>
 
                       {(isSpeaking || isProcessing) && (
-                        <div className="flex items-center space-x-2 text-sm">
+                        <div className="flex items-center space-x-2 text-sm font-semibold">
                           {isSpeaking && (
-                            <div className="flex items-center space-x-2 text-blue-400">
-                              <Volume2 className="w-4 h-4" />
+                            <div className="flex items-center space-x-2 text-emerald-600">
+                              <Volume2 className="w-5 h-5" />
                               <span>AI is speaking...</span>
                             </div>
                           )}
                           {isProcessing && (
-                            <div className="flex items-center space-x-2 text-purple-400">
-                              <Loader className="w-4 h-4 animate-spin" />
+                            <div className="flex items-center space-x-2 text-emerald-600">
+                              <Loader className="w-5 h-5 animate-spin" />
                               <span>Processing your response...</span>
                             </div>
                           )}
                         </div>
                       )}
 
+                      {/* Updated: Secondary button with emerald border */}
                       <button
                         onClick={triggerCodingQuestion}
-                        className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-xl transition-all transform hover:scale-105 text-sm font-medium"
+                        className="flex items-center space-x-2 px-7 py-3.5 bg-white border-2 border-emerald-500 text-emerald-700 hover:bg-emerald-50 rounded-full transition-all transform hover:scale-105 text-sm font-bold shadow-lg"
+                        style={{ fontFamily: 'Inter, sans-serif' }}
                       >
                         <Code className="w-5 h-5" />
                         <span>Practice Coding Challenge</span>
@@ -1368,72 +1390,80 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </div>
                 </div>
 
-                {/* Code Editor */}
+                {/* Updated: Code Editor with white background and emerald accents */}
                 {showCodeEditor && currentCodingProblem && (
-                  <div className="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700">
+                  <div className="bg-white rounded-2xl overflow-hidden border-2 border-slate-200 shadow-2xl">
                     <div
-                      className="flex items-center justify-between p-4 bg-gray-900 cursor-pointer hover:bg-gray-700 transition-colors"
+                      className="flex items-center justify-between p-5 bg-slate-50 cursor-pointer hover:bg-emerald-50 transition-colors border-b-2 border-slate-200"
                       onClick={() => setCodeEditorCollapsed(!codeEditorCollapsed)}
                     >
-                      <div className="flex items-center space-x-3">
-                        <Code className="w-5 h-5 text-blue-400" />
-                        <h4 className="text-lg font-semibold text-white">{currentCodingProblem.title}</h4>
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          currentCodingProblem.difficulty === 'easy' ? 'bg-green-500/20 text-green-300' :
-                          currentCodingProblem.difficulty === 'medium' ? 'bg-yellow-500/20 text-yellow-300' :
-                          'bg-red-500/20 text-red-300'
+                      <div className="flex items-center space-x-4">
+                        <Code className="w-6 h-6 text-emerald-600" />
+                        <h4 className="text-xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>{currentCodingProblem.title}</h4>
+                        {/* Updated: Emerald difficulty badges */}
+                        <span className={`px-4 py-1 rounded-full text-sm font-bold ${
+                          currentCodingProblem.difficulty === 'easy' ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-300' :
+                          currentCodingProblem.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300' :
+                          'bg-red-100 text-red-700 border-2 border-red-300'
                         }`}>
                           {currentCodingProblem.difficulty}
                         </span>
-                        <span className="px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-xs">
+                        <span className="px-3 py-1 bg-slate-200 text-slate-700 rounded-full text-xs font-bold">
                           {currentCodingProblem.category}
                         </span>
                       </div>
-                      {codeEditorCollapsed ? <ChevronDown className="w-5 h-5 text-gray-400" /> : <ChevronUp className="w-5 h-5 text-gray-400" />}
+                      {codeEditorCollapsed ? <ChevronDown className="w-6 h-6 text-slate-600" /> : <ChevronUp className="w-6 h-6 text-slate-600" />}
                     </div>
 
                     <div className={`transition-all duration-300 ${codeEditorCollapsed ? 'max-h-0 overflow-hidden' : 'max-h-[1000px]'}`}>
-                      <div className="p-6">
-                        <div className="mb-4 p-4 bg-gray-900 rounded-lg border border-gray-600">
-                          <h5 className="text-md font-semibold text-yellow-400 mb-2">Problem Description</h5>
-                          <p className="text-gray-300 text-sm mb-4">{currentCodingProblem.description}</p>
-                          <h6 className="text-sm font-semibold text-blue-400 mb-2">Test Cases:</h6>
+                      <div className="p-8">
+                        {/* Updated: Problem description with emerald headers */}
+                        <div className="mb-6 p-6 bg-emerald-50 rounded-xl border-l-4 border-emerald-500">
+                          <h5 className="text-md font-bold text-emerald-700 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>Problem Description</h5>
+                          <p className="text-slate-700 text-sm mb-5 leading-relaxed font-medium">{currentCodingProblem.description}</p>
+                          <h6 className="text-sm font-bold text-emerald-700 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>Test Cases:</h6>
                           {currentCodingProblem.testCases.map((tc, idx) => (
-                            <div key={idx} className="text-xs text-gray-400 pl-4 mb-1">
-                              • {tc.description} → Expected: <code className="text-green-400">{JSON.stringify(tc.expected)}</code>
+                            <div key={idx} className="text-sm text-slate-600 pl-4 mb-2 font-medium">
+                              • {tc.description} → Expected: <code className="text-emerald-700 font-mono bg-white px-2 py-0.5 rounded border border-emerald-200">{JSON.stringify(tc.expected)}</code>
                             </div>
                           ))}
                         </div>
 
-                        <div className="relative bg-gray-900 rounded-lg border border-gray-600">
+                        {/* Updated: Code editor with emerald focus ring */}
+                        <div className="relative bg-slate-50 rounded-xl border-2 border-slate-200 overflow-hidden">
                           <textarea
                             value={currentCode}
                             onChange={(e) => setCurrentCode(e.target.value)}
-                            className="w-full h-64 bg-transparent text-gray-100 font-mono text-sm p-4 pl-12 rounded-lg focus:outline-none resize-none"
-                            style={{ lineHeight: '1.5' }}
+                            className="w-full h-64 bg-white text-slate-900 font-mono text-sm p-5 pl-14 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-200 resize-none border-2 border-transparent focus:border-emerald-500"
+                            style={{ lineHeight: '1.6', fontFamily: 'Monaco, Consolas, monospace' }}
                             spellCheck={false}
                           />
-                          <div className="absolute top-4 left-4 text-xs text-gray-500 font-mono leading-6 pointer-events-none select-none">
+                          <div className="absolute top-5 left-5 text-xs text-slate-400 font-mono leading-[1.6] pointer-events-none select-none">
                             {currentCode.split('\n').map((_, i) => <div key={i}>{i + 1}</div>)}
                           </div>
                         </div>
 
-                        <div className="flex justify-between mt-4">
-                          <div className="flex items-center space-x-2 text-sm text-gray-400">
-                            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        {/* Updated: Code editor actions with emerald buttons */}
+                        <div className="flex justify-between mt-5">
+                          <div className="flex items-center space-x-2 text-sm text-slate-600 font-semibold">
+                            <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-sm"></div>
                             <span>JavaScript</span>
                           </div>
                           <div className="flex space-x-3">
+                            {/* Updated: Secondary style button */}
                             <button
                               onClick={runCodeTests}
-                              className="flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
+                              className="flex items-center space-x-2 px-5 py-2.5 bg-white border-2 border-slate-300 text-slate-700 hover:bg-slate-50 rounded-full text-sm font-bold transition-all hover:scale-105 shadow-lg"
+                              style={{ fontFamily: 'Inter, sans-serif' }}
                             >
                               <Play className="w-4 h-4" />
                               <span>Run Tests</span>
                             </button>
+                            {/* Updated: Primary emerald button */}
                             <button
                               onClick={handleSubmitCode}
-                              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors"
+                              className="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full text-sm font-bold transition-all hover:scale-105 shadow-lg"
+                              style={{ fontFamily: 'Inter, sans-serif' }}
                             >
                               <Send className="w-4 h-4" />
                               <span>Submit</span>
@@ -1441,39 +1471,40 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                           </div>
                         </div>
 
+                        {/* Updated: Test Results with emerald success states */}
                         {showTestResults && testResults.length > 0 && (
-                          <div className="mt-4 p-4 bg-gray-900 rounded-lg border border-gray-600">
-                            <div className="flex justify-between mb-3">
-                              <h6 className="text-sm font-semibold text-white">Test Results</h6>
-                              <span className="text-xs text-gray-400">
+                          <div className="mt-6 p-6 bg-slate-50 rounded-xl border-2 border-slate-200">
+                            <div className="flex justify-between mb-4">
+                              <h6 className="text-base font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Test Results</h6>
+                              <span className="text-sm text-slate-600 font-semibold">
                                 {testResults.filter(r => r.passed).length} / {testResults.length} passed
                               </span>
                             </div>
                             {testResults.map((result, idx) => (
                               <div
                                 key={idx}
-                                className={`p-3 rounded-lg border mb-2 ${
+                                className={`p-4 rounded-xl border-2 mb-3 ${
                                   result.passed
-                                    ? 'bg-green-900/20 border-green-500/30'
-                                    : 'bg-red-900/20 border-red-500/30'
+                                    ? 'bg-emerald-50 border-emerald-300'
+                                    : 'bg-red-50 border-red-300'
                                 }`}
                               >
-                                <div className="flex justify-between mb-1">
-                                  <span className="text-xs text-gray-400">
+                                <div className="flex justify-between mb-2">
+                                  <span className="text-sm text-slate-700 font-semibold">
                                     Test {idx + 1}: {result.testCase.description}
                                   </span>
                                   {result.passed ? (
-                                    <CheckCircle className="w-4 h-4 text-green-400" />
+                                    <CheckCircle className="w-5 h-5 text-emerald-600" />
                                   ) : (
-                                    <AlertCircle className="w-4 h-4 text-red-400" />
+                                    <AlertCircle className="w-5 h-5 text-red-600" />
                                   )}
                                 </div>
                                 {!result.passed && (
-                                  <div className="text-xs mt-2">
-                                    <div className="text-red-400">
+                                  <div className="text-xs mt-2 space-y-1">
+                                    <div className="text-red-700 font-mono font-semibold">
                                       Expected: {JSON.stringify(result.testCase.expected)}
                                     </div>
-                                    <div className="text-gray-400">
+                                    <div className="text-slate-600 font-mono">
                                       {result.error || `Got: ${JSON.stringify(result.actual)}`}
                                     </div>
                                   </div>
@@ -1487,12 +1518,13 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </div>
                 )}
 
-                {/* Repeat Question Button */}
+                {/* Updated: Repeat Question button with emerald gradient */}
                 <div className="flex justify-center">
                   <button
                     onClick={() => currentQuestion && speakText(currentQuestion)}
                     disabled={isSpeaking}
-                    className={`flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl transition-all transform hover:scale-105 font-medium ${isSpeaking ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full transition-all transform hover:scale-105 font-bold shadow-2xl ${isSpeaking ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    style={{ fontFamily: 'Inter, sans-serif' }}
                   >
                     <Repeat className="w-5 h-5" />
                     <span>Repeat Question</span>
@@ -1500,33 +1532,34 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                 </div>
               </div>
 
-              {/* Sidebar */}
+              {/* Updated: Sidebar with white background and emerald accents */}
               <AnimatePresence>
                 {(showTranscript || showSettings) && (
                   <motion.div
                     initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: 320, opacity: 1 }}
+                    animate={{ width: 360, opacity: 1 }}
                     exit={{ width: 0, opacity: 0 }}
-                    className="bg-gray-800 rounded-2xl p-6 border border-gray-700 overflow-hidden"
+                    className="bg-white rounded-2xl p-6 border-2 border-slate-200 overflow-hidden shadow-2xl"
                   >
                     {showTranscript && (
                       <div>
-                        <div className="flex justify-between mb-4">
-                          <h3 className="text-lg font-semibold">Transcript</h3>
-                          <button onClick={() => setShowTranscript(false)}>
-                            <X className="w-4 h-4" />
+                        <div className="flex justify-between mb-5">
+                          <h3 className="text-xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Transcript</h3>
+                          <button onClick={() => setShowTranscript(false)} className="text-slate-500 hover:text-slate-900 transition-colors">
+                            <X className="w-5 h-5" />
                           </button>
                         </div>
-                        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                        <div className="space-y-5 max-h-[600px] overflow-y-auto pr-2">
                           {conversationHistory.map((msg, idx) => (
                             <div key={idx} className="text-sm">
-                              <div className="flex justify-between mb-1">
-                                <span className={`font-semibold ${msg.role === 'model' ? 'text-blue-400' : 'text-green-400'}`}>
+                              <div className="flex justify-between mb-2">
+                                {/* Updated: Emerald speaker labels */}
+                                <span className={`font-bold ${msg.role === 'model' ? 'text-emerald-600' : 'text-emerald-700'}`} style={{ fontFamily: 'Inter, sans-serif' }}>
                                   {msg.role === 'model' ? 'Sneha' : 'You'}
                                 </span>
-                                <span className="text-xs text-gray-500">{msg.timestamp}</span>
+                                <span className="text-xs text-slate-500 font-medium">{msg.timestamp}</span>
                               </div>
-                              <p className="text-gray-300 leading-relaxed">{msg.parts}</p>
+                              <p className="text-slate-700 leading-relaxed font-medium">{msg.parts}</p>
                             </div>
                           ))}
                         </div>
@@ -1535,48 +1568,50 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
                     {showSettings && (
                       <div>
-                        <div className="flex justify-between mb-4">
-                          <h3 className="text-lg font-semibold">Settings</h3>
-                          <button onClick={() => setShowSettings(false)}>
-                            <X className="w-4 h-4" />
+                        <div className="flex justify-between mb-5">
+                          <h3 className="text-xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Settings</h3>
+                          <button onClick={() => setShowSettings(false)} className="text-slate-500 hover:text-slate-900 transition-colors">
+                            <X className="w-5 h-5" />
                           </button>
                         </div>
                         <div className="space-y-6">
+                          {/* Updated: Emerald slider */}
                           <div>
-                            <label className="block text-sm font-medium mb-2">
+                            <label className="block text-sm font-bold mb-3 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
                               AI Voice Volume: {volume}%
                             </label>
                             <div className="flex items-center space-x-3">
-                              <Volume2 className="w-4 h-4" />
+                              <Volume2 className="w-5 h-5 text-emerald-600" />
                               <input
                                 type="range"
                                 min="0"
                                 max="100"
                                 value={volume}
                                 onChange={(e) => setVolume(Number(e.target.value))}
-                                className="flex-1"
+                                className="flex-1 accent-emerald-600"
                               />
                             </div>
                           </div>
+                          {/* Updated: Status indicators with emerald */}
                           <div>
-                            <label className="block text-sm font-medium mb-2">Gemini API Status</label>
-                            <div className={`px-4 py-3 rounded-lg ${
-                              GEMINI_API_KEY ? 'bg-green-900/20 border border-green-500/30' : 'bg-red-900/20 border border-red-500/30'
+                            <label className="block text-sm font-bold mb-3 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Gemini API Status</label>
+                            <div className={`px-5 py-4 rounded-xl border-2 ${
+                              GEMINI_API_KEY ? 'bg-emerald-50 border-emerald-300' : 'bg-red-50 border-red-300'
                             }`}>
-                              <div className="flex items-center space-x-2">
-                                <div className={`w-2 h-2 rounded-full ${GEMINI_API_KEY ? 'bg-green-400' : 'bg-red-400'}`}></div>
-                                <span className="text-sm">{GEMINI_API_KEY ? 'Connected' : 'Not Set'}</span>
+                              <div className="flex items-center space-x-3">
+                                <div className={`w-2.5 h-2.5 rounded-full ${GEMINI_API_KEY ? 'bg-emerald-600' : 'bg-red-600'}`}></div>
+                                <span className="text-sm font-semibold text-slate-900">{GEMINI_API_KEY ? 'Connected' : 'Not Set'}</span>
                               </div>
                             </div>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium mb-2">Speech Recognition</label>
-                            <div className={`px-4 py-3 rounded-lg ${
-                              recognitionRef.current ? 'bg-green-900/20 border border-green-500/30' : 'bg-red-900/20 border border-red-500/30'
+                            <label className="block text-sm font-bold mb-3 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Speech Recognition</label>
+                            <div className={`px-5 py-4 rounded-xl border-2 ${
+                              recognitionRef.current ? 'bg-emerald-50 border-emerald-300' : 'bg-red-50 border-red-300'
                             }`}>
-                              <div className="flex items-center space-x-2">
-                                <div className={`w-2 h-2 rounded-full ${recognitionRef.current ? 'bg-green-400' : 'bg-red-400'}`}></div>
-                                <span className="text-sm">{recognitionRef.current ? 'Ready' : 'Not Supported'}</span>
+                              <div className="flex items-center space-x-3">
+                                <div className={`w-2.5 h-2.5 rounded-full ${recognitionRef.current ? 'bg-emerald-600' : 'bg-red-600'}`}></div>
+                                <span className="text-sm font-semibold text-slate-900">{recognitionRef.current ? 'Ready' : 'Not Supported'}</span>
                               </div>
                             </div>
                           </div>
@@ -1593,55 +1628,82 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     );
   }
 
-  // RENDER: Landing Page
+  // RENDER: Landing Page (unchanged from previous version)
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <Toaster position="top-center" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 text-slate-900">
+      <Toaster 
+        position="top-center"
+        toastOptions={{
+          success: {
+            style: {
+              background: '#065f46',
+              color: '#fff',
+            },
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
 
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20"></div>
-        <div className="relative container mx-auto px-4 py-20 text-center">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+      <section className="relative overflow-hidden py-28">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-emerald-100 opacity-70"></div>
+        <div className="relative container mx-auto px-6 text-center">
+          <div className="max-w-5xl mx-auto">
+            <h1 className="text-6xl md:text-7xl font-extrabold mb-8 bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent leading-tight" style={{ fontFamily: 'Inter, sans-serif' }}>
               Ace Your Next Interview with AI
             </h1>
-            <p className="text-xl text-gray-300 mb-8">Practice with real-time voice AI powered by Google Gemini and coding challenges</p>
+            <p className="text-xl md:text-2xl text-slate-600 mb-10 font-medium leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Practice with real-time voice AI powered by Google Gemini and coding challenges
+            </p>
             <button
               onClick={() => document.getElementById('pick-interview')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl text-lg font-semibold transition-all transform hover:scale-105"
+              className="inline-flex items-center space-x-3 px-10 py-5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full text-lg font-bold transition-all transform hover:scale-105 shadow-2xl"
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
-              <PlayCircle className="w-6 h-6" />
+              <PlayCircle className="w-7 h-7" />
               <span>Start Practicing</span>
             </button>
           </div>
         </div>
       </section>
 
-      <section id="pick-interview" className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Pick Your Interview</h2>
-            <p className="text-gray-400 text-lg">Choose from comprehensive categories</p>
+      <section id="pick-interview" className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold mb-5 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Pick Your Interview
+            </h2>
+            <p className="text-slate-600 text-xl font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Choose from comprehensive categories
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {interviewTypes.map((interview) => (
               <div
                 key={interview.id}
                 onClick={() => handleCardClick(interview)}
-                className="bg-gray-800 rounded-2xl p-6 hover:bg-gray-700 transition-all cursor-pointer transform hover:scale-105 border border-gray-700"
+                className="bg-white rounded-2xl p-8 hover:bg-emerald-50 transition-all duration-300 cursor-pointer transform hover:scale-105 hover:-translate-y-1 border border-slate-200 hover:border-emerald-300 shadow-lg hover:shadow-2xl"
               >
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-5">
                   {interview.icon}
-                  <span className={`px-3 py-1 rounded-full text-sm ${
-                    interview.category === 'Technical' ? 'bg-blue-500/20 text-blue-300' : 'bg-green-500/20 text-green-300'
+                  <span className={`px-4 py-1.5 rounded-full text-sm font-bold ${
+                    interview.category === 'Technical' 
+                      ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
+                      : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                   }`}>
                     {interview.category}
                   </span>
                 </div>
-                <h3 className="text-xl font-bold mb-2">{interview.title}</h3>
-                <p className="text-gray-400 mb-4">{interview.description}</p>
-                <button className="w-full py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-800 rounded-lg">
+                <h3 className="text-2xl font-bold mb-3 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  {interview.title}
+                </h3>
+                <p className="text-slate-600 mb-6 font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  {interview.description}
+                </p>
+                <button className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full font-bold transition-all shadow-lg hover:shadow-xl">
                   Start Interview
                 </button>
               </div>
@@ -1650,13 +1712,17 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         </div>
       </section>
 
-      <section className="py-20 bg-gray-800/50">
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-4xl font-bold mb-4">Build Your Resume</h2>
-            <p className="text-xl text-gray-300 mb-8">Create a professional AI-powered resume</p>
-            <button className="inline-flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 rounded-xl text-lg font-semibold">
-              <Briefcase className="w-6 h-6" />
+      <section className="py-24 bg-gradient-to-br from-emerald-50 to-white">
+        <div className="container mx-auto px-6 text-center">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-5xl font-bold mb-6 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Build Your Resume
+            </h2>
+            <p className="text-xl text-slate-600 mb-10 font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Create a professional AI-powered resume
+            </p>
+            <button className="inline-flex items-center space-x-3 px-10 py-5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full text-lg font-bold shadow-2xl transition-all transform hover:scale-105">
+              <Briefcase className="w-7 h-7" />
               <span>Build Resume</span>
             </button>
           </div>
@@ -1664,19 +1730,23 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       </section>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 rounded-2xl p-8 max-w-md w-full border border-gray-700">
-            <div className="flex justify-between mb-6">
-              <h3 className="text-2xl font-bold">Setup Interview</h3>
-              <button onClick={() => setShowModal(false)}>
-                <X className="w-6 h-6" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-6">
+          <div className="bg-white rounded-2xl p-10 max-w-lg w-full shadow-2xl border border-slate-200">
+            <div className="flex justify-between mb-8">
+              <h3 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+                Setup Interview
+              </h3>
+              <button onClick={() => setShowModal(false)} className="text-slate-500 hover:text-slate-900 transition-colors">
+                <X className="w-7 h-7" />
               </button>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-7">
               <div>
-                <label className="block text-sm font-medium mb-2">Interview Type</label>
-                <div className="flex space-x-4">
+                <label className="block text-sm font-bold mb-3 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Interview Type
+                </label>
+                <div className="flex space-x-6">
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="radio"
@@ -1684,9 +1754,9 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                       value="Technical"
                       checked={formData.interviewType === 'Technical'}
                       onChange={(e) => setFormData({ ...formData, interviewType: e.target.value })}
-                      className="mr-2"
+                      className="mr-2 accent-emerald-600"
                     />
-                    Technical
+                    <span className="text-slate-700 font-medium">Technical</span>
                   </label>
                   <label className="flex items-center cursor-pointer">
                     <input
@@ -1695,41 +1765,50 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                       value="Non-Technical"
                       checked={formData.interviewType === 'Non-Technical'}
                       onChange={(e) => setFormData({ ...formData, interviewType: e.target.value })}
-                      className="mr-2"
+                      className="mr-2 accent-emerald-600"
                     />
-                    Non-Technical
+                    <span className="text-slate-700 font-medium">Non-Technical</span>
                   </label>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Role</label>
+                <label className="block text-sm font-bold mb-3 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Role
+                </label>
                 <input
                   type="text"
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all text-slate-900 font-medium"
                   placeholder="e.g. Frontend Developer"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Tech Stack (Optional)</label>
+                <label className="block text-sm font-bold mb-3 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Tech Stack (Optional)
+                </label>
                 <input
                   type="text"
                   value={formData.techStack}
                   onChange={(e) => setFormData({ ...formData, techStack: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all text-slate-900 font-medium"
                   placeholder="e.g. React, Node.js"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Duration</label>
+                <label className="block text-sm font-bold mb-3 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Duration
+                </label>
                 <select
                   value={formData.duration}
                   onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none transition-all text-slate-900 font-medium"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
                 >
                   <option value="15">15 minutes</option>
                   <option value="30">30 minutes</option>
@@ -1740,15 +1819,16 @@ Remember: Create a comfortable interview environment while assessing talent.`;
               <button
                 onClick={handleStartInterview}
                 disabled={!GEMINI_API_KEY}
-                className={`w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold transition-all ${
+                className={`w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-2xl hover:scale-105 ${
                   !GEMINI_API_KEY ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
+                style={{ fontFamily: 'Inter, sans-serif' }}
               >
                 {GEMINI_API_KEY ? 'Start Interview' : 'API Key Not Configured'}
               </button>
               
               {!GEMINI_API_KEY && (
-                <p className="text-xs text-red-400 text-center">
+                <p className="text-xs text-red-600 text-center font-medium">
                   Please add NEXT_PUBLIC_GEMINI_API_KEY to your .env.local file
                 </p>
               )}
