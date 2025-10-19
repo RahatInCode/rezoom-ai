@@ -14,9 +14,9 @@ interface ATSScoreCardProps {
 export function ATSScoreCard({ analysis, onReset }: ATSScoreCardProps) {
   const { score, formatting, keywords } = analysis;
 
-  // Determine score color and message
+  // Updated: Determine score color with emerald
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
+    if (score >= 80) return 'text-emerald-600';
     if (score >= 60) return 'text-yellow-600';
     return 'text-red-600';
   };
@@ -34,39 +34,43 @@ export function ATSScoreCard({ analysis, onReset }: ATSScoreCardProps) {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header with Reset Button */}
+    <div className="space-y-8">
+      {/* Updated: Header with Reset Button */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Resume Analysis Results</h2>
+        <h2 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+          Resume Analysis Results
+        </h2>
+        {/* Updated: Emerald reset button */}
         <motion.button
           onClick={onReset}
-          className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          className="flex items-center space-x-2 px-6 py-3 bg-white border-2 border-emerald-500 text-emerald-700 hover:bg-emerald-50 rounded-full transition-all shadow-lg hover:shadow-xl font-bold"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          style={{ fontFamily: 'Inter, sans-serif' }}
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="w-5 h-5" />
           <span>Analyze Another</span>
         </motion.button>
       </div>
 
-      {/* Main Score Card */}
+      {/* Updated: Main Score Card with white background and emerald accents */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20"
+        className="bg-white rounded-2xl p-10 shadow-2xl border-2 border-emerald-100"
       >
-        <div className="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
-          {/* Score Circle */}
+        <div className="flex flex-col md:flex-row items-center justify-between space-y-8 md:space-y-0">
+          {/* Updated: Score Circle with emerald colors */}
           <div className="relative">
-            <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+            <svg className="w-40 h-40 transform -rotate-90" viewBox="0 0 120 120">
               <circle
                 cx="60"
                 cy="60"
                 r="50"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="8"
-                className="text-gray-200"
+                strokeWidth="10"
+                className="text-slate-200"
               />
               <motion.circle
                 cx="60"
@@ -74,7 +78,7 @@ export function ATSScoreCard({ analysis, onReset }: ATSScoreCardProps) {
                 r="50"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="8"
+                strokeWidth="10"
                 strokeLinecap="round"
                 className={getScoreColor(score)}
                 strokeDasharray={314} // 2 * π * 50
@@ -89,38 +93,41 @@ export function ATSScoreCard({ analysis, onReset }: ATSScoreCardProps) {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.5 }}
-                  className={`text-3xl font-bold ${getScoreColor(score)}`}
+                  className={`text-4xl font-extrabold ${getScoreColor(score)}`}
+                  style={{ fontFamily: 'Inter, sans-serif' }}
                 >
                   {score}
                 </motion.div>
-                <div className="text-sm text-gray-600">ATS Score</div>
+                <div className="text-sm text-slate-600 font-semibold mt-1">ATS Score</div>
               </div>
             </div>
           </div>
 
           {/* Score Details */}
-          <div className="flex-1 text-center md:text-left md:ml-8">
+          <div className="flex-1 text-center md:text-left md:ml-10">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">
+              <h3 className="text-3xl font-bold text-slate-900 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
                 {getScoreMessage(score)}
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-slate-600 mb-6 text-lg font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Your resume scored {score} out of 100 points for ATS compatibility.
               </p>
-              <div className="flex justify-center md:justify-start space-x-4">
+              <div className="flex justify-center md:justify-start space-x-8">
                 <div className="text-center">
-                  <div className="font-semibold text-lg">{keywords.found.length}</div>
-                  <div className="text-sm text-gray-600">Keywords Found</div>
+                  <div className="font-extrabold text-2xl text-emerald-600" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    {keywords.found.length}
+                  </div>
+                  <div className="text-sm text-slate-600 font-medium">Keywords Found</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-semibold text-lg">
+                  <div className="font-extrabold text-2xl text-emerald-600" style={{ fontFamily: 'Inter, sans-serif' }}>
                     {formatChecks.filter(check => check.value).length}/3
                   </div>
-                  <div className="text-sm text-gray-600">Format Checks</div>
+                  <div className="text-sm text-slate-600 font-medium">Format Checks</div>
                 </div>
               </div>
             </motion.div>
@@ -128,112 +135,128 @@ export function ATSScoreCard({ analysis, onReset }: ATSScoreCardProps) {
         </div>
       </motion.div>
 
-      {/* Detailed Analysis Grid */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Formatting Checks */}
+      {/* Updated: Detailed Analysis Grid */}
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Updated: Formatting Checks with emerald accents */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20"
+          className="bg-white rounded-2xl p-8 shadow-xl border-l-4 border-emerald-500"
         >
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <FileText className="w-5 h-5 text-blue-600" />
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center shadow-md">
+              <FileText className="w-6 h-6 text-emerald-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-800">Format Analysis</h3>
+            <h3 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Format Analysis
+            </h3>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {formatChecks.map((check, index) => (
               <motion.div
                 key={check.key}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5 + index * 0.1 }}
-                className="flex items-center justify-between p-3 bg-white/50 rounded-lg"
+                className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 hover:shadow-md transition-all"
               >
-                <span className="font-medium text-gray-700">{check.label}</span>
+                <span className="font-semibold text-slate-700" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  {check.label}
+                </span>
                 {check.value ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <CheckCircle className="w-6 h-6 text-emerald-500" />
                 ) : (
-                  <XCircle className="w-5 h-5 text-red-500" />
+                  <XCircle className="w-6 h-6 text-red-500" />
                 )}
               </motion.div>
             ))}
           </div>
 
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>Tip:</strong> ATS systems scan for standard resume sections like 
+          {/* Updated: Tip box with emerald */}
+          <div className="mt-6 p-5 bg-emerald-50 rounded-xl border-l-4 border-emerald-500">
+            <p className="text-sm text-emerald-900 font-medium leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <strong className="font-bold">Tip:</strong> ATS systems scan for standard resume sections like 
               &quot;Experience&quot;, &quot;Education&quot;, and &quot;Skills&quot;. Use clear headers and bullet points 
               to improve readability.
             </p>
           </div>
         </motion.div>
 
-        {/* Keywords Analysis */}
+        {/* Updated: Keywords Analysis */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20"
+          className="bg-white rounded-2xl p-8 shadow-xl border-l-4 border-emerald-500"
         >
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-              <Search className="w-5 h-5 text-purple-600" />
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center shadow-md">
+              <Search className="w-6 h-6 text-emerald-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-800">Keyword Analysis</h3>
+            <h3 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Keyword Analysis
+            </h3>
           </div>
 
           <KeywordMatch keywords={keywords} />
 
-          <div className="mt-4 p-3 bg-purple-50 rounded-lg">
-            <p className="text-sm text-purple-800">
-              <strong>Tip:</strong> Include relevant keywords from the job description 
+          {/* Updated: Tip box */}
+          <div className="mt-6 p-5 bg-emerald-50 rounded-xl border-l-4 border-emerald-500">
+            <p className="text-sm text-emerald-900 font-medium leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <strong className="font-bold">Tip:</strong> Include relevant keywords from the job description 
               naturally throughout your resume. Focus on technical skills and industry terms.
             </p>
           </div>
         </motion.div>
       </div>
 
-      {/* Recommendations */}
+      {/* Updated: Recommendations with emerald gradient */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border border-white/20"
+        className="bg-gradient-to-r from-emerald-50 to-white rounded-2xl p-8 border-2 border-emerald-200 shadow-xl"
       >
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-            <Award className="w-5 h-5 text-white" />
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="w-12 h-12 bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-full flex items-center justify-center shadow-lg">
+            <Award className="w-6 h-6 text-white" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-800">Recommendations</h3>
+          <h3 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+            Recommendations
+          </h3>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-5">
           {score < 80 && (
             <>
               {!formatting.hasHeaders && (
-                <div className="p-4 bg-white/50 rounded-lg">
-                  <h4 className="font-medium text-gray-800 mb-1">Add Clear Section Headers</h4>
-                  <p className="text-sm text-gray-600">
+                <div className="p-5 bg-white rounded-xl shadow-md border border-slate-200">
+                  <h4 className="font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Add Clear Section Headers
+                  </h4>
+                  <p className="text-sm text-slate-600 font-medium">
                     Use standard headers like &quot;Professional Experience&quot;, &quot;Education&quot;, and &quot;Skills&quot;
                   </p>
                 </div>
               )}
               {!formatting.hasBulletPoints && (
-                <div className="p-4 bg-white/50 rounded-lg">
-                  <h4 className="font-medium text-gray-800 mb-1">Use Bullet Points</h4>
-                  <p className="text-sm text-gray-600">
+                <div className="p-5 bg-white rounded-xl shadow-md border border-slate-200">
+                  <h4 className="font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Use Bullet Points
+                  </h4>
+                  <p className="text-sm text-slate-600 font-medium">
                     Structure your experience with bullet points for better readability
                   </p>
                 </div>
               )}
               {keywords.missing.length > 0 && (
-                <div className="p-4 bg-white/50 rounded-lg">
-                  <h4 className="font-medium text-gray-800 mb-1">Include Missing Keywords</h4>
-                  <p className="text-sm text-gray-600">
+                <div className="p-5 bg-white rounded-xl shadow-md border border-slate-200">
+                  <h4 className="font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Include Missing Keywords
+                  </h4>
+                  <p className="text-sm text-slate-600 font-medium">
                     Add relevant skills: {keywords.missing.slice(0, 3).join(', ')}
                     {keywords.missing.length > 3 && '...'}
                   </p>
@@ -242,9 +265,11 @@ export function ATSScoreCard({ analysis, onReset }: ATSScoreCardProps) {
             </>
           )}
           {score >= 80 && (
-            <div className="md:col-span-2 p-4 bg-green-50 rounded-lg text-center">
-              <h4 className="font-medium text-green-800 mb-1">Great Job! 🎉</h4>
-              <p className="text-sm text-green-700">
+            <div className="md:col-span-2 p-6 bg-emerald-50 rounded-xl text-center border-2 border-emerald-300 shadow-md">
+              <h4 className="font-bold text-emerald-800 mb-2 text-xl" style={{ fontFamily: 'Inter, sans-serif' }}>
+                Great Job! 🎉
+              </h4>
+              <p className="text-sm text-emerald-700 font-medium leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Your resume is well-optimized for ATS systems. Consider tailoring keywords 
                 for specific job applications to maximize your chances.
               </p>

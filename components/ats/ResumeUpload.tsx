@@ -49,75 +49,80 @@ export function ResumeUpload({ onFileUpload, isUploading, error }: ResumeUploadP
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-3xl mx-auto">
+      {/* Updated: Emerald dropzone */}
       <motion.div
         className={`
-          relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer
+          relative border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer
           transition-all duration-300 backdrop-blur-sm
           ${isDragActive 
-            ? 'border-blue-500 bg-blue-50/50 scale-105' 
-            : 'border-gray-300 bg-white/50 hover:border-blue-400 hover:bg-blue-50/30'
+            ? 'border-emerald-500 bg-emerald-50/80 scale-[1.02] shadow-2xl' 
+            : 'border-slate-300 bg-white hover:border-emerald-400 hover:bg-emerald-50/30 shadow-lg'
           }
           ${isUploading ? 'pointer-events-none opacity-75' : ''}
         `}
-        whileHover={{ scale: isUploading ? 1 : 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: isUploading ? 1 : 1.01 }}
+        whileTap={{ scale: 0.99 }}
         {...getRootProps({ refKey: undefined })}
       >
         <input {...getInputProps()} />
         
-        <div className="space-y-4">
+        <div className="space-y-6">
           {isUploading ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="space-y-4"
+              className="space-y-5"
             >
-              <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
+              {/* Updated: Emerald loading icon */}
+              <div className="w-20 h-20 mx-auto bg-emerald-100 rounded-full flex items-center justify-center shadow-lg">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 >
-                  <Upload className="w-8 h-8 text-blue-600" />
+                  <Upload className="w-10 h-10 text-emerald-600" />
                 </motion.div>
               </div>
               <div>
-                <p className="text-lg font-semibold text-gray-700">Analyzing Resume.....</p>
-                <p className="text-sm text-gray-500">
+                <p className="text-xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Analyzing Resume...
+                </p>
+                <p className="text-sm text-slate-600 mt-2 font-medium">
                   {acceptedFiles[0]?.name}
                 </p>
               </div>
               
-              {/* Progress Bar */}
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              {/* Updated: Emerald Progress Bar */}
+              <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
                 <motion.div
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full"
+                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-full rounded-full shadow-lg"
                   initial={{ width: 0 }}
                   animate={{ width: `${uploadProgress}%` }}
                   transition={{ duration: 0.3 }}
                 />
               </div>
-              <p className="text-sm text-gray-500">{uploadProgress}% Complete</p>
+              <p className="text-sm text-emerald-700 font-bold">{uploadProgress}% Complete</p>
             </motion.div>
           ) : (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="space-y-4"
+              className="space-y-5"
             >
-              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
-                <FileText className="w-8 h-8 text-blue-600" />
+              {/* Updated: Emerald file icon */}
+              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full flex items-center justify-center shadow-lg">
+                <FileText className="w-10 h-10 text-emerald-600" />
               </div>
               
               <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                <h3 className="text-2xl font-bold text-slate-900 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
                   {isDragActive ? 'Drop your resume here' : 'Upload Your Resume'}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-slate-600 text-lg font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
                   Drag and drop your PDF resume, or{' '}
-                  <span className="text-blue-600 font-medium">click to browse</span>
+                  <span className="text-emerald-600 font-bold">click to browse</span>
                 </p>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-slate-500 mt-3 font-medium">
                   Only PDF files are supported • Max file size: 10MB
                 </p>
               </div>
@@ -125,62 +130,62 @@ export function ResumeUpload({ onFileUpload, isUploading, error }: ResumeUploadP
           )}
         </div>
 
-        {/* Upload overlay effect */}
+        {/* Updated: Emerald upload overlay */}
         {isDragActive && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-blue-500/10 rounded-2xl border-2 border-blue-500 flex items-center justify-center"
+            className="absolute inset-0 bg-emerald-500/10 rounded-2xl border-2 border-emerald-500 flex items-center justify-center"
           >
             <div className="text-center">
-              <Upload className="w-12 h-12 text-blue-600 mx-auto mb-2" />
-              <p className="text-blue-700 font-semibold">Drop to analyze</p>
+              <Upload className="w-14 h-14 text-emerald-600 mx-auto mb-3" />
+              <p className="text-emerald-700 font-bold text-lg">Drop to analyze</p>
             </div>
           </motion.div>
         )}
       </motion.div>
 
-      {/* Error Display */}
+      {/* Updated: Error Display with better styling */}
       {error && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3"
+          className="mt-6 p-5 bg-red-50 border-2 border-red-200 rounded-xl flex items-center space-x-4 shadow-lg"
         >
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-          <p className="text-red-700">{error}</p>
+          <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
+          <p className="text-red-700 font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>{error}</p>
         </motion.div>
       )}
 
-      {/* Upload Tips */}
+      {/* Updated: Upload Tips with emerald accents */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center"
+        className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center"
       >
-        <div className="p-4 bg-white/50 backdrop-blur-sm rounded-lg">
-          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-            <span className="text-green-600 font-bold">✓</span>
+        <div className="p-6 bg-white rounded-2xl shadow-lg border-2 border-emerald-100 hover:border-emerald-300 transition-all hover:shadow-xl hover:scale-105 duration-300">
+          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+            <span className="text-2xl text-emerald-600 font-bold">✓</span>
           </div>
-          <p className="text-sm font-medium text-gray-700">ATS Scoring</p>
-          <p className="text-xs text-gray-500 mt-1">Get instant compatibility score</p>
+          <p className="text-base font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>ATS Scoring</p>
+          <p className="text-sm text-slate-600 font-medium">Get instant compatibility score</p>
         </div>
         
-        <div className="p-4 bg-white/50 backdrop-blur-sm rounded-lg">
-          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-            <span className="text-blue-600 font-bold">📝</span>
+        <div className="p-6 bg-white rounded-2xl shadow-lg border-2 border-emerald-100 hover:border-emerald-300 transition-all hover:shadow-xl hover:scale-105 duration-300">
+          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+            <span className="text-2xl text-emerald-600 font-bold">📝</span>
           </div>
-          <p className="text-sm font-medium text-gray-700">Format Check</p>
-          <p className="text-xs text-gray-500 mt-1">Analyze structure & formatting</p>
+          <p className="text-base font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Format Check</p>
+          <p className="text-sm text-slate-600 font-medium">Analyze structure & formatting</p>
         </div>
         
-        <div className="p-4 bg-white/50 backdrop-blur-sm rounded-lg">
-          <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-            <span className="text-purple-600 font-bold">🔍</span>
+        <div className="p-6 bg-white rounded-2xl shadow-lg border-2 border-emerald-100 hover:border-emerald-300 transition-all hover:shadow-xl hover:scale-105 duration-300">
+          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+            <span className="text-2xl text-emerald-600 font-bold">🔍</span>
           </div>
-          <p className="text-sm font-medium text-gray-700">Keyword Match</p>
-          <p className="text-xs text-gray-500 mt-1">Find missing key terms</p>
+          <p className="text-base font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Keyword Match</p>
+          <p className="text-sm text-slate-600 font-medium">Find missing key terms</p>
         </div>
       </motion.div>
     </div>

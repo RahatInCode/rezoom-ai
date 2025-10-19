@@ -59,18 +59,22 @@ export default function ATSResumeChecker() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
+    // Updated: Emerald gradient background
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-white py-16 px-4 md:px-8">
+      <div className="max-w-6xl mx-auto">
+        {/* Updated: Header with emerald gradient */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-16"
         >
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+          <h1 
+            className="text-5xl md:text-6xl lg:text-7xl font-extrabold bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent mb-6 leading-tight"
+            style={{ fontFamily: 'Inter, sans-serif' }}
+          >
             ATS Resume Checker
           </h1>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-slate-600 text-xl md:text-2xl max-w-3xl mx-auto font-medium leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
             Upload your resume to get instant feedback on ATS compatibility, formatting, and keyword optimization
           </p>
         </motion.div>
