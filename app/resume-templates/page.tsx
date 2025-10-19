@@ -199,7 +199,6 @@ const Card: React.FC<TemplateCardProps> = ({ resume }) => {
       <div
         className="
           absolute inset-x-0 bottom-0 
-          pointer-events-none
           flex justify-center
           "
       >
@@ -213,22 +212,14 @@ const Card: React.FC<TemplateCardProps> = ({ resume }) => {
             transition-all duration-300 ease-out
           "
         >
-          <div className="w-full bg-gradient-to-t from-black/65 to-transparent px-4 py-4 flex items-end justify-center">
+          <div className="w-full bg-gradient-to-t from-black/65 to-transparent px-4 py-4 flex flex-col items-center justify-center">
             <h3 className="text-white text-base md:text-lg font-semibold truncate">
               {resume.name}
             </h3>
+            <Link href={`/create-resume/experience-level/template-selection/${resume.id}`} className="btn btn-xs btn-primary text-xs">Use this template</Link>
           </div>
         </div>
       </div>
-
-      {/* Optional: clickable area (keeps UI clean — only name appears on hover).
-          If you want the full card clickable, wrap the whole article with Link instead. */}
-      <Link
-        href={`/create-resume/${resume.id}`}
-        className="absolute inset-0 aria-hidden"
-        aria-hidden="true"
-        tabIndex={-1}
-      />
     </article>
   );
 };
