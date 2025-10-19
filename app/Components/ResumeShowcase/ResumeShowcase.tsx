@@ -87,15 +87,18 @@ const ResumeShowcase: React.FC = () => {
     };
 
     return (
-        <section className="py-8 sm:py-12 lg:py-16 xl:py-20 bg-gradient-to-br from-indigo-50 via-white to-blue-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
+        // Updated: emerald background
+        <section className="py-8 sm:py-12 lg:py-16 xl:py-20 bg-gradient-to-br from-emerald-50 via-white to-emerald-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="text-center lg:text-left mb-8 lg:mb-12">
                     <h2 className="title-animate text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-white mb-4">
                         Find the Right Resume for
-                        <span className="title-animate block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">Your Career</span>
+                        {/* Updated: emerald gradient */}
+                        <span className="title-animate block text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-700 dark:from-emerald-400 dark:to-emerald-500">Your Career</span>
                     </h2>
-                    <div className="title-animate w-16 sm:w-20 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto lg:mx-0 rounded-full"></div>
+                    {/* Updated: emerald underline */}
+                    <div className="title-animate w-16 sm:w-20 h-1 bg-gradient-to-r from-emerald-600 to-emerald-600 mx-auto lg:mx-0 rounded-full"></div>
                 </div>
 
                 {/* Main Content */}
@@ -110,7 +113,8 @@ const ResumeShowcase: React.FC = () => {
                             id="sector-select"
                             value={activeId}
                             onChange={(e) => handleSectorClick(Number(e.target.value))}
-                            className="w-full p-3 border border-gray-300 rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            // Updated: emerald focus ring
+                            className="w-full p-3 border border-gray-300 rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         >
                             {resumeData.map((item) => (
                                 <option key={item.id} value={item.id}>
@@ -123,20 +127,23 @@ const ResumeShowcase: React.FC = () => {
                     {/* Desktop Sidebar */}
                     <div className="hidden lg:block lg:w-1/4 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-r border-gray-200 dark:border-gray-600">
                         <div className="p-4 sm:p-6 h-full">
-                            <h3 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 text-purple-600 dark:text-purple-400 flex items-center">
+                            {/* Updated: emerald heading */}
+                            <h3 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 text-emerald-600 dark:text-emerald-400 flex items-center">
                                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 Sectors
                             </h3>
-                            <div className="h-80 sm:h-96 lg:h-[500px] xl:h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-300 scrollbar-track-gray-100">
+                            {/* Updated: emerald scrollbar */}
+                            <div className="h-80 sm:h-96 lg:h-[500px] xl:h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-emerald-300 scrollbar-track-gray-100">
                                 <ul className="space-y-2">
                                     {resumeData.map((item) => (
                                         <li
                                             key={item.id}
                                             onClick={() => handleSectorClick(item.id)}
+                                            // Updated: emerald active gradient
                                             className={`cursor-pointer px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-300 transform hover:scale-105 ${activeId === item.id
-                                                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold shadow-lg"
+                                                    ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold shadow-lg"
                                                     : "bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-500 hover:shadow-md"
                                                 }`}
                                         >
@@ -156,20 +163,12 @@ const ResumeShowcase: React.FC = () => {
                                     {/* Loading Spinner */}
                                     {imageLoading && (
                                         <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-700 z-10">
-                                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                                            {/* Updated: emerald spinner */}
+                                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
                                         </div>
                                     )}
 
                                     <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
-                                        {/* 
-                                            ref={imgRef}
-                                            src={activeResume.resume}
-                                            alt={`${activeResume.sector} resume template - Professional resume design`}
-                                            className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-                                            onLoad={handleImageLoad}
-                                            onError={() => setImageLoading(false)}
-                                            loading="eager"
-                                        /> */}
                                         <Image
                                             ref={imgRef}
                                             src={activeResume.resume}
@@ -185,8 +184,9 @@ const ResumeShowcase: React.FC = () => {
                                         {/* Overlay Button */}
                                         <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                                             <button
-                                                className="opacity-0 group-hover:opacity-100  translate-y-4 group-hover:translate-y-0 transition-all duration-300
-                                                         bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 
+                                                // Updated: emerald gradient button
+                                                className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300
+                                                         bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 
                                                          text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg 
                                                          text-sm sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105"
                                                 aria-label={`Use ${activeResume.sector} resume template`}
@@ -225,7 +225,8 @@ const ResumeShowcase: React.FC = () => {
 
                 {/* Bottom CTA Button */}
                 <div className="flex justify-center mt-6 sm:mt-8">
-                    <button className="group px-6 sm:px-8 py-3 sm:py-4 border-2 border-purple-600 hover:bg-purple-600 hover:text-white text-purple-600 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                    {/* Updated: emerald CTA button */}
+                    <button className="group px-6 sm:px-8 py-3 sm:py-4 border-2 border-emerald-600 hover:bg-emerald-600 hover:text-white text-emerald-600 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                         <svg className="w-5 h-5 mr-2 inline-block group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
