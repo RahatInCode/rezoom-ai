@@ -1,11 +1,21 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Info from "../../../../Components/Resume-Create-Forms/Personal-Info/Info";
 import Education, { EducationData } from "../../../../Components/Resume-Create-Forms/Education/Education";
 import Skill, { SkillData } from "../../../../Components/Resume-Create-Forms/Skills/Skill";
 import Experience, { ExperienceData } from "../../../../Components/Resume-Create-Forms/Experience/Experience";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { useParams, usePathname } from "next/navigation";
+import Classic from "../../../../Components/Templates/Classic";
+import Modern from "../../../../Components/Templates/Modern";
+import Elegant from "../../../../Components/Templates/Elegant";
+import Creative from "../../../../Components/Templates/Creative";
+import Corporate from "../../../../Components/Templates/Corporate";
+import Simple from "../../../../Components/Templates/Simple";
+import ModernBlock from "../../../../Components/Templates/ModernBlock";
+import Stylish from "../../../../Components/Templates/Stylish";
+import Smart from "../../../../Components/Templates/Smart";
 
 type PersonalInfoType = {
   name: string;
@@ -18,6 +28,22 @@ type PersonalInfoType = {
 };
 
 const Page = () => {
+  const {id} = useParams()
+  const [ResumeData , setResumeData] = useState([])
+  const [selectedTemplate , setSelectedTemplate] = useState(null)
+  useEffect( ()=>{
+    fetch("/resume-templates.json")
+    .then(res =>res.json())
+    .then(data => setResumeData(data || []))
+  }, [] )
+    useEffect(() => {
+    if (ResumeData.length > 0 && id) {
+      const selected = ResumeData.find(resume => resume.id === id);
+      setSelectedTemplate(selected);
+    }
+  }, [ResumeData, id]);
+  console.log(selectedTemplate)
+  
   const [personalInfo, setPersonalInfo] = useState<PersonalInfoType>({
     name: "",
     surname: "",
@@ -64,9 +90,13 @@ const Page = () => {
     exit: { opacity: 0, y: -20 },
   };
 
-  const ShowResumePreview = () => {
-    alert("Clicked")
+const ShowResumePreview = () => {
+  const modal = document.getElementById('modal') as HTMLDialogElement | null;
+  if (modal) {
+    modal.show();
   }
+};
+
   return (
     <div className="w-full h-fit overflow-hidden md:min-h-screen flex flex-col md:flex-row">
       <Toaster />
@@ -84,8 +114,18 @@ const Page = () => {
 
       <dialog id="modal" className="modal">
         <div className="modal-box w-11/12 max-w-5xl">
-          <h3 className="font-bold text-lg">Hello!</h3>
-          <p className="py-4">Click the button below to close</p>
+          <div className="w-full">
+            {selectedTemplate?.name.includes("Classic") && <Classic />}
+            {selectedTemplate?.name.includes("Modern") && <Modern />}
+            {selectedTemplate?.name.includes("Elegant") && <Elegant />}
+            {selectedTemplate?.name.includes("Creative") && <Creative />}
+            {selectedTemplate?.name.includes("Modern Blocks") && <ModernBlock />}
+            {selectedTemplate?.name.includes("Stylish") && <Stylish />}
+            {selectedTemplate?.name.includes("Simple") && <Simple />}
+            {selectedTemplate?.name.includes("Corporate") && <Corporate />}
+            {selectedTemplate?.name.includes("Stylish") && <Stylish />}
+            {selectedTemplate?.name.includes("Smart") && <Smart />}
+          </div>
           <div className="modal-action">
             <form method="dialog">
               {/* if there is a button, it will close the modal */}
