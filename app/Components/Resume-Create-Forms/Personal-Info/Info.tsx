@@ -74,7 +74,7 @@ const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           />
           <label
             htmlFor="photoUpload"
-            className="text-sm font-semibold text-primary mt-3 cursor-pointer"
+            className="text-sm link font-semibold text-primary mt-3 cursor-pointer"
           >
             Upload Photo
           </label>
