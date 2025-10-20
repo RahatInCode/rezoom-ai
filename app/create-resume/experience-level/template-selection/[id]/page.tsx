@@ -16,6 +16,7 @@ import Simple from "../../../../Components/Templates/Simple";
 import ModernBlock from "../../../../Components/Templates/ModernBlock";
 import Stylish from "../../../../Components/Templates/Stylish";
 import Smart from "../../../../Components/Templates/Smart";
+import Others, { OthersData } from "../../../../Components/Resume-Create-Forms/OthersInfo/Others";
 
 type PersonalInfoType = {
   name: string;
@@ -65,13 +66,19 @@ const Page = () => {
   const [experiences, setExperiences] = useState<ExperienceData[]>([
     { title: "", employer: "", location: "", remote: false, startDate: "", endDate: "", currentlyWorking: false },
   ]);
+    const [others, setOthers] = useState<OthersData>({
+    references: [""],
+    languages: [""],
+    achievements: [""],
+  });
 
-  const steps = ["Personal Information", "Education", "Skills", "Experience"];
+  const steps = ["Personal Information", "Education", "Skills", "Experience" , "Others"];
   const components = [
     <Info key="info" personalInfo={personalInfo} setPersonalInfo={setPersonalInfo} />,
     <Education key="education" educations={educations} setEducations={setEducations} />,
     <Skill key="skill" skills={skills} setSkills={setSkills} />,
     <Experience key="experience" experiences={experiences} setExperiences={setExperiences} />,
+    <Others key={"others"} others={others}  setOthers={setOthers}/>
   ];
 
   const [currentStep, setCurrentStep] = useState(0);
