@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, number } from "framer-motion";
 import Info from "../../../../Components/Resume-Create-Forms/Personal-Info/Info";
 import Education, { EducationData } from "../../../../Components/Resume-Create-Forms/Education/Education";
 import Skill, { SkillData } from "../../../../Components/Resume-Create-Forms/Skills/Skill";
@@ -107,8 +107,7 @@ const ShowResumePreview = () => {
   return (
     <div className="w-full h-fit overflow-hidden md:min-h-screen flex flex-col md:flex-row">
       <Toaster />
-      {/* Sidebar / Steps */}
-      <div className="w-full md:w-1/5 bg-gradient-to-r from-pink-500 to-blue-600 text-white flex justify-center items-center md:items-start p-5 md:h-screen sticky top-0">
+      <div className="w-full md:w-1/5 bg-gradient-to-r from-pink-500 to-blue-600 text-white flex flex-col justify-start items-start md:items-start p-5 md:h-screen sticky top-0">
         <ul className="steps md:steps-vertical w-full max-w-xs">
           {steps.map((step, idx) => (
             <li key={idx} className={`step ${idx <= currentStep ? "step-primary" : ""}`}>
@@ -116,6 +115,9 @@ const ShowResumePreview = () => {
             </li>
           ))}
         </ul>
+
+            
+
       </div>
 
 
@@ -126,11 +128,10 @@ const ShowResumePreview = () => {
             {selectedTemplate?.name.includes("Modern") && <Modern />}
             {selectedTemplate?.name.includes("Elegant") && <Elegant />}
             {selectedTemplate?.name.includes("Creative") && <Creative />}
-            {selectedTemplate?.name.includes("Modern Blocks") && <ModernBlock />}
+            {selectedTemplate?.name.includes("Blocks") && <ModernBlock />}
             {selectedTemplate?.name.includes("Stylish") && <Stylish />}
             {selectedTemplate?.name.includes("Simple") && <Simple />}
             {selectedTemplate?.name.includes("Corporate") && <Corporate />}
-            {selectedTemplate?.name.includes("Stylish") && <Stylish />}
             {selectedTemplate?.name.includes("Smart") && <Smart />}
           </div>
           <div className="modal-action">
