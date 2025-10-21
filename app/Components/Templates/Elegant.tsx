@@ -1,166 +1,164 @@
+"use client"
 import { Mail, MapPin, Phone } from 'lucide-react';
+import Image from 'next/image';
 import React from 'react';
 
-const Elegant = () => {
-    return (
- <div className="w-full max-w-4xl mx-auto bg-gray-50 p-8 rounded-lg shadow-md font-sans">
-    {/* Header Section */}
-    <div className="flex flex-col md:flex-row items-center md:items-start gap-6 border-b border-gray-300 pb-6">
-      <div className="flex-shrink-0">
-        <img
-          src="/resume-photo.jpg"
-          alt="Profile"
-          className="w-40 h-40 object-cover rounded-full border-[5px] border-blue-600"
-        />
-      </div>
-      <div className="flex flex-col items-center md:items-start text-center md:text-left">
-        <h1 className="text-3xl font-extrabold text-blue-700 uppercase tracking-wide">
-          Richard Sanchez
-        </h1>
-        <p className="text-gray-600 text-lg mt-1">Marketing Manager</p>
-        <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 mt-3 text-gray-700">
-          <div className="flex items-center gap-2">
-            <Mail className="w-4 h-4 text-blue-600" />
-            <span>hello@reallygreatsite.com</span>
+const Elegant = ({ personalInfo, educations, skills, experiences, others }) => {
+  return (
+    <div className="w-full max-w-4xl mx-auto bg-gray-50 p-8 rounded-lg shadow-md font-sans">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 border-b border-gray-300 pb-6">
+        {personalInfo.photo && (
+          <div className="flex-shrink-0">
+            <Image
+              src={personalInfo.photo}
+              alt="Profile"
+              quality={100}
+              width={100}
+              height={100}
+              className="w-40 h-40 object-cover rounded-full border-[5px] border-blue-600"
+            />
           </div>
-          <div className="flex items-center gap-2">
-            <Phone className="w-4 h-4 text-blue-600" />
-            <span>+123-456-7890</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-blue-600" />
-            <span>123 Anywhere St., Any City</span>
-          </div>
-        </div>
-      </div>
-    </div>
+        )}
 
-    {/* Profile Summary */}
-    <div className="mt-6">
-      <h2 className="text-blue-700 font-bold uppercase text-sm tracking-wider border-b-2 border-blue-700 inline-block pb-1">
-        Profile Summary
-      </h2>
-      <p className="text-gray-700 mt-3 leading-relaxed">
-        Highly qualified digital marketing strategist with 7+ years of experience in multiple
-        marketing disciplines, search engine marketing (SEM), and event marketing. Proven ability to
-        drive sales and increase brand awareness for small business clients.
-      </p>
-    </div>
-
-    {/* Education */}
-    <div className="mt-6">
-      <h2 className="text-blue-700 font-bold uppercase text-sm tracking-wider border-b-2 border-blue-700 inline-block pb-1">
-        Education
-      </h2>
-
-      <div className="mt-4 space-y-4">
-        <div>
-          <div className="flex justify-between text-gray-800 font-semibold">
-            <p>Wardiere University</p>
-            <span className="text-blue-700">2029 - 2030</span>
-          </div>
-          <p className="text-gray-700 mt-1 text-sm">
-            • Master of Computer Graphics Technology focuses on interactive Multimedia.
+        <div className="flex flex-col items-center md:items-start text-center md:text-left">
+          <h1 className="text-3xl font-extrabold text-blue-700 uppercase tracking-wide">
+            {personalInfo.name || "Your Name"}{" "}
+            {personalInfo.surname && personalInfo.surname}
+          </h1>
+          <p className="text-gray-600 text-lg mt-1">
+            {personalInfo.role || "Your Designation"}
           </p>
-        </div>
 
-        <div>
-          <div className="flex justify-between text-gray-800 font-semibold">
-            <p>Wardiere University</p>
-            <span className="text-blue-700">2025 - 2029</span>
+          <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 mt-3 text-gray-700">
+            {personalInfo.email && (
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-blue-600" />
+                <span>{personalInfo.email}</span>
+              </div>
+            )}
+            {personalInfo.phone && (
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-blue-600" />
+                <span>{personalInfo.phone}</span>
+              </div>
+            )}
+            {(personalInfo.city || personalInfo.country) && (
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-blue-600" />
+                <span>
+                  {personalInfo.city}, {personalInfo.country}
+                </span>
+              </div>
+            )}
           </div>
-          <p className="text-gray-700 mt-1 text-sm">
-            • Bachelor of Computer Graphics Technology focuses on interactive Multimedia.
-          </p>
         </div>
       </div>
-    </div>
 
-    {/* Work Experience */}
-    <div className="mt-6">
-      <h2 className="text-blue-700 font-bold uppercase text-sm tracking-wider border-b-2 border-blue-700 inline-block pb-1">
-        Work Experience
-      </h2>
-
-      <div className="mt-4 space-y-4">
-        <div>
-          <div className="flex justify-between text-gray-800 font-semibold">
-            <p>
-              Marketing Manager | <span className="font-medium">Borcelle Studio</span>
-            </p>
-            <span className="text-blue-700">2030 - Present</span>
-          </div>
-          <ul className="list-disc list-inside text-gray-700 mt-1 text-sm space-y-1">
-            <li>
-              Develop and execute comprehensive marketing strategies and campaigns that align with
-              the company’s goals and objectives.
-            </li>
-            <li>Monitor brand consistency across marketing channels and materials.</li>
-          </ul>
-        </div>
-
-        <div>
-          <div className="flex justify-between text-gray-800 font-semibold">
-            <p>
-              Marketing Manager | <span className="font-medium">Fauget Studio</span>
-            </p>
-            <span className="text-blue-700">2025 - 2029</span>
-          </div>
-          <ul className="list-disc list-inside text-gray-700 mt-1 text-sm space-y-1">
-            <li>
-              Create and manage the marketing budget, ensuring efficient allocation of resources and
-              optimizing ROI.
-            </li>
-            <li>Monitor brand consistency across marketing channels and materials.</li>
-          </ul>
-        </div>
-
-        <div>
-          <div className="flex justify-between text-gray-800 font-semibold">
-            <p>
-              Marketing Specialist | <span className="font-medium">Studio Showde</span>
-            </p>
-            <span className="text-blue-700">2024 - 2025</span>
-          </div>
-          <ul className="list-disc list-inside text-gray-700 mt-1 text-sm space-y-1">
-            <li>
-              Develop and maintain strong relationships with partners, agencies, and vendors to
-              support marketing initiatives.
-            </li>
-            <li>Monitor and maintain brand consistency across all marketing channels.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    {/* Skills and Languages */}
-    <div className="mt-8 grid md:grid-cols-2 gap-6">
-      <div>
+      {/* Profile Summary */}
+      <div className="mt-6">
         <h2 className="text-blue-700 font-bold uppercase text-sm tracking-wider border-b-2 border-blue-700 inline-block pb-1">
-          Professional Skill
+          Profile Summary
         </h2>
-        <ul className="grid grid-cols-2 gap-x-6 gap-y-2 mt-3 text-gray-700 text-sm">
-          <li>• Media relation</li>
-          <li>• Brand management</li>
-          <li>• Advertising</li>
-          <li>• Direct Marketing</li>
-        </ul>
+        <p className="text-gray-700 mt-3 leading-relaxed">
+          {personalInfo.objective || "Write your summary here..."}
+        </p>
       </div>
 
-      <div>
+      {/* Education */}
+      <div className="mt-6">
         <h2 className="text-blue-700 font-bold uppercase text-sm tracking-wider border-b-2 border-blue-700 inline-block pb-1">
-          Languages
+          Education
         </h2>
-        <ul className="grid grid-cols-2 gap-x-6 gap-y-2 mt-3 text-gray-700 text-sm">
-          <li>• English (Fluent)</li>
-          <li>• German (Basics)</li>
-          <li>• French (Fluent)</li>
-          <li>• Spanish (Basics)</li>
-        </ul>
+
+        <div className="mt-4 space-y-4">
+          {educations.map((edu, idx) => (
+            <div key={idx}>
+              <div className="flex justify-between text-gray-800 font-semibold">
+                <p>{edu.institute}</p>
+                <span className="text-blue-700">
+                  {edu.startDate
+                    ? edu.startDate.split("-")[0]
+                    : "----"}{" "}
+                  -{" "}
+                  {edu.currentlyStudying
+                    ? "Running"
+                    : edu.endDate
+                    ? edu.endDate.split("-")[0]
+                    : "----"}
+                </span>
+              </div>
+              <p className="text-gray-700 mt-1 text-sm">
+                • {edu.degree}{" "}
+                {edu.cgpa && (
+                  <span className="ml-2">| CGPA: {edu.cgpa}</span>
+                )}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Work Experience */}
+      <div className="mt-6">
+        <h2 className="text-blue-700 font-bold uppercase text-sm tracking-wider border-b-2 border-blue-700 inline-block pb-1">
+          Work Experience
+        </h2>
+
+        <div className="mt-4 space-y-4">
+          {experiences.map((exp, idx) => (
+            <div key={idx}>
+              <div className="flex justify-between text-gray-800 font-semibold">
+                <p>
+                  {exp.title}{" "}
+                  <span className="font-medium">| {exp.employer}</span>
+                </p>
+                <span className="text-blue-700">
+                  {exp.startDate
+                    ? exp.startDate.split("-")[0]
+                    : "----"}{" "}
+                  -{" "}
+                  {exp.currentlyWorking
+                    ? "Working"
+                    : exp.endDate
+                    ? exp.endDate.split("-")[0]
+                    : "----"}
+                </span>
+              </div>
+              <p className="text-gray-700 text-sm mt-1">
+                {exp.remote ? "Remote" : exp.location}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Skills and Languages */}
+      <div className="mt-8 grid md:grid-cols-2 gap-6">
+        <div>
+          <h2 className="text-blue-700 font-bold uppercase text-sm tracking-wider border-b-2 border-blue-700 inline-block pb-1">
+            Professional Skills
+          </h2>
+          <ul className="grid grid-cols-2 gap-x-6 gap-y-2 mt-3 text-gray-700 text-sm">
+            {skills.technicalSkills.map((skill, idx) => (
+              <li key={idx}>• {skill}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h2 className="text-blue-700 font-bold uppercase text-sm tracking-wider border-b-2 border-blue-700 inline-block pb-1">
+            Languages
+          </h2>
+          <ul className="grid grid-cols-2 gap-x-6 gap-y-2 mt-3 text-gray-700 text-sm">
+            {others.languages.map((lang, idx) => (
+              <li key={idx}>• {lang}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
-    );
+  );
 };
 
 export default Elegant;
