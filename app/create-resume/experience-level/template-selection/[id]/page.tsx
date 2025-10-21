@@ -191,7 +191,9 @@ const Page = () => {
               Next
             </button>
           )}
-          {currentStep === steps.length - 1 && <button className="btn btn-success px-12">Submit</button>}
+          {currentStep === steps.length - 1 &&             <button onClick={saveAsPDF} className="btn btn-primary px-12">
+              Save as PDF <Save size={15} />
+            </button>
         </div>
 
         <div className="text-sm text-center mt-3">
