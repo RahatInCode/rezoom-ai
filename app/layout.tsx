@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { RootProvider } from "./context/createContext";
 import Navbar from "./Components/Navigation/Navbar";
 import Footer from "./Components/Footer/Footer";
+import ThemeProvider from "./context/themeProvider";
 
 
 
@@ -15,11 +16,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
    
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="font-sans">
+        <ThemeProvider>
         <RootProvider>
         <Navbar />
         <main className="w-full min-h-screen">{children}</main>
         <Footer />
         </RootProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
