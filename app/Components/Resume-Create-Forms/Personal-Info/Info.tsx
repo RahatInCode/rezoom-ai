@@ -5,12 +5,14 @@ import NoPerson from "../../../../public/NoPerson.png";
 
 type PersonalInfoData = {
   name: string;
+  role: string,
   surname: string;
   city: string;
   country: string;
   phone: string;
   email: string;
   photo?: string;
+  objective: string;
 };
 
 type PersonalInfoProps = {
@@ -150,6 +152,26 @@ const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               />
             </div>
           </div>
+              <div className="flex-1">
+              <label className="text-sm">Designation*</label>
+              <input
+                type="tel"
+                className="input w-full"
+                value={personalInfo.role}
+                onChange={(e) => handleChange("role", e.target.value)}
+                placeholder="your prefered role (e.g: softwere engineer)"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-sm">Objective or Summery</label>
+              <input
+                type="tel"
+                className="textarea w-full"
+                value={personalInfo.objective}
+                onChange={(e) => handleChange("objective", e.target.value)}
+                placeholder="your prefered role (e.g: softwere engineer)"
+              />
+            </div>
         </div>
       </div>
     </div>
