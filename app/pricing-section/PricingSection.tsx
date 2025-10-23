@@ -36,7 +36,8 @@ const plans: Plan[] = [
     name: "Monthly",
     description: "Best for short-term prep.",
     price: "$15",
-    priceId: "price_monthly_test_id", // Replace with actual Stripe Price ID
+    // Use a manual test mode - we'll create this in Stripe Dashboard
+    priceId: "price_1QW8KmKZJQm5Qn5v4x3Z9X8Y", // Replace with your actual test price
     period: "per month",
     features: [
       "Unlimited Resume Downloads",
@@ -54,7 +55,7 @@ const plans: Plan[] = [
     name: "Yearly",
     description: "Save more with long-term access.",
     price: "$120",
-    priceId: "price_yearly_test_id", // Replace with actual Stripe Price ID
+    priceId: "price_1QW8KmKZJQm5Qn5v4x3Z9X9Z", // Replace with your actual test price
     period: "per year",
     features: [
       "Everything in Monthly",
