@@ -1,12 +1,10 @@
 "use client";
 import React, { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { FaShieldAlt, FaUsers, FaBolt, FaDownload, FaCheckCircle, FaArrowRight, FaStar, } from "react-icons/fa";
-// import { IoSparkles } from "react-icons/io5";
-// import { HiOutlineSparkles } from "react-icons/hi";
 import { MdDesignServices, MdSmartToy } from "react-icons/md";
 import { IoMdHelpCircle } from "react-icons/io";
 import Image from "next/image";
-
 
 interface Feature {
     id: number;
@@ -29,8 +27,8 @@ const features: Feature[] = [
         buttonText: "Explore Templates",
         image: "https://i.ibb.co.com/zHLfd8cz/Gray-Simple-Digital-Marketing-Resume.png",
         icon: FaShieldAlt,
-        gradient: "from-blue-500 to-indigo-600",
-        bgColor: "bg-gradient-to-br from-blue-50 to-indigo-100",
+        gradient: "from-emerald-500 to-emerald-600", // Updated
+        bgColor: "bg-gradient-to-br from-emerald-50 to-emerald-100", // Updated
         highlights: ["98% ATS Pass Rate", "50+ Templates", "Industry Optimized"]
     },
     {
@@ -41,7 +39,7 @@ const features: Feature[] = [
         buttonText: "Browse Designs",
         image: "https://i.ibb.co.com/ZzXMx3Lj/Blue-and-Brown-Clean-Modern-High-School-Resume.png",
         icon: MdDesignServices,
-        gradient: "from-emerald-500 to-teal-600",
+        gradient: "from-emerald-600 to-teal-600", // Updated
         bgColor: "bg-gradient-to-br from-emerald-50 to-teal-100",
         highlights: ["200+ Designs", "Expert Created", "Modern Layouts"]
     },
@@ -53,8 +51,8 @@ const features: Feature[] = [
         buttonText: "Start Building",
         image: "https://i.ibb.co.com/cS7vJYjX/Paster-Purple-and-Blue-Cute-Modern-Content-Writer-CV-Resume.png",
         icon: MdSmartToy,
-        gradient: "from-purple-500 to-pink-600",
-        bgColor: "bg-gradient-to-br from-purple-50 to-pink-100",
+        gradient: "from-emerald-500 to-teal-500", // Updated
+        bgColor: "bg-gradient-to-br from-emerald-50 to-teal-100", // Updated
         highlights: ["AI Suggestions", "Keyword Optimization", "Real-time Feedback"]
     },
     {
@@ -65,8 +63,8 @@ const features: Feature[] = [
         buttonText: "Learn More",
         image: "https://i.ibb.co.com/XfM9GxcD/Blue-and-White-Nurse-Resume.png",
         icon: FaUsers,
-        gradient: "from-cyan-500 to-blue-600",
-        bgColor: "bg-gradient-to-br from-cyan-50 to-blue-100",
+        gradient: "from-emerald-600 to-emerald-700", // Updated
+        bgColor: "bg-gradient-to-br from-emerald-50 to-emerald-100", // Updated
         highlights: ["Resume Tips", "LinkedIn Guidance", "Interview Advice"]
     },
     {
@@ -77,8 +75,8 @@ const features: Feature[] = [
         buttonText: "Practice Now",
         image: "https://i.ibb.co.com/TMnJN5vW/White-Yellow-and-Black-Modern-Professional-Resume.png",
         icon: FaBolt,
-        gradient: "from-orange-500 to-red-600",
-        bgColor: "bg-gradient-to-br from-orange-50 to-red-100",
+        gradient: "from-emerald-500 to-teal-600", // Updated
+        bgColor: "bg-gradient-to-br from-emerald-50 to-teal-100", // Updated
         highlights: ["AI Mock Interviews", "Instant Feedback", "Industry Questions"]
     },
     {
@@ -89,8 +87,8 @@ const features: Feature[] = [
         buttonText: "Download Options",
         image: "https://i.ibb.co.com/50GtT0G/White-and-Black-Modern-New-Graduate-Professional-Resume-1.png",
         icon: FaDownload,
-        gradient: "from-indigo-500 to-purple-600",
-        bgColor: "bg-gradient-to-br from-indigo-50 to-purple-100",
+        gradient: "from-emerald-600 to-emerald-700", // Updated
+        bgColor: "bg-gradient-to-br from-emerald-50 to-emerald-100", // Updated
         highlights: ["PDF & Word", "ATS-Compatible", "Instant Download"]
     },
     {
@@ -101,8 +99,8 @@ const features: Feature[] = [
         buttonText: "Get Help",
         image: "https://i.ibb.co.com/50GtT0G/White-and-Black-Modern-New-Graduate-Professional-Resume-1.png",
         icon: IoMdHelpCircle,
-        gradient: "from-green-500 to-teal-600",
-        bgColor: "bg-gradient-to-br from-green-50 to-teal-100",
+        gradient: "from-emerald-500 to-teal-600",
+        bgColor: "bg-gradient-to-br from-emerald-50 to-teal-100",
         highlights: ["Instant Support", "AI Guidance", "24/7 Availability"]
     }
 ];
@@ -119,6 +117,18 @@ const HighlightFeature: React.FC = () => {
             const { ScrollTrigger } = await import("gsap/ScrollTrigger");
             gsap.registerPlugin(ScrollTrigger);
 
+            // ✅ FIXED: Define updateActiveFeature BEFORE using it
+            const updateActiveFeature = (index: number) => {
+                imageRefs.current.forEach((img, i) => {
+                    if (!img) return;
+                    if (i === index) {
+                        gsap.to(img, { autoAlpha: 1, scale: 1, duration: 0.8 });
+                    } else {
+                        gsap.to(img, { autoAlpha: 0, scale: 0.9, duration: 0.6 });
+                    }
+                });
+            };
+
             // initial states
             imageRefs.current.forEach((img, i) => {
                 if (img) gsap.set(img, { autoAlpha: i === 0 ? 1 : 0, scale: i === 0 ? 1 : 0.9 });
@@ -127,7 +137,7 @@ const HighlightFeature: React.FC = () => {
                 if (c) gsap.set(c, { autoAlpha: 0, y: 50 });
             });
 
-            // scroll animation
+            // scroll animation - Now updateActiveFeature is accessible
             contentRefs.current.forEach((c, i) => {
                 if (!c) return;
                 gsap.to(c, {
@@ -144,17 +154,6 @@ const HighlightFeature: React.FC = () => {
                     },
                 });
             });
-
-            const updateActiveFeature = (index: number) => {
-                imageRefs.current.forEach((img, i) => {
-                    if (!img) return;
-                    if (i === index) {
-                        gsap.to(img, { autoAlpha: 1, scale: 1, duration: 0.8 });
-                    } else {
-                        gsap.to(img, { autoAlpha: 0, scale: 0.9, duration: 0.6 });
-                    }
-                });
-            };
 
             if (progressRef.current) {
                 gsap.to(progressRef.current, {
@@ -180,71 +179,62 @@ const HighlightFeature: React.FC = () => {
             {/* Header */}
             <div className="text-center py-20 px-4">
                 <div className="container mx-auto">
-                    {/* <div className="flex items-center justify-start gap-3 mb-6">
-            <HiOutlineSparkles className="text-4xl text-blue-600" />
-            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Powerful Features
-            </h1>
-            <IoSparkles className="text-4xl text-purple-600" />
-          </div> */}
-                    {/* <p className="text-xl md:text-2xl text-gray-600 mb-8">
-            Everything you need to create the perfect resume and land your dream job
-          </p> */}
+                    {/* Header content if needed */}
                 </div>
             </div>
-
 
             <div ref={containerRef} className="container mx-auto px-4 pb-20">
                 <div className="flex flex-col lg:flex-row gap-12">
                     {/* Left - Images */}
                     <div className="lg:w-1/2 lg:sticky lg:top-20 h-[80vh] flex items-center justify-center">
                         <div className="relative w-full h-full max-w-lg">
-                            {/* Progress */}
+                            {/* Updated: Emerald progress bar */}
                             <div className="absolute -left-8 top-0 bottom-0 w-1 bg-gray-200 rounded-full overflow-hidden">
                                 <div
                                     ref={progressRef}
-                                    className="w-full bg-gradient-to-b from-blue-500 to-purple-600 transform scale-y-0"
+                                    className="w-full bg-gradient-to-b from-emerald-500 to-emerald-600 transform scale-y-0"
                                 ></div>
                             </div>
 
                             {features.map((feature, i) => (
                                 <div
-  key={feature.id}
-  ref={(el) => {
-    imageRefs.current[i] = el;
-  }}
-  className="absolute inset-0 opacity-0"
->
-
+                                    key={feature.id}
+                                    ref={(el) => {
+                                        imageRefs.current[i] = el;
+                                    }}
+                                    className="absolute inset-0 opacity-0"
+                                >
                                     <div
                                         className={`relative h-full rounded-2xl overflow-hidden shadow-2xl ${feature.bgColor} border border-white/50`}
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10"></div>
-                                        {/* <img
-                      src={feature.image}
-                      alt={feature.title}
-                      className="w-full h-full object-cover"
-                    /> */}
                                         <Image
                                             src={feature.image}
                                             alt={feature.title}
-                                            fill   // parent div টা অবশ্যই relative হতে হবে
+                                            fill
                                             className="object-cover rounded-2xl"
                                             unoptimized
                                         />
                                         <div className="absolute bottom-6 left-6 right-6 z-20">
                                             <div
                                                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r ${feature.gradient} text-white font-semibold text-sm mb-3`}
+                                                style={{ fontFamily: 'Inter, sans-serif' }}
                                             >
                                                 <feature.icon size={16} />
                                                 Feature #{i + 1}
                                             </div>
-                                            <h3 className="text-white text-2xl font-bold mb-2">{feature.title}</h3>
+                                            <h3 
+                                                className="text-white text-2xl font-bold mb-2"
+                                                style={{ fontFamily: 'Inter, sans-serif' }}
+                                            >
+                                                {feature.title}
+                                            </h3>
                                             <div className="flex gap-2">
                                                 {feature.highlights.map((h, j) => (
                                                     <span
                                                         key={j}
-                                                        className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-full  hover:bg-gradient-to-b from-white/30 to-white/10 transition-colors duration-300 cursor-pointer hover:scale-105 transform inline-block"
+                                                        className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-full hover:bg-gradient-to-b from-white/30 to-white/10 transition-colors duration-300 cursor-pointer hover:scale-105 transform inline-block"
+                                                        style={{ fontFamily: 'Inter, sans-serif' }}
                                                     >
                                                         {h}
                                                     </span>
@@ -260,14 +250,13 @@ const HighlightFeature: React.FC = () => {
                     {/* Right - Content */}
                     <div className="lg:w-1/2 space-y-24">
                         {features.map((feature, i) => (
-                           <div
-  key={feature.id}
-  ref={(el) => {
-    contentRefs.current[i] = el;
-  }}
-  className="opacity-0 group"
->
-
+                            <div
+                                key={feature.id}
+                                ref={(el) => {
+                                    contentRefs.current[i] = el;
+                                }}
+                                className="opacity-0 group"
+                            >
                                 <div className="space-y-6">
                                     <div className="flex items-start gap-4">
                                         <div
@@ -277,28 +266,47 @@ const HighlightFeature: React.FC = () => {
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-3 mb-2">
-                                                <span className="text-sm font-medium text-gray-500">
+                                                <span 
+                                                    className="text-sm font-medium text-gray-500"
+                                                    style={{ fontFamily: 'Inter, sans-serif' }}
+                                                >
                                                     Feature {String(i + 1).padStart(2, "0")}
                                                 </span>
                                                 <div className="h-px bg-gradient-to-r from-gray-300 to-transparent flex-1"></div>
                                             </div>
-                                            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+                                            {/* Updated: Emerald hover gradient */}
+                                            <h2 
+                                                className="text-3xl md:text-4xl font-bold text-gray-800 group-hover:bg-gradient-to-r group-hover:from-emerald-600 group-hover:to-emerald-700 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300"
+                                                style={{ fontFamily: 'Inter, sans-serif' }}
+                                            >
                                                 {feature.title}
                                             </h2>
                                         </div>
                                     </div>
-                                    <p className="text-lg text-gray-600 leading-relaxed pl-20">{feature.description}</p>
+                                    <p 
+                                        className="text-lg text-gray-600 leading-relaxed pl-20"
+                                        style={{ fontFamily: 'Inter, sans-serif' }}
+                                    >
+                                        {feature.description}
+                                    </p>
                                     <div className="pl-20 space-y-2">
                                         {feature.highlights.map((h, j) => (
                                             <div key={j} className="flex items-center gap-3">
-                                                <FaCheckCircle size={20} className="text-green-500 flex-shrink-0" />
-                                                <span className="text-gray-700 font-medium">{h}</span>
+                                                {/* Updated: Emerald checkmark */}
+                                                <FaCheckCircle size={20} className="text-emerald-500 flex-shrink-0" />
+                                                <span 
+                                                    className="text-gray-700 font-medium"
+                                                    style={{ fontFamily: 'Inter, sans-serif' }}
+                                                >
+                                                    {h}
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
                                     <div className="pl-20 pt-4">
                                         <button
                                             className={`group/btn inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r ${feature.gradient} text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300`}
+                                            style={{ fontFamily: 'Inter, sans-serif' }}
                                         >
                                             {feature.buttonText}
                                             <FaArrowRight
@@ -314,23 +322,181 @@ const HighlightFeature: React.FC = () => {
                 </div>
             </div>
 
-            {/* CTA */}
-            <div className="text-center py-20 px-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600">
-                <div className="max-w-4xl mx-auto">
-                    <div className="flex items-center justify-center gap-4 mb-6">
-                        <FaBolt size={32} className="text-yellow-300" />
-                        <h2 className="text-4xl md:text-5xl font-bold text-white">Ready to Get Started?</h2>
-                        <FaStar size={32} className="text-yellow-300" />
-                    </div>
-                    <p className="text-xl text-blue-100 mb-8">
-                        Join thousands of professionals who have transformed their careers
-                    </p>
-                    <button className="inline-flex items-center gap-3 px-10 py-4 bg-white text-blue-600 font-bold text-xl rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
-                        Start Building Today
-                        <FaArrowRight size={24} />
-                    </button>
+            {/* CTA Section (keeping your updated version) */}
+            <section className="relative py-24 md:py-32 overflow-hidden bg-gradient-to-br from-white via-emerald-50 to-slate-50">
+                {/* ... (rest of your CTA section remains the same) ... */}
+                <div className="absolute inset-0 overflow-hidden">
+                    <div className="absolute top-1/4 -left-20 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute bottom-1/4 -right-20 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-300/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
                 </div>
-            </div>
+
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]"></div>
+
+                <div className="absolute top-10 left-10 w-20 h-20 border-4 border-emerald-200/30 rounded-full animate-bounce" style={{ animationDuration: '3s' }}></div>
+                <div className="absolute bottom-10 right-10 w-16 h-16 border-4 border-emerald-200/30 rounded-lg rotate-45 animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.5s' }}></div>
+                <div className="absolute top-1/3 right-20 w-12 h-12 bg-emerald-100/50 rounded-full animate-pulse"></div>
+                <div className="absolute bottom-1/3 left-20 w-8 h-8 bg-emerald-100/50 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+
+                <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="flex justify-center mb-8"
+                    >
+                        <span className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-100 to-emerald-200 border-2 border-emerald-300 rounded-full text-emerald-800 font-bold text-sm shadow-lg">
+                            <FaBolt className="text-emerald-600" size={20} />
+                            LIMITED TIME OFFER
+                            <FaStar className="text-emerald-600" size={20} />
+                        </span>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.2 }}
+                        className="text-center mb-6"
+                    >
+                        <h2 
+                            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 mb-4 leading-tight"
+                            style={{ fontFamily: 'Inter, sans-serif' }}
+                        >
+                            Ready to Land Your
+                            <span className="block bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-600 bg-clip-text text-transparent">
+                                Dream Job?
+                            </span>
+                        </h2>
+                    </motion.div>
+
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.3 }}
+                        className="text-xl md:text-2xl text-slate-600 mb-12 text-center max-w-3xl mx-auto font-medium leading-relaxed"
+                        style={{ fontFamily: 'Inter, sans-serif' }}
+                    >
+                        Join over <span className="font-bold text-emerald-700">10,000+ professionals</span> who have transformed their careers with our AI-powered platform
+                    </motion.p>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.4 }}
+                        className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto"
+                    >
+                        {[
+                            { icon: "🎯", stat: "95%", label: "Success Rate" },
+                            { icon: "⚡", stat: "5 Min", label: "Setup Time" },
+                            { icon: "🏆", stat: "10K+", label: "Happy Users" }
+                        ].map((item, idx) => (
+                            <div 
+                                key={idx}
+                                className="bg-white border-2 border-emerald-100 rounded-2xl p-6 text-center hover:border-emerald-300 hover:bg-emerald-50 transition-all duration-300 hover:scale-105 hover:shadow-2xl shadow-lg"
+                            >
+                                <div className="text-4xl mb-2">{item.icon}</div>
+                                <div className="text-3xl font-bold text-emerald-700 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>{item.stat}</div>
+                                <div className="text-slate-600 font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>{item.label}</div>
+                            </div>
+                        ))}
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.5 }}
+                        className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+                    >
+                        <motion.button
+                            whileHover={{ scale: 1.05, y: -5 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="group relative inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold text-xl rounded-full shadow-2xl hover:shadow-emerald-500/50 transition-all duration-300"
+                            style={{ fontFamily: 'Inter, sans-serif' }}
+                        >
+                            <span>Start Building Today</span>
+                            <FaArrowRight 
+                                size={24} 
+                                className="group-hover:translate-x-2 transition-transform duration-300" 
+                            />
+                        </motion.button>
+
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="inline-flex items-center gap-3 px-10 py-5 bg-white border-2 border-emerald-500 text-emerald-700 hover:bg-emerald-50 font-bold text-xl rounded-full transition-all duration-300 shadow-lg hover:shadow-xl"
+                            style={{ fontFamily: 'Inter, sans-serif' }}
+                        >
+                            Watch Demo
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </motion.button>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.6 }}
+                        className="mt-12 text-center"
+                    >
+                        <p className="text-slate-500 text-sm mb-4 font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            No credit card required • Free to start • Cancel anytime
+                        </p>
+                        
+                        <div className="flex flex-wrap justify-center gap-4">
+                            {[
+                                "🔒 Secure & Private",
+                                "⚡ Instant Access",
+                                "💎 Premium Templates",
+                                "🎓 Expert Guidance"
+                            ].map((badge, idx) => (
+                                <span 
+                                    key={idx}
+                                    className="px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full text-emerald-700 text-sm font-semibold hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-300"
+                                    style={{ fontFamily: 'Inter, sans-serif' }}
+                                >
+                                    {badge}
+                                </span>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.7 }}
+                        className="mt-16 flex justify-center items-center gap-3"
+                    >
+                        <div className="flex -space-x-3">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <div 
+                                    key={i}
+                                    className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 border-4 border-white flex items-center justify-center text-white font-bold shadow-lg"
+                                >
+                                    {i === 3 ? '😊' : '👤'}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="text-left">
+                            <div className="flex items-center gap-1 mb-1">
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                    <FaStar key={i} className="text-emerald-600" size={16} />
+                                ))}
+                            </div>
+                            <p className="text-slate-700 text-sm font-semibold" style={{ fontFamily: 'Inter, sans-serif' }}>
+                                Loved by 10,000+ users worldwide
+                            </p>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
         </section>
     );
 };

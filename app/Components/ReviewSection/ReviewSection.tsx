@@ -9,7 +9,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 // ✅ React Icons
-import { FaGoogle, FaAmazon, FaMicrosoft, FaApple, FaFacebook,   FaSpotify, FaUber, FaAirbnb } from 'react-icons/fa';
+import { FaGoogle, FaAmazon, FaMicrosoft, FaApple, FaFacebook, FaSpotify, FaUber, FaAirbnb } from 'react-icons/fa';
 
 interface Review {
   id: number;
@@ -92,11 +92,9 @@ const brands = [
   { name: 'Microsoft', icon: <FaMicrosoft className="w-6 h-6 text-blue-600" /> },
   { name: 'Apple', icon: <FaApple className="w-6 h-6 text-gray-800 dark:text-gray-700" /> },
   { name: 'Meta', icon: <FaFacebook className="w-6 h-6 text-blue-500" /> },
-//   { name: 'Netflix', icon: <FaNetflix className="w-6 h-6 text-red-600" /> },
   { name: 'Spotify', icon: <FaSpotify className="w-6 h-6 text-green-500" /> },
   { name: 'Uber', icon: <FaUber className="w-6 h-6 text-black dark:text-black" /> },
   { name: 'Airbnb', icon: <FaAirbnb className="w-6 h-6 text-pink-500" /> },
-//   { name: 'Tesla', icon: <FaTesla className="w-6 h-6 text-red-700" /> },
 ];
 
 const StarRating: React.FC<{ rating: number; size?: 'sm' | 'md' | 'lg' }> = ({
@@ -114,7 +112,8 @@ const StarRating: React.FC<{ rating: number; size?: 'sm' | 'md' | 'lg' }> = ({
       {[1, 2, 3, 4, 5].map((star) => (
         <FaStar
           key={star}
-          className={`${sizeClasses[size]} ${star <= rating ? 'text-green-500 fill-green-500' : 'text-gray-300'}`}
+          // Updated: emerald color for stars
+          className={`${sizeClasses[size]} ${star <= rating ? 'text-emerald-500 fill-emerald-500' : 'text-gray-300'}`}
         />
       ))}
     </div>
@@ -183,7 +182,8 @@ export default function ReviewSection() {
   return (
     <section
       ref={sectionRef}
-      className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800"
+      // Updated: emerald background gradient
+      className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -191,9 +191,11 @@ export default function ReviewSection() {
         <div className="mb-6 lg:mb-8 text-center lg:text-left">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             What users say about
-            <span className="block text-blue-600 dark:text-blue-400">Resume Builder</span>
+            {/* Updated: emerald color */}
+            <span className="block text-emerald-600 dark:text-emerald-400">Resume Builder</span>
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto lg:mx-0 rounded-full"></div>
+          {/* Updated: emerald underline */}
+          <div className="w-20 h-1 bg-gradient-to-r from-emerald-600 to-emerald-600 mx-auto lg:mx-0 rounded-full"></div>
         </div>
 
         {/* Main Content */}
@@ -215,7 +217,8 @@ export default function ReviewSection() {
               {/* Trustpilot Logo */}
               <div className="flex items-center justify-center mb-8">
                 <div className="flex items-center space-x-2">
-                  <FaStar className="w-6 h-6 text-green-500 fill-green-500" />
+                  {/* Updated: emerald star */}
+                  <FaStar className="w-6 h-6 text-emerald-500 fill-emerald-500" />
                   <span className="font-bold text-lg text-gray-900">Trustpilot</span>
                 </div>
               </div>
@@ -311,8 +314,6 @@ export default function ReviewSection() {
                 ))}
               </Swiper>
             </div>
-            
-
           </div>
         </div>
       </div>

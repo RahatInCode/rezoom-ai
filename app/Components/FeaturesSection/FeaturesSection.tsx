@@ -1,4 +1,3 @@
-
 'use client';
 import React, { useEffect, useRef } from 'react';
 import { FaCheckCircle } from 'react-icons/fa';
@@ -54,26 +53,32 @@ const features: Feature[] = [
 
 const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({ feature }) => {
     return (
-
         <div
-            className=" group flex items-start gap-4 p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:bg-white border border-gray-100/50"
+            className="group flex items-start gap-4 p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:bg-white border border-gray-100/50"
         >
-            <div className="flex-shrink-0 mt-1 ">
+            <div className="flex-shrink-0 mt-1">
                 <div className="relative">
-                    <FaCheckCircle className="text-indigo-600 text-3xl group-hover:text-indigo-700 transition-colors duration-200" />
-                    <div className="absolute inset-0 bg-indigo-600/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100" />
+                    {/* Updated: emerald colors */}
+                    <FaCheckCircle className="text-emerald-600 text-3xl group-hover:text-emerald-700 transition-colors duration-200" />
+                    <div className="absolute inset-0 bg-emerald-600/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100" />
                 </div>
             </div>
             <div className="flex-1">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-indigo-700 transition-colors duration-200">
+                {/* Updated: emerald hover color and Inter font */}
+                <h3 
+                    className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-emerald-700 transition-colors duration-200"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                >
                     {feature.title}
                 </h3>
-                <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-200">
+                <p 
+                    className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-200"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                >
                     {feature.description}
                 </p>
             </div>
         </div>
-
     );
 };
 
@@ -137,18 +142,23 @@ const FeaturesSection: React.FC = () => {
     }, []);
 
     return (
-        <section className="relative py-12  bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800   overflow-hidden">
+        // Updated: emerald background
+        <section className="relative py-12 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
             <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
 
-
-                <div className="mb-6 lg:mb-8">
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                <div className="mb-6 lg:mb-8" ref={titleRef}>
+                    {/* Updated: Inter font */}
+                    <h2 
+                        className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4"
+                        style={{ fontFamily: 'Inter, sans-serif' }}
+                    >
                         Why Choose Our
-                        <span className="block text-blue-600 dark:text-blue-400">Platform</span>
+                        {/* Updated: emerald color */}
+                        <span className="block text-emerald-600 dark:text-emerald-400">Platform</span>
                     </h2>
-                    <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto lg:mx-0 rounded-full"></div>
+                    {/* Updated: emerald underline */}
+                    <div className="w-20 h-1 bg-gradient-to-r from-emerald-600 to-emerald-600 mx-auto lg:mx-0 rounded-full"></div>
                 </div>
-
 
                 <div
                     ref={sectionRef}
@@ -161,7 +171,11 @@ const FeaturesSection: React.FC = () => {
 
                 {/* Call-to-action section */}
                 <div className="text-center mt-16">
-                    <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    {/* Updated: emerald gradient and Inter font */}
+                    <div 
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-full font-semibold hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                        style={{ fontFamily: 'Inter, sans-serif' }}
+                    >
                         <span>Get Started Today</span>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -169,7 +183,6 @@ const FeaturesSection: React.FC = () => {
                     </div>
                 </div>
             </div>
-
         </section>
     );
 };

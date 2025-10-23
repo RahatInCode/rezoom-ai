@@ -70,29 +70,31 @@ export default function Hero() {
           </span>
         </motion.h1>
 
-        {/* Subtext + Floating Cards overlayed on this block */}
-        <div className="relative mt-6 sm:mt-8 w-full max-w-3xl mx-auto min-h-[300px] sm:min-h-[340px] md:min-h-[380px]">
-          {/* The paragraph (under the cards visually) */}
+        {/* Subtext + Floating Cards */}
+        <div className="relative mt-6 sm:mt-8 w-full max-w-3xl mx-auto min-h-[220px] sm:min-h-[240px] md:min-h-[260px]">
           <motion.p
             variants={fadeUp}
             initial="hidden"
             animate="visible"
             custom={1}
-            className="relative z-10 text-base sm:text-lg text-gray-600 px-3 sm:px-0"
+            className="relative z-0 text-base sm:text-lg text-gray-600 px-3 sm:px-0"
           >
             Empower your career with AI tools that craft winning resumes, analyze job
             descriptions, and simulate real interview scenarios — all in one platform.
           </motion.p>
 
-          {/* Floating Cards Cluster positioned over the paragraph area */}
+          {/* Floating Cards Cluster */}
           <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
-            <div className="relative w-full h-full scale-[0.9] sm:scale-100">
-              {/* Center card */}
+            <div className="relative w-full h-full scale-95 sm:scale-100">
+              
+              {/* Center Card */}
               <motion.div
                 variants={floatVariants(0)}
                 initial="initial"
                 animate="animate"
-                className="absolute left-1/2 top-1/2 w-[220px] sm:w-[260px] h-[180px] sm:h-[200px] -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-[0_12px_30px_rgba(15,23,42,0.12)] p-4 border border-[rgba(11,16,12,0.04)] rotate-[-2deg]"
+                className="absolute left-1/2 top-1/2 w-[220px] sm:w-[260px] h-[180px] sm:h-[200px] 
+                -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl 
+                shadow-[0_14px_35px_rgba(15,23,42,0.15)] p-4 border border-[rgba(11,16,12,0.04)] rotate-[-2deg]"
               >
                 <div className="text-[11px] sm:text-[12px] uppercase font-semibold text-emerald-700 mb-1">
                   AI Resume Optimization Report
@@ -100,7 +102,7 @@ export default function Hero() {
                 <div className="text-[14px] sm:text-[15px] font-semibold text-slate-900">
                   Frontend Developer · Tailored Insights
                 </div>
-                <div className="mt-3 inline-flex items-center gap-2 bg-slate-900 text-white text-[11px] sm:text-[12px] font-medium px-3 py-1 rounded-full">
+                <div className="mt-3 inline-flex items-center gap-2 bg-slate-900 text-white text-[11px] sm:text-[12px] font-medium px-3 py-1 rounded-full shadow-md">
                   <span>98% Match Rate</span>
                 </div>
                 <div className="mt-4 text-[12px] sm:text-[13px] text-emerald-600 underline">
@@ -108,12 +110,15 @@ export default function Hero() {
                 </div>
               </motion.div>
 
-              {/* Top-left card */}
+              {/* Top-left Card */}
               <motion.div
                 variants={floatVariants(0.3)}
                 initial="initial"
                 animate="animate"
-                className="absolute left-[8%] top-[10%] sm:left-[12%] sm:top-[10%] w-[160px] sm:w-[170px] h-[74px] sm:h-[80px] bg-white/90 backdrop-blur-sm border border-[rgba(11,16,12,0.04)] rounded-xl shadow-md flex items-center px-3 gap-3 rotate-[-3deg]"
+                className="absolute left-[18%] top-[18%] sm:left-[24%] sm:top-[22%] 
+                w-[160px] sm:w-[170px] h-[74px] sm:h-[80px] 
+                bg-white/95 backdrop-blur-sm border border-[rgba(11,16,12,0.05)] 
+                rounded-xl shadow-[0_10px_25px_rgba(15,23,42,0.1)] flex items-center px-3 gap-3 rotate-[-3deg]"
               >
                 <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs sm:text-sm">
                   S
@@ -127,12 +132,15 @@ export default function Hero() {
                 </div>
               </motion.div>
 
-              {/* Top-right card */}
+              {/* Top-right Card */}
               <motion.div
                 variants={floatVariants(0.6)}
                 initial="initial"
                 animate="animate"
-                className="absolute right-[8%] top-[6%] sm:right-[12%] sm:top-[8%] w-[160px] sm:w-[170px] h-[74px] sm:h-[80px] bg-emerald-50 backdrop-blur-sm border border-[rgba(11,16,12,0.04)] rounded-xl shadow-md flex items-center px-3 gap-3 rotate-[3deg]"
+                className="absolute right-[18%] top-[16%] sm:right-[24%] sm:top-[20%] 
+                w-[160px] sm:w-[170px] h-[74px] sm:h-[80px] 
+                bg-emerald-50/95 backdrop-blur-sm border border-[rgba(11,16,12,0.05)] 
+                rounded-xl shadow-[0_10px_25px_rgba(15,23,42,0.1)] flex items-center px-3 gap-3 rotate-[3deg]"
               >
                 <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm">
                   D
@@ -145,23 +153,29 @@ export default function Hero() {
                 </div>
               </motion.div>
 
-              {/* Bottom-left pill */}
+              {/* Bottom-left Pill */}
               <motion.div
                 variants={floatVariants(0.9)}
                 initial="initial"
                 animate="animate"
-                className="absolute left-[4%] bottom-[8%] sm:left-[10%] sm:bottom-[10%] w-[150px] sm:w-[160px] h-[46px] sm:h-[50px] bg-[#062022] text-white rounded-full flex flex-col items-center justify-center text-[11px] sm:text-[12px] font-medium shadow-[0_10px_30px_rgba(34,165,91,0.08)] rotate-[-4deg]"
+                className="absolute left-[20%] bottom-[14%] sm:left-[24%] sm:bottom-[18%] 
+                w-[150px] sm:w-[160px] h-[46px] sm:h-[50px] 
+                bg-[#062022] text-white rounded-full flex flex-col items-center justify-center 
+                text-[11px] sm:text-[12px] font-medium shadow-[0_10px_30px_rgba(34,165,91,0.1)] rotate-[-4deg]"
               >
                 Recruiter Assistant AI
                 <span className="text-[9px] sm:text-[10px] text-emerald-300">Auto-scoring</span>
               </motion.div>
 
-              {/* Bottom-right pill */}
+              {/* Bottom-right Pill */}
               <motion.div
                 variants={floatVariants(1.2)}
                 initial="initial"
                 animate="animate"
-                className="absolute right-[4%] bottom-[6%] sm:right-[10%] sm:bottom-[10%] w-[150px] sm:w-[160px] h-[46px] sm:h-[50px] bg-emerald-600 text-white rounded-full flex flex-col items-center justify-center text-[11px] sm:text-[12px] font-medium shadow-[0_10px_30px_rgba(34,165,91,0.08)] rotate-[4deg]"
+                className="absolute right-[20%] bottom-[12%] sm:right-[24%] sm:bottom-[16%] 
+                w-[150px] sm:w-[160px] h-[46px] sm:h-[50px] 
+                bg-emerald-600 text-white rounded-full flex flex-col items-center justify-center 
+                text-[11px] sm:text-[12px] font-medium shadow-[0_10px_30px_rgba(34,165,91,0.12)] rotate-[4deg]"
               >
                 Virtual Interview Bot
                 <span className="text-[9px] sm:text-[10px] text-emerald-100">
@@ -172,15 +186,15 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* CTA Buttons at the end (below cards) */}
+        {/* CTA Buttons */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
           animate="visible"
           custom={2}
-          className="mt-10 sm:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4 z-30"
+          className="mt-0 sm:mt-2 flex flex-col sm:flex-row gap-3 sm:gap-4 z-30 relative"
         >
-          <button className="rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold px-7 sm:px-8 py-3 shadow-[0_8px_20px_rgba(34,165,91,0.18)] transition-transform duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-emerald-400">
+          <button className="rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold px-7 sm:px-8 py-2 shadow-[0_8px_20px_rgba(34,165,91,0.18)] transition-transform duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-emerald-400">
             Get Started
           </button>
           <button className="rounded-xl bg-slate-900 text-white font-medium px-6 py-3 flex items-center justify-center gap-2 transition-transform duration-200 hover:scale-105">

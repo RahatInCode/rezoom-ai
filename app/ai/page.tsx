@@ -14,20 +14,35 @@ const fadeInUp = {
 
 const Page = () => {
   return (
-    <div className="bg-gray-50">
+    // Updated: Light background with emerald accents
+    <div className="bg-gradient-to-br from-white via-emerald-50 to-slate-50">
+      
       {/* Section 1 - Cover Letter */}
-      <section className="pt-16 px-4 md:px-10">
+      <section className="pt-24 pb-16 px-4 md:px-10">
+        {/* Updated: Emerald gradient heading */}
         <motion.h1
           variants={fadeInUp}
           initial="hidden"
           animate="show"
-          className="text-3xl md:text-5xl font-bold text-center mb-12
-          bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent"
+          className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-center mb-6 bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent leading-tight"
+          style={{ fontFamily: 'Inter, sans-serif' }}
         >
           AI Cover Letter Generator
         </motion.h1>
+        
+        {/* Updated: Better subtitle */}
+        <motion.p
+          variants={fadeInUp}
+          initial="hidden"
+          animate="show"
+          transition={{ delay: 0.2 }}
+          className="text-center text-slate-600 text-xl md:text-2xl mb-16 max-w-3xl mx-auto font-medium leading-relaxed"
+          style={{ fontFamily: 'Inter, sans-serif' }}
+        >
+          Create professional, personalized cover letters in seconds with our AI-powered tool
+        </motion.p>
 
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <motion.div variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
             <CoverLetterGenerator />
           </motion.div>
@@ -39,27 +54,44 @@ const Page = () => {
             viewport={{ once: true }}
             className="hidden md:flex justify-center"
           >
-            <Lottie animationData={coverLetter} loop={true} className="max-w-md w-full" />
+            <div className="relative">
+              {/* Updated: Emerald glow effect */}
+              <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-3xl animate-pulse"></div>
+              <Lottie animationData={coverLetter} loop={true} className="max-w-lg w-full relative z-10" />
+            </div>
           </motion.div>
         </div>
       </section>
 
-     
-      <div className="w-full h-px bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300" />
+      {/* Updated: Emerald divider */}
+      <div className="w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent rounded-full" />
 
       {/* Section 2 - LinkedIn Summary */}
-      <section className="pt-16 px-4 md:px-10 bg-white">
+      <section className="pt-24 pb-16 px-4 md:px-10 bg-white">
+        {/* Updated: Emerald gradient heading */}
         <motion.h1
           variants={fadeInUp}
           initial="hidden"
           animate="show"
-          className="text-3xl md:text-5xl font-bold text-center mb-12
-          bg-gradient-to-r from-blue-500 via-teal-500 to-green-500 bg-clip-text text-transparent"
+          className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-center mb-6 bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent leading-tight"
+          style={{ fontFamily: 'Inter, sans-serif' }}
         >
           AI LinkedIn Summary Generator
         </motion.h1>
+        
+        {/* Updated: Better subtitle */}
+        <motion.p
+          variants={fadeInUp}
+          initial="hidden"
+          animate="show"
+          transition={{ delay: 0.2 }}
+          className="text-center text-slate-600 text-xl md:text-2xl mb-16 max-w-3xl mx-auto font-medium leading-relaxed"
+          style={{ fontFamily: 'Inter, sans-serif' }}
+        >
+          Craft compelling LinkedIn summaries that showcase your professional brand
+        </motion.p>
 
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <motion.div 
             variants={fadeInUp} 
             initial="hidden" 
@@ -67,7 +99,11 @@ const Page = () => {
             viewport={{ once: true }}
             className="hidden md:flex justify-center"
           >
-            <Lottie animationData={linkedInAi} loop={true} className="max-w-md w-full" />
+            <div className="relative">
+              {/* Updated: Emerald glow effect */}
+              <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+              <Lottie animationData={linkedInAi} loop={true} className="max-w-lg w-full relative z-10" />
+            </div>
           </motion.div>
 
           <motion.div variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
