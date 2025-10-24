@@ -2,9 +2,9 @@ import { Globe, Mail, MapPin, Phone } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
 
-const Simple = ({ personalInfo, educations, skills, experiences, others }) => {
+const Simple = ({ personalInfo, educations, skills, experiences, others, contentRef }) => {
   return (
-    <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden font-sans">
+    <div ref={contentRef} className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden font-sans">
       {/* Top Section */}
       <div className="flex flex-col md:flex-row">
         {/* Left Sidebar */}

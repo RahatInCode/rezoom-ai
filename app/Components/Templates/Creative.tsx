@@ -1,9 +1,9 @@
 import { Globe, Mail, MapPin, Phone } from 'lucide-react';
 import React from 'react';
 
-const Creative = ({ personalInfo, educations, skills, experiences, others }) => {
+const Creative = ({ personalInfo, educations, skills, experiences, others , contentRef }) => {
   return (
-    <div className="w-full max-w-5xl mx-auto bg-white p-10 font-sans text-gray-800 leading-relaxed">
+    <div ref={contentRef} className="w-full max-w-5xl mx-auto bg-white p-10 font-sans text-gray-800 leading-relaxed">
       {/* Header */}
       <div className="border-b border-gray-300 pb-4">
         <h1 className="text-4xl font-extrabold text-black tracking-wide">

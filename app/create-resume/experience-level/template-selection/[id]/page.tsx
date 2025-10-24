@@ -21,6 +21,15 @@ import { Save } from "lucide-react";
 import domtoimage from "dom-to-image-more";
 import { jsPDF } from "jspdf";
 
+// Type for Resume Template
+type ResumeTemplateType = {
+  id: string;
+  name: string;
+  description: string;
+  category?: string;
+};
+
+// Type for Personal Info
 type PersonalInfoType = {
   name: string;
   role: string;
@@ -35,8 +44,10 @@ type PersonalInfoType = {
 
 const Page = () => {
   const { id } = useParams();
-  const [ResumeData, setResumeData] = useState<any[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+
+  // States
+  const [ResumeData, setResumeData] = useState<ResumeTemplateType[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplateType | null>(null);
 
   const [personalInfo, setPersonalInfo] = useState<PersonalInfoType>({
     name: "",
@@ -69,19 +80,22 @@ const Page = () => {
     achievements: [""],
   });
 
+  // Fetch resume templates
   useEffect(() => {
     fetch("/resume-templates.json")
       .then((res) => res.json())
-      .then((data) => setResumeData(data || []));
+      .then((data: ResumeTemplateType[]) => setResumeData(data || []));
   }, []);
 
+  // Select template based on ID
   useEffect(() => {
     if (ResumeData.length > 0 && id) {
-      const selected = ResumeData.find((resume) => resume.id === id);
+      const selected = ResumeData.find((resume) => resume.id === id) || null;
       setSelectedTemplate(selected);
     }
   }, [ResumeData, id]);
 
+  // Steps & components
   const steps = ["Basic Info", "Education", "Skills", "Experience", "Others"];
   const components = [
     <Info key="info" personalInfo={personalInfo} setPersonalInfo={setPersonalInfo} />,
@@ -145,15 +159,15 @@ const Page = () => {
       <dialog id="modal" className="modal">
         <div className="modal-box w-11/12 max-w-5xl">
           <div ref={contentRef} className="w-full">
-            {selectedTemplate?.name.includes("Classic") && <Classic personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Modern") && <Modern personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Elegant") && <Elegant personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Creative") && <Creative personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Blocks") && <ModernBlock personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Stylish") && <Stylish personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Simple") && <Simple personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Corporate") && <Corporate personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Smart") && <Smart personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Classic") && <Classic contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Modern") && <Modern contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Elegant") && <Elegant contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Creative") && <Creative contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Blocks") && <ModernBlock contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Stylish") && <Stylish contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Simple") && <Simple contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Corporate") && <Corporate contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Smart") && <Smart contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
           </div>
 
           <div className="modal-action flex justify-between">

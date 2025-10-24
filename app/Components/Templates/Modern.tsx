@@ -1,8 +1,8 @@
 import React from 'react';
 
-const Modern = ({ personalInfo, educations, skills, experiences, others }) => {
+const Modern = ({ personalInfo, educations, skills, experiences, others , contentRef}) => {
   return (
-    <div className="max-w-3xl mx-auto bg-white text-gray-800 p-6 sm:p-10 font-sans leading-relaxed">
+    <div ref={contentRef} className="max-w-3xl mx-auto bg-white text-gray-800 p-6 sm:p-10 font-sans leading-relaxed">
       {/* Header */}
       <div className="border-b pb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between text-center sm:text-left">
         <div>

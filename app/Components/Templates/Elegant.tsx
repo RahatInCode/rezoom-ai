@@ -3,9 +3,9 @@ import { Mail, MapPin, Phone } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
 
-const Elegant = ({ personalInfo, educations, skills, experiences, others }) => {
+const Elegant = ({ personalInfo, educations, skills, experiences, others, contentRef }) => {
   return (
-    <div className="w-full max-w-4xl mx-auto bg-gray-50 p-8 rounded-lg shadow-md font-sans">
+    <div ref={contentRef} className="w-full max-w-4xl mx-auto bg-gray-50 p-8 rounded-lg shadow-md font-sans">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6 border-b border-gray-300 pb-6">
         {personalInfo.photo && (
