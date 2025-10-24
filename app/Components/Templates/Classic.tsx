@@ -1,9 +1,9 @@
 import React from 'react';
 import { PhoneCall } from 'lucide-react';
 
-const Classic = ({ personalInfo, educations, skills, experiences, others }) => {
+const Classic = ({ personalInfo, educations, skills, experiences, others , contentRef}) => {
   return (
-    <div className="max-w-3xl mx-auto bg-white text-gray-800 p-6 sm:p-10 font-sans leading-relaxed shadow-sm">
+    <div ref={contentRef} className="max-w-3xl mx-auto bg-white text-gray-800 p-6 sm:p-10 font-sans leading-relaxed shadow-sm">
       {/* Header */}
       <div className="text-center border-b pb-6">
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-wide break-words">

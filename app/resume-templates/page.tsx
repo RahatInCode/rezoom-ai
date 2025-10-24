@@ -276,7 +276,7 @@ const Card: React.FC<TemplateCardProps> = ({ resume }) => {
 
       {/* Clickable area */}
       <Link
-        href={`/create-resume/${resume.id}`}
+        href={`/create-resume/experience-level/template-selection/${resume.id}`}
         className="absolute inset-0"
         aria-label={`Select ${resume.name} template`}
       />

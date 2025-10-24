@@ -145,15 +145,15 @@ const Page = () => {
       <dialog id="modal" className="modal">
         <div className="modal-box w-11/12 max-w-5xl">
           <div ref={contentRef} className="w-full">
-            {selectedTemplate?.name.includes("Classic") && <Classic personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Modern") && <Modern personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Elegant") && <Elegant personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Creative") && <Creative personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Blocks") && <ModernBlock personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Stylish") && <Stylish personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Simple") && <Simple personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Corporate") && <Corporate personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
-            {selectedTemplate?.name.includes("Smart") && <Smart personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Classic") && <Classic contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Modern") && <Modern contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Elegant") && <Elegant contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Creative") && <Creative contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Blocks") && <ModernBlock contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Stylish") && <Stylish contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Simple") && <Simple contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Corporate") && <Corporate contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
+            {selectedTemplate?.name.includes("Smart") && <Smart contentRef={contentRef} personalInfo={personalInfo} educations={educations} skills={skills} experiences={experiences} others={others} />}
           </div>
 
           <div className="modal-action flex justify-between">

@@ -2,9 +2,9 @@ import { Globe, Mail, Phone } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
 
-const Corporate = ({ personalInfo, educations, skills, experiences, others }) => {
+const Corporate = ({ personalInfo, educations, skills, experiences, others, contentRef }) => {
   return (
-    <div className="w-full max-w-5xl mx-auto bg-white p-10 font-sans text-gray-800 leading-relaxed">
+    <div ref={contentRef} className="w-full max-w-5xl mx-auto bg-white p-10 font-sans text-gray-800 leading-relaxed">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-300 pb-6">
         {/* Profile Image */}

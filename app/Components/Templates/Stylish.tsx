@@ -1,8 +1,8 @@
 import React from 'react';
 
-const Stylish = ({ personalInfo, educations, skills, experiences, others }) => {
+const Stylish = ({ personalInfo, educations, skills, experiences, others, contentRef }) => {
   return (
-    <div className="max-w-5xl mx-auto bg-white text-gray-800 font-sans">
+    <div ref={contentRef} className="max-w-5xl mx-auto bg-white text-gray-800 font-sans">
       {/* Header */}
       <div className="bg-gray-100 p-8 text-start">
         <h1 className="text-4xl font-semibold tracking-wide">

@@ -2,9 +2,9 @@ import { Globe, Mail, MapPin, Phone } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
 
-const Smart = ({ personalInfo, educations, skills, experiences, others }) => {
+const Smart = ({ personalInfo, educations, skills, experiences, others , contentRef}) => {
   return (
-    <div className="w-full max-w-5xl mx-auto bg-white shadow-md font-sans">
+    <div ref={contentRef} className="w-full max-w-5xl mx-auto bg-white shadow-md font-sans">
       {/* Header Section */}
       <div className="bg-[#f3f6fa] p-8 flex flex-col md:flex-row items-center md:items-start gap-8">
         {/* Profile Image */}

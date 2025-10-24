@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import React from 'react';
 
-const ModernBlock = ({ personalInfo, educations, skills, experiences, others }) => {
+const ModernBlock = ({ personalInfo, educations, skills, experiences, others , contentRef}) => {
   return (
-    <div className="max-w-5xl mx-auto bg-white p-8 font-sans text-gray-800">
+    <div ref={contentRef} className="max-w-5xl mx-auto bg-white p-8 font-sans text-gray-800">
       {/* Header */}
       <div className="flex flex-col md:flex-row items-center justify-between border-b-4 border-[#1E3A8A] pb-6 mb-6">
         {/* Left: Photo */}
