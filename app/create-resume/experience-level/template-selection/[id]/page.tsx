@@ -21,6 +21,15 @@ import { Save } from "lucide-react";
 import domtoimage from "dom-to-image-more";
 import { jsPDF } from "jspdf";
 
+// Type for Resume Template
+type ResumeTemplateType = {
+  id: string;
+  name: string;
+  description: string;
+  category?: string;
+};
+
+// Type for Personal Info
 type PersonalInfoType = {
   name: string;
   role: string;
@@ -32,19 +41,13 @@ type PersonalInfoType = {
   photo?: string;
   objective: string;
 };
-type ResumeTemplateType = {
-  id: string;
-  name: string;
-  description: string;
-  category?: string;
-};
-
 
 const Page = () => {
   const { id } = useParams();
-const [ResumeData, setResumeData] = useState<ResumeTemplateType[]>([]);
-const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplateType | null>(null);
 
+  // States
+  const [ResumeData, setResumeData] = useState<ResumeTemplateType[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplateType | null>(null);
 
   const [personalInfo, setPersonalInfo] = useState<PersonalInfoType>({
     name: "",
@@ -77,20 +80,22 @@ const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplateType | nu
     achievements: [""],
   });
 
+  // Fetch resume templates
   useEffect(() => {
     fetch("/resume-templates.json")
       .then((res) => res.json())
-      .then((data) => setResumeData(data || []));
+      .then((data: ResumeTemplateType[]) => setResumeData(data || []));
   }, []);
 
-useEffect(() => {
-  if (ResumeData.length > 0 && id) {
-    const selected = ResumeData.find((resume) => resume.id === id) || null;
-    setSelectedTemplate(selected);
-  }
-}, [ResumeData, id]);
+  // Select template based on ID
+  useEffect(() => {
+    if (ResumeData.length > 0 && id) {
+      const selected = ResumeData.find((resume) => resume.id === id) || null;
+      setSelectedTemplate(selected);
+    }
+  }, [ResumeData, id]);
 
-
+  // Steps & components
   const steps = ["Basic Info", "Education", "Skills", "Experience", "Others"];
   const components = [
     <Info key="info" personalInfo={personalInfo} setPersonalInfo={setPersonalInfo} />,
