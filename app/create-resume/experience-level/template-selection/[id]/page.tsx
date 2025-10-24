@@ -32,11 +32,19 @@ type PersonalInfoType = {
   photo?: string;
   objective: string;
 };
+type ResumeTemplateType = {
+  id: string;
+  name: string;
+  description: string;
+  category?: string;
+};
+
 
 const Page = () => {
   const { id } = useParams();
-  const [ResumeData, setResumeData] = useState<any[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+const [ResumeData, setResumeData] = useState<ResumeTemplateType[]>([]);
+const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplateType | null>(null);
+
 
   const [personalInfo, setPersonalInfo] = useState<PersonalInfoType>({
     name: "",
@@ -75,12 +83,13 @@ const Page = () => {
       .then((data) => setResumeData(data || []));
   }, []);
 
-  useEffect(() => {
-    if (ResumeData.length > 0 && id) {
-      const selected = ResumeData.find((resume) => resume.id === id);
-      setSelectedTemplate(selected);
-    }
-  }, [ResumeData, id]);
+useEffect(() => {
+  if (ResumeData.length > 0 && id) {
+    const selected = ResumeData.find((resume) => resume.id === id) || null;
+    setSelectedTemplate(selected);
+  }
+}, [ResumeData, id]);
+
 
   const steps = ["Basic Info", "Education", "Skills", "Experience", "Others"];
   const components = [
