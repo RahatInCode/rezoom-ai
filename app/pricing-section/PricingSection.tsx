@@ -7,7 +7,7 @@ type Plan = {
   name: string;
   description: string;
   price: string;
-  priceId: string; // Stripe Price ID
+  priceId: string;
   period?: string;
   features: string[];
   highlight?: boolean;
@@ -21,7 +21,7 @@ const plans: Plan[] = [
     name: "Free",
     description: "Perfect to try out basic features.",
     price: "$0",
-    priceId: "", // No price ID for free plan
+    priceId: "", // No Stripe needed for free
     period: "forever",
     features: [
       "10 Resume Downloads / month",
@@ -36,8 +36,7 @@ const plans: Plan[] = [
     name: "Monthly",
     description: "Best for short-term prep.",
     price: "$15",
-    // Use a manual test mode - we'll create this in Stripe Dashboard
-    priceId: "price_1QW8KmKZJQm5Qn5v4x3Z9X8Y", // Replace with your actual test price
+    priceId: "price_1SLdaZ6XfOPAZGtt9zfg1hU7", 
     period: "per month",
     features: [
       "Unlimited Resume Downloads",
@@ -55,7 +54,7 @@ const plans: Plan[] = [
     name: "Yearly",
     description: "Save more with long-term access.",
     price: "$120",
-    priceId: "price_1QW8KmKZJQm5Qn5v4x3Z9X9Z", // Replace with your actual test price
+    priceId: "price_1SLdbY6XfOPAZGttl7UjSaKo", 
     period: "per year",
     features: [
       "Everything in Monthly",
@@ -71,20 +70,40 @@ const plans: Plan[] = [
 
 export default function PricingSection() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handlePlanSelection = async (plan: Plan) => {
+    // Handle free plan
     if (plan.name === "Free") {
-      // Handle free plan signup (redirect to signup/dashboard)
       window.location.href = "/dashboard";
       return;
     }
 
+    // Validate price ID exists
+    if (!plan.priceId || plan.priceId.includes("PASTE_YOUR")) {
+      alert(
+        "⚠️ Stripe Price ID not configured!\n\nPlease:\n1. Create products in Stripe Dashboard\n2. Copy the Price IDs\n3. Update PricingSection.tsx"
+      );
+      return;
+    }
+
     setLoadingPlan(plan.name);
+    setError(null);
+
     try {
       await handleStripeCheckout(plan.priceId, plan.name);
-    } catch (error) {
-      console.error("Checkout error:", error);
-      alert("Failed to start checkout. Please try again.");
+    } catch (err: unknown) {
+      console.error("Checkout error:", err);
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : "Failed to start checkout. Please try again.";
+      setError(message);
+
+      // Show user-friendly error
+      alert(
+        `Failed to start checkout:\n${message}\n\nPlease check:\n- Your internet connection\n- Stripe configuration\n- Browser console for details`
+      );
     } finally {
       setLoadingPlan(null);
     }
@@ -103,10 +122,29 @@ export default function PricingSection() {
             Choose Your Plan
           </h2>
           <p className="text-xl text-[#64748b] max-w-2xl mx-auto">
-            Start free and upgrade as you grow. All plans include our core
-            features.
+            Start free and upgrade as you grow. All plans include our core features.
           </p>
+
+          {/* Test Mode Badge */}
+          <div className="mt-6 inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Test Mode - Use card 4242 4242 4242 4242
+          </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="max-w-2xl mx-auto mb-8 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl">
+            <p className="font-semibold mb-1">Payment Error</p>
+            <p className="text-sm">{error}</p>
+          </div>
+        )}
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -123,14 +161,12 @@ export default function PricingSection() {
                     : "border border-gray-200 shadow-lg"
                 }`}
               >
-                {/* Badge */}
                 {plan.badge && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-1.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-[#10b981] to-[#059669] shadow-lg">
                     {plan.badge}
                   </div>
                 )}
 
-                {/* Icon */}
                 <div
                   className={`inline-flex p-3 rounded-xl mb-6 ${
                     plan.highlight
@@ -141,7 +177,6 @@ export default function PricingSection() {
                   {plan.icon}
                 </div>
 
-                {/* Plan Info */}
                 <div className="mb-8">
                   <h3 className="text-2xl font-bold text-[#0f172a] mb-2">
                     {plan.name}
@@ -159,7 +194,6 @@ export default function PricingSection() {
                   </div>
                 </div>
 
-                {/* Features */}
                 <ul className="space-y-4 mb-8">
                   {plan.features.map((feature, index) => {
                     const isNegative = isNegativeFeature(feature);
@@ -192,7 +226,6 @@ export default function PricingSection() {
                   })}
                 </ul>
 
-                {/* CTA Button */}
                 <button
                   onClick={() => handlePlanSelection(plan)}
                   disabled={loadingPlan === plan.name}
@@ -234,7 +267,6 @@ export default function PricingSection() {
           })}
         </div>
 
-        {/* Footer */}
         <div className="text-center mt-16">
           <p className="text-[#64748b]">
             Need a custom plan for your team?{" "}
