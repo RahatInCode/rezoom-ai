@@ -53,19 +53,24 @@ export default function Page() {
     selected.MoreSevenExp;
 
   return (
-    <div className="w-full flex flex-col justify-center items-center min-h-[calc(100vh-60px)]">
+    // Updated: Added gradient background and generous vertical padding
+    <div className="w-full flex flex-col justify-center items-center min-h-[calc(100vh-60px)] bg-gradient-to-b from-white to-[#f0fdf4] py-16 lg:py-20">
       <Toaster />
 
-      <div className="container max-h-fit min-h-96 w-full lg:w-3/4 flex flex-col space-y-8 p-5">
+      <div className="container max-h-fit min-h-96 w-full lg:w-3/4 flex flex-col space-y-16 p-5">
         {/* Experience Section */}
         <div className="w-full text-center p-4">
-          <h1 className="text-5xl font-bold">How long have you been working?</h1>
-          <p className="mb-8 mt-3 text-lg">
-  We&apos;ll find the best templates for your experience level.
-</p>
+          {/* Updated: Navy text, extrabold weight, improved spacing */}
+          <h1 className="text-4xl lg:text-5xl font-extrabold text-[#0f172a] tracking-tight">
+            How long have you been working?
+          </h1>
+          {/* Updated: Medium gray text for secondary content */}
+          <p className="mb-10 mt-4 text-lg lg:text-xl text-[#64748b] font-medium">
+            We&apos;ll find the best templates for your experience level.
+          </p>
 
-
-          <div className="flex flex-wrap justify-center gap-5">
+          {/* Updated: Increased gap for better spacing */}
+          <div className="flex flex-wrap justify-center gap-4 lg:gap-5">
             {[
               "No Experience",
               "0 to 3 Years",
@@ -76,9 +81,20 @@ export default function Page() {
               <button
                 key={idx}
                 onClick={() => handleExperienceSelection(idx)}
-                className={`btn btn-lg btn-outline px-8 p-2 font-normal ${
-                  Object.values(selected)[idx] ? "border-2 border-primary" : ""
-                }`}
+                // Updated: Emerald border, rounded-full, shadow on hover, scale effect, emerald selected state
+                className={`
+                  px-6 lg:px-8 py-3 lg:py-4 
+                  text-base lg:text-lg font-semibold
+                  rounded-full
+                  border-2 
+                  transition-all duration-300
+                  hover:shadow-lg hover:scale-105
+                  ${
+                    Object.values(selected)[idx]
+                      ? "bg-[#10b981] text-white border-[#10b981] shadow-md"
+                      : "bg-white text-[#1e293b] border-[#e2e8f0] hover:border-[#10b981] hover:text-[#10b981]"
+                  }
+                `}
               >
                 {label}
               </button>
@@ -89,42 +105,61 @@ export default function Page() {
         {/* Education Section */}
         {anyExperienceSelected && (
           <div className="w-full text-center p-4">
-            <h1 className="text-5xl font-bold">
+            {/* Updated: Navy text, extrabold weight */}
+            <h1 className="text-4xl lg:text-5xl font-extrabold text-[#0f172a] tracking-tight">
               Select the option that best describes your education level.
             </h1>
-            <p className="mb-8 mt-3 text-lg">
+            {/* Updated: Medium gray text for secondary content */}
+            <p className="mb-10 mt-4 text-lg lg:text-xl text-[#64748b] font-medium">
               Your education background can help us guide you through relevant
               sections for your resume.
             </p>
 
-            <div className="flex flex-wrap justify-center gap-5">
+            <div className="flex flex-wrap justify-center gap-4 lg:gap-5">
               {bestDescribeYourself.map((item, idx) => (
                 <button
                   key={idx}
                   onClick={() => setEduSelect(idx + 1)}
-                  className={`btn btn-lg btn-outline px-8 p-2 font-normal ${
-                    eduSelect === idx + 1 ? "border-2 border-primary" : ""
-                  }`}
+                  // Updated: Same emerald styling as experience buttons
+                  className={`
+                    px-6 lg:px-8 py-3 lg:py-4 
+                    text-base lg:text-lg font-semibold
+                    rounded-full
+                    border-2 
+                    transition-all duration-300
+                    hover:shadow-lg hover:scale-105
+                    ${
+                      eduSelect === idx + 1
+                        ? "bg-[#10b981] text-white border-[#10b981] shadow-md"
+                        : "bg-white text-[#1e293b] border-[#e2e8f0] hover:border-[#10b981] hover:text-[#10b981]"
+                    }
+                  `}
                 >
                   {item}
                 </button>
               ))}
             </div>
 
-            <div className="w-full py-5 flex justify-end items-center">
+            {/* Updated: Increased padding for generous spacing */}
+            <div className="w-full py-8 flex justify-end items-center">
               {eduSelect ? (
                 <Link
                   href="/create-resume/experience-level/template-selection"
-                  className="btn px-8 btn-primary flex items-center gap-2"
+                  // Updated: Emerald bg, rounded-full, shadow-lg, hover:scale-105, group for arrow animation
+                  className="bg-[#10b981] hover:bg-[#059669] text-white font-bold text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 px-8 py-4 flex items-center gap-2 group"
                 >
-                  Next <ArrowRight />
+                  Next 
+                  {/* Updated: Arrow animation on hover */}
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                 </Link>
               ) : (
                 <button
                   onClick={() => toast.error("Select an option first!")}
-                  className="btn px-8 btn-primary flex items-center gap-2"
+                  // Updated: Same emerald styling
+                  className="bg-[#10b981] hover:bg-[#059669] text-white font-bold text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 px-8 py-4 flex items-center gap-2 group"
                 >
-                  Next <ArrowRight />
+                  Next 
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                 </button>
               )}
             </div>
