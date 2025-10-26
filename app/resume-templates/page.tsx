@@ -71,7 +71,7 @@ const Page = () => {
               src="https://i.ibb.co.com/Rk7TVb2f/3d-employee-resume-rating-illustration-png.png"
               alt="Resume Illustration"
               fill
-              className="object-contain relative z-10"
+              className="object-contain  relative z-10"
               unoptimized
             />
           </motion.div>

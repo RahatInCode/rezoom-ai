@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation"; // App Router
 import toast, { Toaster } from "react-hot-toast";
+import { ArrowRight } from "lucide-react";
 
 type Template = {
   id: string;
@@ -72,11 +73,12 @@ const TemplateSelector: React.FC = () => {
     <div className="flex min-h-screen bg-gray-100">
       <Toaster />
       {/* Sidebar Filters */}
-      <div className="w-64 p-4 bg-white shadow-md">
+      <div className="sm:max-w-40   md:max-w-64 p-4 bg-white shadow-md">
         <h2 className="text-lg font-semibold mb-4">Filters</h2>
 
         <div className="mb-4">
           <h3 className="font-medium mb-2">Photo</h3>
+          <hr />
           <label className="flex items-center mb-1">
             <input
               type="checkbox"
@@ -101,6 +103,7 @@ const TemplateSelector: React.FC = () => {
 
         <div>
           <h3 className="font-medium mb-2">Layout</h3>
+          <hr />
           <label className="flex items-center mb-1">
             <input
               type="checkbox"
@@ -125,9 +128,9 @@ const TemplateSelector: React.FC = () => {
       </div>
 
       {/* Templates Grid */}
-      <div className="flex-1 p-6">
-        <h1 className="text-2xl font-bold mb-6">Select a Resume Template</h1>
-        <div className={`grid gap-6 ${getGridCols()}`}>
+      <div className="flex-1  p-5">
+        <h1 className="text-xl text-center md:text-start md:text-2xl font-bold mb-6">Select a Resume Template</h1>
+        <div className={`grid md:gap-5 gap-0 ${getGridCols()}`}>
           {filteredTemplates.map((template) => (
             <div
               key={template.id}
@@ -140,19 +143,21 @@ const TemplateSelector: React.FC = () => {
                 alt={template.name}
                 className="w-full h-64 object-contain"
               />
-              <div className="p-2 text-center font-medium">{template.name}</div>
+              <div className="p-1 md:p-2 text-center font-medium">{template.name}</div>
             </div>
           ))}
         </div>
 
-        <button
+        <div className="w-full flex justify-center md:justify-end">
+                      <button
           onClick={handleNext}
           disabled={!selectedTemplateId}
-          className={`mt-6 px-6 py-3 text-white font-semibold rounded-lg transition 
+          className={`mt-6 px-6 py-3 text-white flex btn-sm md:btn font-semibold rounded-lg transition 
             ${selectedTemplateId ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"}`}
         >
-          Next
+          Next <ArrowRight />
         </button>
+        </div>
       </div>
     </div>
   );
