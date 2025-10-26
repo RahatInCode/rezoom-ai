@@ -4,6 +4,7 @@ import { IoChevronForward } from "react-icons/io5";
 import ExpertsCard from "../Components/ExpertsCard";
 import DeveloperSection from "./developers/DevTeam";
 
+
 interface Expert {
   name: string;
   position: string;
@@ -70,6 +71,7 @@ const Page = () => {
         <p className="mt-4 text-lg text-slate-600 font-medium max-w-3xl" style={{ fontFamily: 'Inter, sans-serif' }}>
           Your complete resource for career advancement and professional development
         </p>
+       
       </div>
 
       {/* Updated: TOC for Small Screens with emerald styling */}

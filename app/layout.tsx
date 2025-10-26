@@ -4,6 +4,8 @@ import { RootProvider } from "./context/createContext";
 import Navbar from "./Components/Navigation/Navbar";
 import Footer from "./Components/Footer/Footer";
 import ThemeProvider from "./context/themeProvider";
+import ChatBot from "./Components/Chatbot/ChatBot";
+
 
 
 
@@ -20,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <RootProvider>
         <Navbar />
         <main className="w-full min-h-screen">{children}</main>
+        <ChatBot />
         <Footer />
         </RootProvider>
         </ThemeProvider>
