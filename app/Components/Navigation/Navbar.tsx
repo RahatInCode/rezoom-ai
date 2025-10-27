@@ -70,7 +70,7 @@ function Navbar() {
 
   return (
     <header className="rounded-2xl w-full backdrop-blur-xl bg-white/80 dark:bg-black/80 border-b border-gray-200 dark:border-gray-700 shadow-2xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-2  sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Logo />
 
@@ -91,18 +91,20 @@ function Navbar() {
             </ul>
           </nav>
 
-          {/* Right Side */}
-          <div className="flex items-center gap-2">
-            <ModeToggle /> 
-            <BuildButton buttonName="ResumeBuild" />
-            <BuildButton buttonName="RegisterButton" />
-            <button
-              className="md:hidden group text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 h-10 w-10 flex items-center justify-center rounded-lg"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-expanded={isMenuOpen}
-            >
-              <MenuIcon />
-            </button>
+          <div className="flex items-center gap-4">
+            <div className='w-fit hidden md:flex justify-center items-center gap-3 '>
+              <BuildButton buttonName={"ResumeBuild"} />
+            <BuildButton buttonName={"RegisterButton"} />
+            </div>
+            <div className="md:hidden">
+              <button
+                className="group text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 h-10 w-10 flex items-center justify-center rounded-lg"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-expanded={isMenuOpen}
+              >
+                <MenuIcon />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -119,8 +121,9 @@ function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="flex justify-center pt-2">
-                <ModeToggle /> {/* ✅ Also visible on mobile */}
+              <div className='w-full gap-2  flex flex-col justify-center items-start '>
+            <BuildButton buttonName={"ResumeBuild"} />
+            <BuildButton buttonName={"RegisterButton"} />
               </div>
             </div>
           </div>
