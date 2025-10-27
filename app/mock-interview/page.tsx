@@ -141,6 +141,8 @@ const MockInterviewPage = () => {
   const accumulatedTranscriptRef = useRef<string>('');
   const lastProcessedTranscriptRef = useRef<string>('');
   const lastUserSpeechTimeRef = useRef<number>(Date.now());
+  const isRestartingRef = useRef(false);
+  const shouldRestartAfterEndRef = useRef(true);
 
   // Constants
   const SILENCE_DELAY = 2500;
@@ -400,171 +402,189 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     }
   }, [addDebugLog]);
 
-  // Auto-restart speech recognition
+  // ✅ FIX: Auto-restart speech recognition (doesn't clear unprocessed data)
   const autoRestartListening = useCallback(() => {
     if (!showMockInterview || isPaused) {
       addDebugLog('⏭️ Skipping auto-restart (paused or not in interview)');
       return;
     }
 
-    setTimeout(() => {
-      if (recognitionRef.current && !isSpeaking && !isProcessing) {
-        try {
-          // Reset transcripts before restarting
-          accumulatedTranscriptRef.current = '';
-          setFinalTranscript('');
-          setInterimTranscript('');
-          lastProcessedTranscriptRef.current = '';
-          
-          recognitionRef.current.start();
-          addDebugLog('🎤 Auto-restarted speech recognition');
-          toast.success('🎤 Listening for your response...', { duration: 2000 });
-        } catch (error) {
-          const err = error as Error;
-          // Ignore "already started" errors
-          if (!err.message.includes('already started')) {
-            console.error('Error auto-restarting recognition:', error);
-            addDebugLog(`❌ Failed to auto-restart: ${err.message}`);
-            toast('Click the microphone to speak', { icon: '🎤', duration: 3000 });
-          }
-        }
-      }
-    }, 500);
-  }, [showMockInterview, isPaused, isSpeaking, isProcessing, addDebugLog]);
-
-  // Start inactivity timer
-  const startInactivityTimer = useCallback(() => {
-    if (inactivityTimeoutRef.current) {
-      clearTimeout(inactivityTimeoutRef.current);
-    }
-
-    if (!showMockInterview || isPaused || isSpeaking || isProcessing) {
+    if (isRestartingRef.current) {
+      addDebugLog('⏭️ Already restarting, skipping duplicate restart');
       return;
     }
 
-    addDebugLog('⏰ Starting 10s inactivity timer');
+    isRestartingRef.current = true;
 
-    inactivityTimeoutRef.current = setTimeout(async () => {
-      const timeSinceLastSpeech = Date.now() - lastUserSpeechTimeRef.current;
-      
-      if (timeSinceLastSpeech >= INACTIVITY_DELAY && !isSpeaking && !isProcessing) {
-        addDebugLog('⚠️ User inactive for 10s - asking follow-up');
-        
-        toast('🤔 Still there? Let me ask a follow-up question...', { duration: 3000 });
-        
-        const followUpMessage: ConversationMessage = {
-          role: 'user',
-          parts: '[SILENCE - No response from candidate]',
-          timestamp: formatTime(interviewTime)
-        };
+    setTimeout(() => {
+      if (recognitionRef.current && !isSpeaking && !isProcessing) {
+        try {
+          // ✅ FIX: Only clear if transcript has been processed
+          const pending = accumulatedTranscriptRef.current.trim();
+          const alreadyProcessed = pending === lastProcessedTranscriptRef.current;
 
-        const updatedHistory = [...conversationHistory, followUpMessage];
-        const response = await callGeminiAPI(updatedHistory, true);
-
-        if (response) {
-          const aiMessage: ConversationMessage = {
-            role: 'model',
-            parts: response,
-            timestamp: formatTime(interviewTime)
-          };
-
-          setConversationHistory([...updatedHistory, aiMessage]);
-          setCurrentQuestion(response);
+          if (!pending || alreadyProcessed) {
+            // Safe to clear - no pending data or already processed
+            accumulatedTranscriptRef.current = '';
+            setFinalTranscript('');
+            setInterimTranscript('');
+            addDebugLog('🧹 Cleared transcripts (safe - no pending data)');
+          } else {
+            addDebugLog(`⚠️ NOT clearing unprocessed transcript: "${pending.substring(0, 30)}..."`);
+            // Don't restart if there's unprocessed pending data
+            isRestartingRef.current = false;
+            return;
+          }
           
-          // Speak the follow-up (which will auto-restart listening after)
-          if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(response);
-            utterance.rate = 0.95;
-            utterance.pitch = 1.1;
-            utterance.volume = volume / 100;
-            
-            const voices = window.speechSynthesis.getVoices();
-            const femaleVoice = voices.find(voice => 
-              voice.name.includes('Female') || 
-              voice.name.includes('Samantha') ||
-              voice.name.includes('Karen') ||
-              voice.name.includes('Google UK English Female')
-            ) || voices[0];
-            
-            if (femaleVoice) {
-              utterance.voice = femaleVoice;
-            }
-
-            utterance.onend = () => {
-              setIsSpeaking(false);
-              lastUserSpeechTimeRef.current = Date.now();
-              autoRestartListening();
-            };
-
-            setIsSpeaking(true);
-            window.speechSynthesis.speak(utterance);
+          shouldRestartAfterEndRef.current = true;
+          recognitionRef.current.start();
+          addDebugLog('🎤 Auto-restarted speech recognition');
+          toast.success('🎤 Listening...', { duration: 2000 });
+        } catch (error) {
+          const err = error as Error;
+          // Ignore "already started" errors
+          if (err.message.includes('already started')) {
+            addDebugLog('✅ Recognition already active');
+            setIsListening(true);
+          } else {
+            console.error('Error auto-restarting recognition:', error);
+            addDebugLog(`❌ Failed to auto-restart: ${err.message}`);
           }
         }
       }
-    }, INACTIVITY_DELAY);
-  }, [showMockInterview, isPaused, isSpeaking, isProcessing, conversationHistory, interviewTime, callGeminiAPI, formatTime, volume, autoRestartListening, addDebugLog]);
+      isRestartingRef.current = false;
+    }, 800);
+  }, [showMockInterview, isPaused, isSpeaking, isProcessing, addDebugLog]);
 
-  // Text-to-Speech with auto-restart
-  const speakText = useCallback(async (text: string) => {
-    if (!text) return;
+// Start inactivity timer
+const speakTextRef = useRef<((text: string) => Promise<void>) | null>(null);
 
-    setIsSpeaking(true);
-    addDebugLog(`🔊 Speaking: "${text.substring(0, 50)}..."`);
+const startInactivityTimer = useCallback(() => {
+  if (inactivityTimeoutRef.current) {
+    clearTimeout(inactivityTimeoutRef.current);
+  }
 
-    // Stop recognition while AI is speaking
-    if (recognitionRef.current && isListening) {
-      try {
-        recognitionRef.current.stop();
-        setIsListening(false);
-        addDebugLog('🛑 Stopped listening for AI speech');
-      } catch (error) {
-        console.error('Error stopping recognition:', error);
+  if (!showMockInterview || isPaused || isSpeaking || isProcessing) {
+    return;
+  }
+
+  addDebugLog('⏰ Starting 10s inactivity timer');
+
+  inactivityTimeoutRef.current = setTimeout(async () => {
+    const timeSinceLastSpeech = Date.now() - lastUserSpeechTimeRef.current;
+    
+    if (timeSinceLastSpeech >= INACTIVITY_DELAY && !isSpeaking && !isProcessing) {
+      addDebugLog('⚠️ User inactive for 10s - asking follow-up');
+      
+      toast('🤔 Still there? Let me ask a follow-up question...', { duration: 3000 });
+      
+      const followUpMessage: ConversationMessage = {
+        role: 'user',
+        parts: '[SILENCE - No response from candidate]',
+        timestamp: formatTime(interviewTime)
+      };
+
+      const updatedHistory = [...conversationHistory, followUpMessage];
+      const response = await callGeminiAPI(updatedHistory, true);
+
+      if (response) {
+        const aiMessage: ConversationMessage = {
+          role: 'model',
+          parts: response,
+          timestamp: formatTime(interviewTime)
+        };
+
+        setConversationHistory([...updatedHistory, aiMessage]);
+        setCurrentQuestion(response);
+        
+        if (speakTextRef.current) {
+          await speakTextRef.current(response);
+        }
       }
     }
+  }, INACTIVITY_DELAY);
+}, [showMockInterview, isPaused, isSpeaking, isProcessing, conversationHistory, interviewTime, callGeminiAPI, formatTime, addDebugLog]);
 
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.95;
-      utterance.pitch = 1.1;
-      utterance.volume = volume / 100;
-      
-      const voices = window.speechSynthesis.getVoices();
-      const femaleVoice = voices.find(voice => 
-        voice.name.includes('Female') || 
-        voice.name.includes('Samantha') ||
-        voice.name.includes('Karen') ||
-        voice.name.includes('Google UK English Female')
-      ) || voices[0];
-      
-      if (femaleVoice) {
-        utterance.voice = femaleVoice;
-      }
+// ✅ FIX: Text-to-Speech with guaranteed auto-restart
+const speakText = useCallback(async (text: string) => {
+  if (!text) return;
 
-      utterance.onend = () => {
-        setIsSpeaking(false);
-        addDebugLog('✅ TTS finished - auto-restarting listening');
-        
-        lastUserSpeechTimeRef.current = Date.now();
-        
+  setIsSpeaking(true);
+  addDebugLog(`🔊 Speaking: "${text.substring(0, 50)}..."`);
+
+  // Stop recognition while AI is speaking
+  if (recognitionRef.current && isListening) {
+    try {
+      shouldRestartAfterEndRef.current = false; // Don't restart from onend, we'll do it after TTS
+      recognitionRef.current.stop();
+      setIsListening(false);
+      addDebugLog('🛑 Stopped listening for AI speech');
+    } catch (error) {
+      console.error('Error stopping recognition:', error);
+    }
+  }
+
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.pitch = 1.1;
+    utterance.volume = volume / 100;
+    
+    const voices = window.speechSynthesis.getVoices();
+    const femaleVoice = voices.find(voice => 
+      voice.name.includes('Female') || 
+      voice.name.includes('Samantha') ||
+      voice.name.includes('Karen') ||
+      voice.name.includes('Google UK English Female')
+    ) || voices[0];
+    
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
+    }
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      addDebugLog('✅ TTS finished - auto-restarting listening');
+      
+      lastUserSpeechTimeRef.current = Date.now();
+      
+      // ✅ FIX: Always restart listening after TTS completes
+      setTimeout(() => {
         autoRestartListening();
         startInactivityTimer();
-      };
+      }, 500);
+    };
 
-      utterance.onerror = () => {
-        setIsSpeaking(false);
-        addDebugLog('❌ TTS error');
-        toast.error('Speech synthesis error');
-      };
-
-      window.speechSynthesis.speak(utterance);
-    } else {
+    utterance.onerror = (event) => {
       setIsSpeaking(false);
-      toast.error('Speech synthesis not supported');
-    }
-  }, [volume, isListening, addDebugLog, autoRestartListening, startInactivityTimer]);
+      addDebugLog(`❌ TTS error: ${event.error}`);
+      toast.error('Speech synthesis error');
+      
+      // ✅ FIX: CRITICAL - Restart listening even after TTS error
+      lastUserSpeechTimeRef.current = Date.now();
+      setTimeout(() => {
+        autoRestartListening();
+        startInactivityTimer();
+      }, 500);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  } else {
+    setIsSpeaking(false);
+    toast.error('Speech synthesis not supported');
+    
+    // ✅ FIX: Restart listening even if TTS not supported
+    setTimeout(() => {
+      autoRestartListening();
+      startInactivityTimer();
+    }, 500);
+  }
+}, [volume, isListening, addDebugLog, autoRestartListening, startInactivityTimer]);
+
+// keep a stable reference for other callbacks to use (breaks circular dependency)
+speakTextRef.current = speakText;
 
   // Trigger coding question
   const triggerCodingQuestion = useCallback(() => {
@@ -579,12 +599,17 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     addDebugLog(`💻 Coding challenge triggered: ${randomProblem.title}`);
   }, [addDebugLog]);
 
-  // Handle user speech
+  // ✅ FIX: Handle user speech with guaranteed restart
   const handleUserSpeech = useCallback(async (transcript: string) => {
     const trimmed = transcript.trim();
 
     if (trimmed === lastProcessedTranscriptRef.current) {
       addDebugLog('⏭️ Duplicate transcript, skipping');
+      // ✅ FIX: Still restart listening even if duplicate
+      setTimeout(() => {
+        autoRestartListening();
+        startInactivityTimer();
+      }, 500);
       return;
     }
 
@@ -593,7 +618,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       toast.error('Speech too short. Please speak more clearly.');
       accumulatedTranscriptRef.current = '';
       setFinalTranscript('');
-      autoRestartListening();
+      // ✅ FIX: Restart after error
+      setTimeout(() => {
+        autoRestartListening();
+        startInactivityTimer();
+      }, 500);
       return;
     }
 
@@ -633,6 +662,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       setConversationHistory([...updatedHistory, aiMessage]);
       setCurrentQuestion(response);
 
+      // ✅ TTS will auto-restart listening via its onend/onerror
       await speakText(response);
 
       const lower = response.toLowerCase();
@@ -646,12 +676,17 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       setQuestionNumber(prev => Math.min(prev + 1, totalQuestions));
     } else {
       addDebugLog('❌ No response from Gemini');
-      toast.error('Failed to get AI response. Please try again.');
-      autoRestartListening();
+      toast.error('Failed to get AI response. Restarting...');
+      
+      // ✅ FIX: CRITICAL - Always restart even on API failure
+      setTimeout(() => {
+        autoRestartListening();
+        startInactivityTimer();
+      }, 1000);
     }
-  }, [conversationHistory, interviewTime, callGeminiAPI, speakText, triggerCodingQuestion, formatTime, totalQuestions, addDebugLog, clearInactivityTimer, autoRestartListening]);
+  }, [conversationHistory, interviewTime, callGeminiAPI, speakText, triggerCodingQuestion, formatTime, totalQuestions, addDebugLog, clearInactivityTimer, autoRestartListening, startInactivityTimer]);
 
-  // Setup speech recognition
+  // ✅ FIX: Setup speech recognition with proper onend handling
   const setupSpeechRecognition = useCallback(() => {
     if (typeof window === 'undefined') return;
 
@@ -664,9 +699,9 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
     if (recognitionRef.current) {
       try {
-        recognitionRef.current.stop();
+        recognitionRef.current.abort();
       } catch (error) {
-        console.error('Recognition stop error:', error);
+        console.error('Recognition abort error:', error);
       }
     }
 
@@ -679,8 +714,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       addDebugLog('🎤 Speech recognition started');
       setIsListening(true);
       setInterimTranscript('');
-      setFinalTranscript('');
-      accumulatedTranscriptRef.current = '';
       clearInactivityTimer();
     };
 
@@ -716,15 +749,18 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
           addDebugLog(`⏱️ Silence detected (${SILENCE_DELAY}ms). Full: "${fullTranscript.substring(0, 50)}..."`);
 
-          if (fullTranscript) {
+          if (fullTranscript && !processingRef.current) {
+            // Stop recognition before processing
             if (recognitionRef.current) {
               try {
+                shouldRestartAfterEndRef.current = false; // Don't restart from onend
                 recognitionRef.current.stop();
               } catch (error) {
                 console.error('Error stopping recognition:', error);
               }
             }
 
+            // Process the speech
             handleUserSpeech(fullTranscript);
           }
         }, SILENCE_DELAY);
@@ -735,12 +771,16 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       addDebugLog(`❌ Speech error: ${event.error}`);
 
       if (event.error === 'no-speech') {
-        toast('No speech detected. Please try speaking again.', { icon: '🎤' });
-        setTimeout(() => autoRestartListening(), 1000);
+        toast('No speech detected. Ready to listen again...', { icon: '🎤' });
+        setTimeout(() => {
+          autoRestartListening();
+          startInactivityTimer();
+        }, 1000);
         return;
       }
 
       if (event.error === 'aborted') {
+        addDebugLog('⚠️ Recognition aborted (expected)');
         return;
       }
 
@@ -750,9 +790,21 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         toast.error('🎤 Microphone access denied. Please enable it in browser settings.');
       } else if (event.error === 'network') {
         toast.error('🌐 Network error. Check your connection.');
+        // ✅ FIX: Restart after network error
+        setTimeout(() => {
+          autoRestartListening();
+          startInactivityTimer();
+        }, 2000);
+      } else {
+        // ✅ FIX: Restart after any other error
+        setTimeout(() => {
+          autoRestartListening();
+          startInactivityTimer();
+        }, 1000);
       }
     };
 
+    // ✅ FIX: Process pending transcripts in onend before restarting
     recognitionRef.current.onend = () => {
       addDebugLog('🛑 Speech recognition ended');
       setIsListening(false);
@@ -762,8 +814,29 @@ Remember: Create a comfortable interview environment while assessing talent.`;
         clearTimeout(silenceTimeoutRef.current);
         silenceTimeoutRef.current = null;
       }
+
+      // ✅ FIX: Check for pending unprocessed transcript
+      const pending = accumulatedTranscriptRef.current.trim();
+      const alreadyProcessed = pending === lastProcessedTranscriptRef.current;
+      const isProcessingNow = processingRef.current;
+
+      if (pending && !alreadyProcessed && !isProcessingNow) {
+        addDebugLog(`⚠️ onend: Processing pending transcript: "${pending.substring(0, 50)}..."`);
+        handleUserSpeech(pending);
+      } else if (shouldRestartAfterEndRef.current && !isProcessingNow && !isSpeaking) {
+        // ✅ FIX: Auto-restart if we should (not stopped intentionally)
+        addDebugLog('🔄 onend: Auto-restarting (browser stopped unexpectedly)');
+        setTimeout(() => {
+          autoRestartListening();
+          startInactivityTimer();
+        }, 500);
+      } else {
+        addDebugLog('✅ onend: Clean stop (no restart needed)');
+      }
+
+      shouldRestartAfterEndRef.current = true; // Reset flag
     };
-  }, [handleUserSpeech, addDebugLog, clearInactivityTimer, autoRestartListening]);
+  }, [handleUserSpeech, addDebugLog, clearInactivityTimer, autoRestartListening, startInactivityTimer, isSpeaking]);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -772,7 +845,8 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     return () => {
       if (recognitionRef.current) {
         try {
-          recognitionRef.current.stop();
+          shouldRestartAfterEndRef.current = false;
+          recognitionRef.current.abort();
         } catch (error) {
           console.error('Cleanup error:', error);
         }
@@ -799,6 +873,51 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     };
   }, [showMockInterview, isPaused]);
 
+  // ✅ NEW: Recovery watchdog - detects and recovers from stuck states
+  useEffect(() => {
+    if (!showMockInterview || isPaused) return;
+
+    const watchdogInterval = setInterval(() => {
+      const now = Date.now();
+      const timeSinceLastSpeech = now - lastUserSpeechTimeRef.current;
+      
+      // If stuck for >20s and not actively doing anything
+      if (timeSinceLastSpeech > 20000 && 
+          !isListening && 
+          !isSpeaking && 
+          !isProcessing &&
+          !isRestartingRef.current) {
+        
+        addDebugLog('🔧 WATCHDOG: System stuck! Attempting recovery...');
+        toast('Recovering... Please wait', { icon: '🔧' });
+        
+        try {
+          // Force abort and restart
+          if (recognitionRef.current) {
+            shouldRestartAfterEndRef.current = false;
+            recognitionRef.current.abort();
+          }
+          
+          setTimeout(() => {
+            setupSpeechRecognition();
+            setTimeout(() => {
+              lastUserSpeechTimeRef.current = Date.now();
+              autoRestartListening();
+              startInactivityTimer();
+              toast.success('✅ Recovered! Ready to listen');
+            }, 500);
+          }, 500);
+          
+        } catch (error) {
+          console.error('Watchdog recovery failed:', error);
+          addDebugLog(`❌ Watchdog recovery failed: ${error}`);
+        }
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(watchdogInterval);
+  }, [showMockInterview, isPaused, isListening, isSpeaking, isProcessing, setupSpeechRecognition, autoRestartListening, startInactivityTimer, addDebugLog]);
+
   // Start interview conversation
   const startInterviewConversation = useCallback(async () => {
     const greeting = `Hello! I'm Sneha, and I'll be your interviewer today for the ${formData.role || 'software engineering'} position. I'm really excited to learn about your background and experience${formData.techStack ? `, especially with ${formData.techStack}` : ''}. This will be a ${formData.duration}-minute conversation. Let's start - could you tell me a bit about yourself and what interests you most about this role?`;
@@ -814,6 +933,8 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     setQuestionNumber(1);
     lastUserSpeechTimeRef.current = Date.now();
     addDebugLog('🎬 Interview started');
+    
+    // ✅ Speak greeting and auto-start listening after
     await speakText(greeting);
   }, [formData, speakText, addDebugLog]);
 
@@ -845,6 +966,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       setFinalTranscript('');
       setInterimTranscript('');
       lastProcessedTranscriptRef.current = '';
+      shouldRestartAfterEndRef.current = true;
       
       recognitionRef.current.start();
       addDebugLog('🎤 User clicked microphone - starting recognition');
@@ -881,6 +1003,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
       try {
+        shouldRestartAfterEndRef.current = false;
         recognitionRef.current.stop();
         addDebugLog('🛑 User stopped listening');
         toast('Stopped listening', { icon: '🛑' });
@@ -900,7 +1023,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     const loadingToast = toast.loading('Running tests...');
 
     try {
-      
       const userFunction = new Function('return ' + currentCode)() as (...args: unknown[]) => unknown;
 
       currentCodingProblem.testCases.forEach((testCase) => {
@@ -953,7 +1075,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     setShowModal(false);
     setShowMockInterview(true);
     toast.success('Interview started! Good luck! 🎯');
-    startInterviewConversation();
+    
+    // ✅ Start conversation after a short delay
+    setTimeout(() => {
+      startInterviewConversation();
+    }, 500);
   }, [GEMINI_API_KEY, startInterviewConversation]);
 
   // Leave interview
@@ -974,7 +1100,8 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
       if (recognitionRef.current) {
         try {
-          recognitionRef.current.stop();
+          shouldRestartAfterEndRef.current = false;
+          recognitionRef.current.abort();
         } catch (error) {
           console.error('Error stopping recognition:', error);
         }
@@ -1006,7 +1133,9 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       accumulatedText: accumulatedTranscriptRef.current,
       processingState: processingRef.current,
       lastSpeechTime: new Date(lastUserSpeechTimeRef.current).toLocaleTimeString(),
-      timeSinceLastSpeech: `${Math.floor((Date.now() - lastUserSpeechTimeRef.current) / 1000)}s ago`
+      timeSinceLastSpeech: `${Math.floor((Date.now() - lastUserSpeechTimeRef.current) / 1000)}s ago`,
+      isRestarting: isRestartingRef.current,
+      shouldRestartAfterEnd: shouldRestartAfterEndRef.current
     };
 
     console.table(results);
@@ -1052,9 +1181,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
   // RENDER: Mock Interview Mode
   if (showMockInterview) {
     return (
-      // Updated: Changed background from dark gray/blue to light emerald/sage
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-white text-slate-900">
-        {/* Updated: Toast with emerald colors */}
         <Toaster 
           position="top-center" 
           reverseOrder={false}
@@ -1072,12 +1199,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           }}
         />
 
-        {/* Updated: Header with white background and emerald accents */}
+        {/* Header */}
         <div className="bg-white border-b border-emerald-100 sticky top-0 z-50 shadow-lg">
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-8">
-                {/* Updated: Emerald clock icon */}
                 <div className="flex items-center space-x-3">
                   <Clock className="w-6 h-6 text-emerald-600" />
                   <span className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>{formatTime(interviewTime)}</span>
@@ -1088,7 +1214,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                 </div>
               </div>
 
-              {/* Updated: Icon buttons with emerald hover states */}
               <div className="flex items-center space-x-2">
                 <button 
                   onClick={() => setShowDebug(!showDebug)} 
@@ -1119,7 +1244,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   <Settings className="w-5 h-5" />
                 </button>
                 <div className="h-6 w-px bg-slate-300 mx-2"></div>
-                {/* Updated: Red leave button with rounded-full */}
                 <button 
                   onClick={handleLeaveInterview} 
                   className="flex items-center space-x-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 rounded-full text-sm text-white font-bold transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
@@ -1132,12 +1256,12 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           </div>
         </div>
 
-        {/* Updated: Main Content with better spacing */}
+        {/* Main Content */}
         <div className="container mx-auto px-6 py-10">
           <div className="max-w-7xl mx-auto">
             <div className="flex gap-6">
               <div className="flex-1 space-y-8">
-                {/* Updated: Debug Panel with emerald accents */}
+                {/* Debug Panel */}
                 {showDebug && (
                   <div className="bg-white rounded-2xl p-6 border-l-4 border-emerald-500 shadow-xl">
                     <div className="flex justify-between items-center mb-4">
@@ -1146,7 +1270,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                         <h4 className="text-base font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Debug Log</h4>
                       </div>
                       <div className="flex gap-2">
-                        {/* Updated: Emerald button */}
                         <button 
                           onClick={runDiagnostics}
                           className="text-xs px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold transition-all duration-200 shadow-lg hover:scale-105"
@@ -1173,9 +1296,9 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </div>
                 )}
 
-                {/* Updated: Interviewer and Candidate cards with white backgrounds and emerald accents */}
+                {/* Interviewer and Candidate cards */}
                 <div className="grid md:grid-cols-2 gap-8">
-                  {/* Updated: AI Interviewer with white card and emerald glow */}
+                  {/* AI Interviewer */}
                   <motion.div
                     className="bg-white rounded-2xl p-10 text-center relative overflow-hidden border-2 border-slate-200 shadow-xl"
                     animate={{
@@ -1203,7 +1326,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                       animate={{ scale: isSpeaking ? [1, 1.02, 1] : 1 }}
                       transition={{ duration: 1.5, repeat: isSpeaking ? Infinity : 0, ease: "easeInOut" }}
                     >
-                      {/* Updated: Emerald avatar ring */}
                       <motion.div
                         className="w-36 h-36 mx-auto mb-6 rounded-full flex items-center justify-center relative"
                         animate={{
@@ -1221,7 +1343,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                       </motion.div>
                       <h3 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Sneha</h3>
                       <p className="text-sm text-slate-600 mb-4 font-medium">AI Interviewer (Gemini Pro)</p>
-                      {/* Updated: Emerald status indicator */}
                       <motion.div
                         className="w-3 h-3 rounded-full mx-auto shadow-lg"
                         animate={{
@@ -1243,7 +1364,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                     </motion.div>
                   </motion.div>
 
-                  {/* Updated: Candidate card with white background and emerald listening state */}
+                  {/* Candidate card */}
                   <motion.div
                     className="bg-white rounded-2xl p-10 text-center relative overflow-hidden border-2 border-slate-200 shadow-xl"
                     animate={{
@@ -1272,7 +1393,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                       </div>
                       <h3 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>You</h3>
                       <p className="text-sm text-slate-600 mb-4 font-medium">Candidate</p>
-                      {/* Updated: Emerald listening indicator */}
                       <motion.div
                         className="w-3 h-3 rounded-full mx-auto shadow-lg"
                         animate={{
@@ -1305,7 +1425,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </motion.div>
                 </div>
 
-                {/* Updated: Live Transcript with emerald border and white background */}
+                {/* Live Transcript */}
                 {(interimTranscript || finalTranscript) && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -1326,12 +1446,11 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </motion.div>
                 )}
 
-                {/* Updated: Current Question card with white background and emerald accents */}
+                {/* Current Question card */}
                 <div className="bg-white rounded-2xl p-10 border-2 border-slate-200 shadow-2xl">
                   <div className="text-center">
                     <div className="flex items-center justify-center space-x-3 mb-6">
                       <h4 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Current Question</h4>
-                      {/* Updated: Emerald badge */}
                       <span className="px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-sm font-bold border-2 border-emerald-300">
                         {questionNumber} / {totalQuestions}
                       </span>
@@ -1341,7 +1460,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                     </p>
 
                     <div className="flex flex-col items-center space-y-5">
-                      {/* Updated: Emerald microphone button with rounded-full */}
                       <div className="flex items-center justify-center space-x-4">
                         <button
                           onClick={isListening ? stopListening : startListening}
@@ -1377,7 +1495,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                         </div>
                       )}
 
-                      {/* Updated: Secondary button with emerald border */}
                       <button
                         onClick={triggerCodingQuestion}
                         className="flex items-center space-x-2 px-7 py-3.5 bg-white border-2 border-emerald-500 text-emerald-700 hover:bg-emerald-50 rounded-full transition-all transform hover:scale-105 text-sm font-bold shadow-lg"
@@ -1390,7 +1507,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </div>
                 </div>
 
-                {/* Updated: Code Editor with white background and emerald accents */}
+                {/* Code Editor */}
                 {showCodeEditor && currentCodingProblem && (
                   <div className="bg-white rounded-2xl overflow-hidden border-2 border-slate-200 shadow-2xl">
                     <div
@@ -1400,7 +1517,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                       <div className="flex items-center space-x-4">
                         <Code className="w-6 h-6 text-emerald-600" />
                         <h4 className="text-xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>{currentCodingProblem.title}</h4>
-                        {/* Updated: Emerald difficulty badges */}
                         <span className={`px-4 py-1 rounded-full text-sm font-bold ${
                           currentCodingProblem.difficulty === 'easy' ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-300' :
                           currentCodingProblem.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300' :
@@ -1417,7 +1533,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
                     <div className={`transition-all duration-300 ${codeEditorCollapsed ? 'max-h-0 overflow-hidden' : 'max-h-[1000px]'}`}>
                       <div className="p-8">
-                        {/* Updated: Problem description with emerald headers */}
                         <div className="mb-6 p-6 bg-emerald-50 rounded-xl border-l-4 border-emerald-500">
                           <h5 className="text-md font-bold text-emerald-700 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>Problem Description</h5>
                           <p className="text-slate-700 text-sm mb-5 leading-relaxed font-medium">{currentCodingProblem.description}</p>
@@ -1429,7 +1544,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                           ))}
                         </div>
 
-                        {/* Updated: Code editor with emerald focus ring */}
                         <div className="relative bg-slate-50 rounded-xl border-2 border-slate-200 overflow-hidden">
                           <textarea
                             value={currentCode}
@@ -1443,14 +1557,12 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                           </div>
                         </div>
 
-                        {/* Updated: Code editor actions with emerald buttons */}
                         <div className="flex justify-between mt-5">
                           <div className="flex items-center space-x-2 text-sm text-slate-600 font-semibold">
                             <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-sm"></div>
                             <span>JavaScript</span>
                           </div>
                           <div className="flex space-x-3">
-                            {/* Updated: Secondary style button */}
                             <button
                               onClick={runCodeTests}
                               className="flex items-center space-x-2 px-5 py-2.5 bg-white border-2 border-slate-300 text-slate-700 hover:bg-slate-50 rounded-full text-sm font-bold transition-all hover:scale-105 shadow-lg"
@@ -1459,7 +1571,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                               <Play className="w-4 h-4" />
                               <span>Run Tests</span>
                             </button>
-                            {/* Updated: Primary emerald button */}
                             <button
                               onClick={handleSubmitCode}
                               className="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full text-sm font-bold transition-all hover:scale-105 shadow-lg"
@@ -1471,7 +1582,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                           </div>
                         </div>
 
-                        {/* Updated: Test Results with emerald success states */}
+                        {/* Test Results */}
                         {showTestResults && testResults.length > 0 && (
                           <div className="mt-6 p-6 bg-slate-50 rounded-xl border-2 border-slate-200">
                             <div className="flex justify-between mb-4">
@@ -1518,7 +1629,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                   </div>
                 )}
 
-                {/* Updated: Repeat Question button with emerald gradient */}
+                {/* Repeat Question button */}
                 <div className="flex justify-center">
                   <button
                     onClick={() => currentQuestion && speakText(currentQuestion)}
@@ -1532,7 +1643,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                 </div>
               </div>
 
-              {/* Updated: Sidebar with white background and emerald accents */}
+              {/* Sidebar */}
               <AnimatePresence>
                 {(showTranscript || showSettings) && (
                   <motion.div
@@ -1553,7 +1664,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                           {conversationHistory.map((msg, idx) => (
                             <div key={idx} className="text-sm">
                               <div className="flex justify-between mb-2">
-                                {/* Updated: Emerald speaker labels */}
                                 <span className={`font-bold ${msg.role === 'model' ? 'text-emerald-600' : 'text-emerald-700'}`} style={{ fontFamily: 'Inter, sans-serif' }}>
                                   {msg.role === 'model' ? 'Sneha' : 'You'}
                                 </span>
@@ -1575,7 +1685,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                           </button>
                         </div>
                         <div className="space-y-6">
-                          {/* Updated: Emerald slider */}
                           <div>
                             <label className="block text-sm font-bold mb-3 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
                               AI Voice Volume: {volume}%
@@ -1592,7 +1701,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
                               />
                             </div>
                           </div>
-                          {/* Updated: Status indicators with emerald */}
                           <div>
                             <label className="block text-sm font-bold mb-3 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Gemini API Status</label>
                             <div className={`px-5 py-4 rounded-xl border-2 ${
@@ -1628,7 +1736,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     );
   }
 
-  // RENDER: Landing Page (unchanged from previous version)
+  // RENDER: Landing Page
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 text-slate-900">
       <Toaster 
