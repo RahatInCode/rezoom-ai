@@ -4,8 +4,9 @@ import React, { useEffect, useState } from 'react';
 import BuildButton from '../../Elements/BuildButton';
 import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { app } from '../../utils/firebaseConfig';
+import { ModeToggle } from '../../../components/themes/mode-toggle';
 
-// Icon Components
+
 const MenuIcon: React.FC = () => (
   <svg
     className="pointer-events-none"
@@ -37,7 +38,7 @@ const MenuIcon: React.FC = () => (
 const Logo: React.FC = () => (
   <div className="flex items-center justify-center gap-2">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 200 200" width="28" height="28">
-      {/* SVG content omitted for brevity */}
+      {/* your svg */}
     </svg>
     <Link href="/">
       <span className="font-bold text-lg tracking-wider text-gray-900 dark:text-white">Rezoom.AI</span>
@@ -47,7 +48,7 @@ const Logo: React.FC = () => (
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState<FirebaseUser | null>(null); // ✅ Fixed type
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const auth = getAuth(app);
 
   useEffect(() => {
@@ -65,37 +66,30 @@ function Navbar() {
     { href: "/ai", label: "CV Generator" },
   ];
 
-  // Show only if user logged in
-  if (user) {
-    navigationLinks.push({ href: "/user-dashboard", label: "My Account" });
-  }
+  if (user) navigationLinks.push({ href: "/user-dashboard", label: "My Account" });
 
   return (
     <header className="rounded-2xl w-full backdrop-blur-xl bg-white/80 dark:bg-black/80 border-b border-gray-200 dark:border-gray-700 shadow-2xl">
       <div className="max-w-7xl mx-auto px-2  sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex-shrink-0">
-            <Logo />
-          </div>
+          <Logo />
 
           {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <nav>
-              <ul className="flex items-center">
-                {navigationLinks.map((link, index) => (
-                  <li key={index} className="list-none">
-                    <Link
-                      href={link.href}
-                      className="text-gray-700 text-sm dark:text-gray-200 hover:text-gray-900 dark:hover:text-white font-medium relative group transition-all duration-300 block px-3 py-2"
-                    >
-                      {link.label}
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all duration-300 group-hover:w-full"></span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
+          <nav className="hidden md:block">
+            <ul className="flex items-center">
+              {navigationLinks.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    href={link.href}
+                    className="text-gray-700 text-sm dark:text-gray-200 hover:text-gray-900 dark:hover:text-white font-medium relative group transition-all duration-300 block px-3 py-2"
+                  >
+                    {link.label}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 dark:bg-white transition-all duration-300 group-hover:w-full"></span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
           <div className="flex items-center gap-4">
             <div className='w-fit hidden md:flex justify-center items-center gap-3 '>
@@ -114,7 +108,7 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden p-2">
             <div className="px-2 pt-2 pb-2 space-y-1 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-xl border border-gray-200 dark:border-gray-600">
