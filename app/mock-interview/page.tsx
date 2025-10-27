@@ -132,21 +132,33 @@ const MockInterviewPage = () => {
   const [debugLog, setDebugLog] = useState<string[]>([]);
   const [showDebug, setShowDebug] = useState(false);
 
-  // Refs
+  // ✅ FIX: Use number type for browser timeouts
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const processingRef = useRef(false);
-  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const silenceTimeoutRef = useRef<number | null>(null);
+  const inactivityTimeoutRef = useRef<number | null>(null);
   const accumulatedTranscriptRef = useRef<string>('');
   const lastProcessedTranscriptRef = useRef<string>('');
   const lastUserSpeechTimeRef = useRef<number>(Date.now());
   const isRestartingRef = useRef(false);
   const shouldRestartAfterEndRef = useRef(true);
 
+  // ✅ NEW: Refs to mirror state for event handlers
+  const isSpeakingRef = useRef(isSpeaking);
+  const isProcessingRefState = useRef(isProcessing);
+  const showMockInterviewRef = useRef(showMockInterview);
+  const isPausedRef = useRef(isPaused);
+
   // Constants
   const SILENCE_DELAY = 2500;
   const INACTIVITY_DELAY = 10000;
+
+  // ✅ Update state refs whenever state changes
+  useEffect(() => { isSpeakingRef.current = isSpeaking; }, [isSpeaking]);
+  useEffect(() => { isProcessingRefState.current = isProcessing; }, [isProcessing]);
+  useEffect(() => { showMockInterviewRef.current = showMockInterview; }, [showMockInterview]);
+  useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
 
   // Debug helper
   const addDebugLog = useCallback((message: string) => {
@@ -315,7 +327,7 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       }
 
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: {
@@ -395,16 +407,20 @@ Remember: Create a comfortable interview environment while assessing talent.`;
 
   // Clear inactivity timer
   const clearInactivityTimer = useCallback(() => {
-    if (inactivityTimeoutRef.current) {
+    if (inactivityTimeoutRef.current !== null) {
       clearTimeout(inactivityTimeoutRef.current);
       inactivityTimeoutRef.current = null;
       addDebugLog('⏰ Cleared inactivity timer');
     }
   }, [addDebugLog]);
 
-  // ✅ FIX: Auto-restart speech recognition (doesn't clear unprocessed data)
+  // ✅ Create refs for callbacks used by SR
+  const clearInactivityTimerRef = useRef(clearInactivityTimer);
+  useEffect(() => { clearInactivityTimerRef.current = clearInactivityTimer; }, [clearInactivityTimer]);
+
+  // Auto-restart speech recognition
   const autoRestartListening = useCallback(() => {
-    if (!showMockInterview || isPaused) {
+    if (!showMockInterviewRef.current || isPausedRef.current) {
       addDebugLog('⏭️ Skipping auto-restart (paused or not in interview)');
       return;
     }
@@ -417,21 +433,18 @@ Remember: Create a comfortable interview environment while assessing talent.`;
     isRestartingRef.current = true;
 
     setTimeout(() => {
-      if (recognitionRef.current && !isSpeaking && !isProcessing) {
+      if (recognitionRef.current && !isSpeakingRef.current && !isProcessingRefState.current) {
         try {
-          // ✅ FIX: Only clear if transcript has been processed
           const pending = accumulatedTranscriptRef.current.trim();
           const alreadyProcessed = pending === lastProcessedTranscriptRef.current;
 
           if (!pending || alreadyProcessed) {
-            // Safe to clear - no pending data or already processed
             accumulatedTranscriptRef.current = '';
             setFinalTranscript('');
             setInterimTranscript('');
             addDebugLog('🧹 Cleared transcripts (safe - no pending data)');
           } else {
             addDebugLog(`⚠️ NOT clearing unprocessed transcript: "${pending.substring(0, 30)}..."`);
-            // Don't restart if there's unprocessed pending data
             isRestartingRef.current = false;
             return;
           }
@@ -442,7 +455,6 @@ Remember: Create a comfortable interview environment while assessing talent.`;
           toast.success('🎤 Listening...', { duration: 2000 });
         } catch (error) {
           const err = error as Error;
-          // Ignore "already started" errors
           if (err.message.includes('already started')) {
             addDebugLog('✅ Recognition already active');
             setIsListening(true);
@@ -454,137 +466,150 @@ Remember: Create a comfortable interview environment while assessing talent.`;
       }
       isRestartingRef.current = false;
     }, 800);
-  }, [showMockInterview, isPaused, isSpeaking, isProcessing, addDebugLog]);
+  }, [addDebugLog]);
 
-// Start inactivity timer
-const speakTextRef = useRef<((text: string) => Promise<void>) | null>(null);
+  const autoRestartListeningRef = useRef(autoRestartListening);
+  useEffect(() => { autoRestartListeningRef.current = autoRestartListening; }, [autoRestartListening]);
 
-const startInactivityTimer = useCallback(() => {
-  if (inactivityTimeoutRef.current) {
-    clearTimeout(inactivityTimeoutRef.current);
-  }
+  // Start inactivity timer
+  const startInactivityTimer = useCallback(() => {
+    if (inactivityTimeoutRef.current !== null) {
+      clearTimeout(inactivityTimeoutRef.current);
+    }
 
-  if (!showMockInterview || isPaused || isSpeaking || isProcessing) {
-    return;
-  }
+    if (!showMockInterview || isPaused || isSpeaking || isProcessing) {
+      return;
+    }
 
-  addDebugLog('⏰ Starting 10s inactivity timer');
+    addDebugLog('⏰ Starting 10s inactivity timer');
 
-  inactivityTimeoutRef.current = setTimeout(async () => {
-    const timeSinceLastSpeech = Date.now() - lastUserSpeechTimeRef.current;
-    
-    if (timeSinceLastSpeech >= INACTIVITY_DELAY && !isSpeaking && !isProcessing) {
-      addDebugLog('⚠️ User inactive for 10s - asking follow-up');
+    inactivityTimeoutRef.current = window.setTimeout(async () => {
+      const timeSinceLastSpeech = Date.now() - lastUserSpeechTimeRef.current;
       
-      toast('🤔 Still there? Let me ask a follow-up question...', { duration: 3000 });
-      
-      const followUpMessage: ConversationMessage = {
-        role: 'user',
-        parts: '[SILENCE - No response from candidate]',
-        timestamp: formatTime(interviewTime)
-      };
-
-      const updatedHistory = [...conversationHistory, followUpMessage];
-      const response = await callGeminiAPI(updatedHistory, true);
-
-      if (response) {
-        const aiMessage: ConversationMessage = {
-          role: 'model',
-          parts: response,
+      if (timeSinceLastSpeech >= INACTIVITY_DELAY && !isSpeakingRef.current && !isProcessingRefState.current) {
+        addDebugLog('⚠️ User inactive for 10s - asking follow-up');
+        
+        toast('🤔 Still there? Let me ask a follow-up question...', { duration: 3000 });
+        
+        const followUpMessage: ConversationMessage = {
+          role: 'user',
+          parts: '[SILENCE - No response from candidate]',
           timestamp: formatTime(interviewTime)
         };
 
-        setConversationHistory([...updatedHistory, aiMessage]);
-        setCurrentQuestion(response);
-        
-        if (speakTextRef.current) {
-          await speakTextRef.current(response);
+        const updatedHistory = [...conversationHistory, followUpMessage];
+        const response = await callGeminiAPI(updatedHistory, true);
+
+        if (response) {
+          const aiMessage: ConversationMessage = {
+            role: 'model',
+            parts: response,
+            timestamp: formatTime(interviewTime)
+          };
+
+          setConversationHistory([...updatedHistory, aiMessage]);
+          setCurrentQuestion(response);
+          
+          // Will use speakTextRef later
+          if (speakTextRef.current) {
+            await speakTextRef.current(response);
+          }
         }
       }
-    }
-  }, INACTIVITY_DELAY);
-}, [showMockInterview, isPaused, isSpeaking, isProcessing, conversationHistory, interviewTime, callGeminiAPI, formatTime, addDebugLog]);
+    }, INACTIVITY_DELAY);
+  }, [showMockInterview, isPaused, isSpeaking, isProcessing, conversationHistory, interviewTime, callGeminiAPI, formatTime, addDebugLog]);
 
-// ✅ FIX: Text-to-Speech with guaranteed auto-restart
-const speakText = useCallback(async (text: string) => {
-  if (!text) return;
+  const startInactivityTimerRef = useRef(startInactivityTimer);
+  useEffect(() => { startInactivityTimerRef.current = startInactivityTimer; }, [startInactivityTimer]);
 
-  setIsSpeaking(true);
-  addDebugLog(`🔊 Speaking: "${text.substring(0, 50)}..."`);
+  // ✅ Declare speakTextRef before speakText
+  const speakTextRef = useRef<((text: string) => Promise<void>) | null>(null);
 
-  // Stop recognition while AI is speaking
-  if (recognitionRef.current && isListening) {
-    try {
-      shouldRestartAfterEndRef.current = false; // Don't restart from onend, we'll do it after TTS
-      recognitionRef.current.stop();
-      setIsListening(false);
-      addDebugLog('🛑 Stopped listening for AI speech');
-    } catch (error) {
-      console.error('Error stopping recognition:', error);
-    }
-  }
+  // Text-to-Speech
+  const speakText = useCallback(async (text: string) => {
+    if (!text) return;
 
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.95;
-    utterance.pitch = 1.1;
-    utterance.volume = volume / 100;
-    
-    const voices = window.speechSynthesis.getVoices();
-    const femaleVoice = voices.find(voice => 
-      voice.name.includes('Female') || 
-      voice.name.includes('Samantha') ||
-      voice.name.includes('Karen') ||
-      voice.name.includes('Google UK English Female')
-    ) || voices[0];
-    
-    if (femaleVoice) {
-      utterance.voice = femaleVoice;
+    setIsSpeaking(true);
+    addDebugLog(`🔊 Speaking: "${text.substring(0, 50)}..."`);
+
+    if (recognitionRef.current && isListening) {
+      try {
+        shouldRestartAfterEndRef.current = false;
+        recognitionRef.current.stop();
+        setIsListening(false);
+        addDebugLog('🛑 Stopped listening for AI speech');
+      } catch (error) {
+        console.error('Error stopping recognition:', error);
+      }
     }
 
-    utterance.onend = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95;
+      utterance.pitch = 1.1;
+      utterance.volume = volume / 100;
+      
+      // ✅ Better voice selection with voiceschanged event
+      const setVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
+        const femaleVoice = voices.find(voice => 
+          voice.name.includes('Female') || 
+          voice.name.includes('Samantha') ||
+          voice.name.includes('Karen') ||
+          voice.name.includes('Google UK English Female')
+        ) || voices[0];
+        
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
+        }
+      };
+
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.addEventListener('voiceschanged', setVoice, { once: true });
+      } else {
+        setVoice();
+      }
+
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        addDebugLog('✅ TTS finished - auto-restarting listening');
+        
+        lastUserSpeechTimeRef.current = Date.now();
+        
+        setTimeout(() => {
+          autoRestartListeningRef.current?.();
+          startInactivityTimerRef.current?.();
+        }, 500);
+      };
+
+      utterance.onerror = (event) => {
+        setIsSpeaking(false);
+        addDebugLog(`❌ TTS error: ${event.error}`);
+        toast.error('Speech synthesis error');
+        
+        lastUserSpeechTimeRef.current = Date.now();
+        setTimeout(() => {
+          autoRestartListeningRef.current?.();
+          startInactivityTimerRef.current?.();
+        }, 500);
+      };
+
+      window.speechSynthesis.speak(utterance);
+    } else {
       setIsSpeaking(false);
-      addDebugLog('✅ TTS finished - auto-restarting listening');
+      toast.error('Speech synthesis not supported');
       
-      lastUserSpeechTimeRef.current = Date.now();
-      
-      // ✅ FIX: Always restart listening after TTS completes
       setTimeout(() => {
-        autoRestartListening();
-        startInactivityTimer();
+        autoRestartListeningRef.current?.();
+        startInactivityTimerRef.current?.();
       }, 500);
-    };
+    }
+  }, [volume, isListening, addDebugLog]);
 
-    utterance.onerror = (event) => {
-      setIsSpeaking(false);
-      addDebugLog(`❌ TTS error: ${event.error}`);
-      toast.error('Speech synthesis error');
-      
-      // ✅ FIX: CRITICAL - Restart listening even after TTS error
-      lastUserSpeechTimeRef.current = Date.now();
-      setTimeout(() => {
-        autoRestartListening();
-        startInactivityTimer();
-      }, 500);
-    };
-
-    window.speechSynthesis.speak(utterance);
-  } else {
-    setIsSpeaking(false);
-    toast.error('Speech synthesis not supported');
-    
-    // ✅ FIX: Restart listening even if TTS not supported
-    setTimeout(() => {
-      autoRestartListening();
-      startInactivityTimer();
-    }, 500);
-  }
-}, [volume, isListening, addDebugLog, autoRestartListening, startInactivityTimer]);
-
-// keep a stable reference for other callbacks to use (breaks circular dependency)
-speakTextRef.current = speakText;
+  // ✅ Keep speakTextRef updated
+  useEffect(() => { speakTextRef.current = speakText; }, [speakText]);
 
   // Trigger coding question
   const triggerCodingQuestion = useCallback(() => {
@@ -599,16 +624,15 @@ speakTextRef.current = speakText;
     addDebugLog(`💻 Coding challenge triggered: ${randomProblem.title}`);
   }, [addDebugLog]);
 
-  // ✅ FIX: Handle user speech with guaranteed restart
+  // Handle user speech
   const handleUserSpeech = useCallback(async (transcript: string) => {
     const trimmed = transcript.trim();
 
     if (trimmed === lastProcessedTranscriptRef.current) {
       addDebugLog('⏭️ Duplicate transcript, skipping');
-      // ✅ FIX: Still restart listening even if duplicate
       setTimeout(() => {
-        autoRestartListening();
-        startInactivityTimer();
+        autoRestartListeningRef.current?.();
+        startInactivityTimerRef.current?.();
       }, 500);
       return;
     }
@@ -618,10 +642,9 @@ speakTextRef.current = speakText;
       toast.error('Speech too short. Please speak more clearly.');
       accumulatedTranscriptRef.current = '';
       setFinalTranscript('');
-      // ✅ FIX: Restart after error
       setTimeout(() => {
-        autoRestartListening();
-        startInactivityTimer();
+        autoRestartListeningRef.current?.();
+        startInactivityTimerRef.current?.();
       }, 500);
       return;
     }
@@ -632,7 +655,7 @@ speakTextRef.current = speakText;
     }
 
     lastUserSpeechTimeRef.current = Date.now();
-    clearInactivityTimer();
+    clearInactivityTimerRef.current?.();
 
     addDebugLog(`🔄 Processing user speech: "${trimmed.substring(0, 50)}..."`);
     lastProcessedTranscriptRef.current = trimmed;
@@ -662,8 +685,9 @@ speakTextRef.current = speakText;
       setConversationHistory([...updatedHistory, aiMessage]);
       setCurrentQuestion(response);
 
-      // ✅ TTS will auto-restart listening via its onend/onerror
-      await speakText(response);
+      if (speakTextRef.current) {
+        await speakTextRef.current(response);
+      }
 
       const lower = response.toLowerCase();
       if (lower.includes('coding problem') ||
@@ -678,16 +702,18 @@ speakTextRef.current = speakText;
       addDebugLog('❌ No response from Gemini');
       toast.error('Failed to get AI response. Restarting...');
       
-      // ✅ FIX: CRITICAL - Always restart even on API failure
       setTimeout(() => {
-        autoRestartListening();
-        startInactivityTimer();
+        autoRestartListeningRef.current?.();
+        startInactivityTimerRef.current?.();
       }, 1000);
     }
-  }, [conversationHistory, interviewTime, callGeminiAPI, speakText, triggerCodingQuestion, formatTime, totalQuestions, addDebugLog, clearInactivityTimer, autoRestartListening, startInactivityTimer]);
+  }, [conversationHistory, interviewTime, callGeminiAPI, triggerCodingQuestion, formatTime, totalQuestions, addDebugLog]);
 
-  // ✅ FIX: Setup speech recognition with proper onend handling
-  const setupSpeechRecognition = useCallback(() => {
+  const handleUserSpeechRef = useRef(handleUserSpeech);
+  useEffect(() => { handleUserSpeechRef.current = handleUserSpeech; }, [handleUserSpeech]);
+
+  // ✅ CRITICAL FIX: Initialize Speech Recognition ONCE on mount (no dependencies)
+  useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -697,27 +723,19 @@ speakTextRef.current = speakText;
       return;
     }
 
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.abort();
-      } catch (error) {
-        console.error('Recognition abort error:', error);
-      }
-    }
+    const rec = new SpeechRecognition();
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = 'en-US';
 
-    recognitionRef.current = new SpeechRecognition();
-    recognitionRef.current.continuous = true;
-    recognitionRef.current.interimResults = true;
-    recognitionRef.current.lang = 'en-US';
-
-    recognitionRef.current.onstart = () => {
+    rec.onstart = () => {
       addDebugLog('🎤 Speech recognition started');
       setIsListening(true);
       setInterimTranscript('');
-      clearInactivityTimer();
+      clearInactivityTimerRef.current?.();
     };
 
-    recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+    rec.onresult = (event: SpeechRecognitionEvent) => {
       let interim = '';
       let final = '';
 
@@ -740,41 +758,36 @@ speakTextRef.current = speakText;
         setFinalTranscript(accumulatedTranscriptRef.current);
         addDebugLog(`✅ Final: "${final.substring(0, 50)}..."`);
 
-        if (silenceTimeoutRef.current) {
+        if (silenceTimeoutRef.current !== null) {
           clearTimeout(silenceTimeoutRef.current);
         }
 
-        silenceTimeoutRef.current = setTimeout(() => {
+        silenceTimeoutRef.current = window.setTimeout(() => {
           const fullTranscript = accumulatedTranscriptRef.current.trim();
 
           addDebugLog(`⏱️ Silence detected (${SILENCE_DELAY}ms). Full: "${fullTranscript.substring(0, 50)}..."`);
 
           if (fullTranscript && !processingRef.current) {
-            // Stop recognition before processing
-            if (recognitionRef.current) {
-              try {
-                shouldRestartAfterEndRef.current = false; // Don't restart from onend
-                recognitionRef.current.stop();
-              } catch (error) {
-                console.error('Error stopping recognition:', error);
-              }
+            try {
+              shouldRestartAfterEndRef.current = false;
+              rec.stop();
+            } catch (e) {
+              console.error('Error stopping recognition:', e);
             }
-
-            // Process the speech
-            handleUserSpeech(fullTranscript);
+            handleUserSpeechRef.current?.(fullTranscript);
           }
         }, SILENCE_DELAY);
       }
     };
 
-    recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
+    rec.onerror = (event: SpeechRecognitionErrorEvent) => {
       addDebugLog(`❌ Speech error: ${event.error}`);
 
       if (event.error === 'no-speech') {
         toast('No speech detected. Ready to listen again...', { icon: '🎤' });
         setTimeout(() => {
-          autoRestartListening();
-          startInactivityTimer();
+          autoRestartListeningRef.current?.();
+          startInactivityTimerRef.current?.();
         }, 1000);
         return;
       }
@@ -790,79 +803,67 @@ speakTextRef.current = speakText;
         toast.error('🎤 Microphone access denied. Please enable it in browser settings.');
       } else if (event.error === 'network') {
         toast.error('🌐 Network error. Check your connection.');
-        // ✅ FIX: Restart after network error
         setTimeout(() => {
-          autoRestartListening();
-          startInactivityTimer();
+          autoRestartListeningRef.current?.();
+          startInactivityTimerRef.current?.();
         }, 2000);
       } else {
-        // ✅ FIX: Restart after any other error
         setTimeout(() => {
-          autoRestartListening();
-          startInactivityTimer();
+          autoRestartListeningRef.current?.();
+          startInactivityTimerRef.current?.();
         }, 1000);
       }
     };
 
-    // ✅ FIX: Process pending transcripts in onend before restarting
-    recognitionRef.current.onend = () => {
+    rec.onend = () => {
       addDebugLog('🛑 Speech recognition ended');
       setIsListening(false);
       setInterimTranscript('');
 
-      if (silenceTimeoutRef.current) {
+      if (silenceTimeoutRef.current !== null) {
         clearTimeout(silenceTimeoutRef.current);
         silenceTimeoutRef.current = null;
       }
 
-      // ✅ FIX: Check for pending unprocessed transcript
       const pending = accumulatedTranscriptRef.current.trim();
       const alreadyProcessed = pending === lastProcessedTranscriptRef.current;
-      const isProcessingNow = processingRef.current;
+      const busy = processingRef.current || isSpeakingRef.current;
 
-      if (pending && !alreadyProcessed && !isProcessingNow) {
+      if (pending && !alreadyProcessed && !busy) {
         addDebugLog(`⚠️ onend: Processing pending transcript: "${pending.substring(0, 50)}..."`);
-        handleUserSpeech(pending);
-      } else if (shouldRestartAfterEndRef.current && !isProcessingNow && !isSpeaking) {
-        // ✅ FIX: Auto-restart if we should (not stopped intentionally)
+        handleUserSpeechRef.current?.(pending);
+      } else if (shouldRestartAfterEndRef.current && !busy) {
         addDebugLog('🔄 onend: Auto-restarting (browser stopped unexpectedly)');
         setTimeout(() => {
-          autoRestartListening();
-          startInactivityTimer();
+          autoRestartListeningRef.current?.();
+          startInactivityTimerRef.current?.();
         }, 500);
       } else {
         addDebugLog('✅ onend: Clean stop (no restart needed)');
       }
 
-      shouldRestartAfterEndRef.current = true; // Reset flag
+      shouldRestartAfterEndRef.current = true;
     };
-  }, [handleUserSpeech, addDebugLog, clearInactivityTimer, autoRestartListening, startInactivityTimer, isSpeaking]);
 
-  // Initialize speech recognition
-  useEffect(() => {
-    setupSpeechRecognition();
+    recognitionRef.current = rec;
 
     return () => {
-      if (recognitionRef.current) {
-        try {
-          shouldRestartAfterEndRef.current = false;
-          recognitionRef.current.abort();
-        } catch (error) {
-          console.error('Cleanup error:', error);
-        }
+      try {
+        shouldRestartAfterEndRef.current = false;
+        rec.abort();
+      } catch (e) {
+        console.error('Cleanup error:', e);
       }
-      if (silenceTimeoutRef.current) {
-        clearTimeout(silenceTimeoutRef.current);
-      }
-      if (inactivityTimeoutRef.current) {
-        clearTimeout(inactivityTimeoutRef.current);
-      }
+      if (silenceTimeoutRef.current !== null) clearTimeout(silenceTimeoutRef.current);
+      if (inactivityTimeoutRef.current !== null) clearTimeout(inactivityTimeoutRef.current);
     };
-  }, [setupSpeechRecognition]);
+    // ✅ CRITICAL: Empty dependency array - initialize only once!
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Interview timer
   useEffect(() => {
-    let interval: NodeJS.Timeout | undefined;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (showMockInterview && !isPaused) {
       interval = setInterval(() => {
         setInterviewTime(prev => prev + 1);
@@ -873,7 +874,7 @@ speakTextRef.current = speakText;
     };
   }, [showMockInterview, isPaused]);
 
-  // ✅ NEW: Recovery watchdog - detects and recovers from stuck states
+  // Recovery watchdog
   useEffect(() => {
     if (!showMockInterview || isPaused) return;
 
@@ -881,7 +882,6 @@ speakTextRef.current = speakText;
       const now = Date.now();
       const timeSinceLastSpeech = now - lastUserSpeechTimeRef.current;
       
-      // If stuck for >20s and not actively doing anything
       if (timeSinceLastSpeech > 20000 && 
           !isListening && 
           !isSpeaking && 
@@ -892,20 +892,16 @@ speakTextRef.current = speakText;
         toast('Recovering... Please wait', { icon: '🔧' });
         
         try {
-          // Force abort and restart
           if (recognitionRef.current) {
             shouldRestartAfterEndRef.current = false;
             recognitionRef.current.abort();
           }
           
           setTimeout(() => {
-            setupSpeechRecognition();
-            setTimeout(() => {
-              lastUserSpeechTimeRef.current = Date.now();
-              autoRestartListening();
-              startInactivityTimer();
-              toast.success('✅ Recovered! Ready to listen');
-            }, 500);
+            lastUserSpeechTimeRef.current = Date.now();
+            autoRestartListeningRef.current?.();
+            startInactivityTimerRef.current?.();
+            toast.success('✅ Recovered! Ready to listen');
           }, 500);
           
         } catch (error) {
@@ -913,10 +909,10 @@ speakTextRef.current = speakText;
           addDebugLog(`❌ Watchdog recovery failed: ${error}`);
         }
       }
-    }, 5000); // Check every 5 seconds
+    }, 5000);
 
     return () => clearInterval(watchdogInterval);
-  }, [showMockInterview, isPaused, isListening, isSpeaking, isProcessing, setupSpeechRecognition, autoRestartListening, startInactivityTimer, addDebugLog]);
+  }, [showMockInterview, isPaused, isListening, isSpeaking, isProcessing, addDebugLog]);
 
   // Start interview conversation
   const startInterviewConversation = useCallback(async () => {
@@ -934,15 +930,15 @@ speakTextRef.current = speakText;
     lastUserSpeechTimeRef.current = Date.now();
     addDebugLog('🎬 Interview started');
     
-    // ✅ Speak greeting and auto-start listening after
-    await speakText(greeting);
-  }, [formData, speakText, addDebugLog]);
+    if (speakTextRef.current) {
+      await speakTextRef.current(greeting);
+    }
+  }, [formData, addDebugLog]);
 
   // Start listening
   const startListening = useCallback(() => {
     if (!recognitionRef.current) {
       toast.error('Speech recognition not available');
-      setupSpeechRecognition();
       return;
     }
 
@@ -981,23 +977,9 @@ speakTextRef.current = speakText;
         return;
       }
       
-      setIsListening(false);
-
-      setTimeout(() => {
-        setupSpeechRecognition();
-        setTimeout(() => {
-          if (recognitionRef.current) {
-            try {
-              recognitionRef.current.start();
-            } catch (retryError) {
-              console.error('Retry start error:', retryError);
-              toast.error('Could not start microphone. Please try again.');
-            }
-          }
-        }, 500);
-      }, 100);
+      toast.error('Could not start microphone. Please try again.');
     }
-  }, [isListening, isSpeaking, isProcessing, setupSpeechRecognition, addDebugLog]);
+  }, [isListening, isSpeaking, isProcessing, addDebugLog]);
 
   // Stop listening
   const stopListening = useCallback(() => {
@@ -1047,18 +1029,22 @@ speakTextRef.current = speakText;
       if (passedCount === totalCount) {
         toast.success(`✅ All ${totalCount} tests passed!`);
         const feedback = `Excellent work! All ${totalCount} test cases passed. Your solution looks solid. Can you explain your approach and the time complexity?`;
-        speakText(feedback);
+        if (speakTextRef.current) {
+          speakTextRef.current(feedback);
+        }
       } else {
         toast.error(`❌ ${passedCount}/${totalCount} tests passed`);
         const feedback = `I see ${passedCount} out of ${totalCount} test cases passing. Let's review the failing cases - what do you think might be causing the issue?`;
-        speakText(feedback);
+        if (speakTextRef.current) {
+          speakTextRef.current(feedback);
+        }
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       toast.dismiss(loadingToast);
       toast.error(`Code Error: ${errorMessage}`);
     }
-  }, [currentCodingProblem, currentCode, speakText]);
+  }, [currentCodingProblem, currentCode]);
 
   // Handle code submission
   const handleSubmitCode = useCallback(() => {
@@ -1076,7 +1062,6 @@ speakTextRef.current = speakText;
     setShowMockInterview(true);
     toast.success('Interview started! Good luck! 🎯');
     
-    // ✅ Start conversation after a short delay
     setTimeout(() => {
       startInterviewConversation();
     }, 500);
@@ -1178,7 +1163,7 @@ speakTextRef.current = speakText;
     setShowModal(true);
   }, []);
 
-  // RENDER: Mock Interview Mode
+  // RENDER: Mock Interview Mode (keeping your existing JSX - too long to repeat, same as before)
   if (showMockInterview) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-white text-slate-900">
@@ -1342,7 +1327,7 @@ speakTextRef.current = speakText;
                         </div>
                       </motion.div>
                       <h3 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Sneha</h3>
-                      <p className="text-sm text-slate-600 mb-4 font-medium">AI Interviewer (Gemini Pro)</p>
+                      <p className="text-sm text-slate-600 mb-4 font-medium">AI Interviewer (Gemini 1.5 Pro)</p>
                       <motion.div
                         className="w-3 h-3 rounded-full mx-auto shadow-lg"
                         animate={{
@@ -1507,7 +1492,7 @@ speakTextRef.current = speakText;
                   </div>
                 </div>
 
-                {/* Code Editor */}
+                {/* Code Editor - keeping your existing implementation */}
                 {showCodeEditor && currentCodingProblem && (
                   <div className="bg-white rounded-2xl overflow-hidden border-2 border-slate-200 shadow-2xl">
                     <div
@@ -1632,7 +1617,7 @@ speakTextRef.current = speakText;
                 {/* Repeat Question button */}
                 <div className="flex justify-center">
                   <button
-                    onClick={() => currentQuestion && speakText(currentQuestion)}
+                    onClick={() => currentQuestion && speakTextRef.current?.(currentQuestion)}
                     disabled={isSpeaking}
                     className={`flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full transition-all transform hover:scale-105 font-bold shadow-2xl ${isSpeaking ? 'opacity-50 cursor-not-allowed' : ''}`}
                     style={{ fontFamily: 'Inter, sans-serif' }}
@@ -1736,7 +1721,7 @@ speakTextRef.current = speakText;
     );
   }
 
-  // RENDER: Landing Page
+  // RENDER: Landing Page (keeping your existing implementation)
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 text-slate-900">
       <Toaster 
