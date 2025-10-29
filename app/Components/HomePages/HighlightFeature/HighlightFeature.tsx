@@ -5,12 +5,14 @@ import { FaShieldAlt, FaUsers, FaBolt, FaDownload, FaCheckCircle, FaArrowRight, 
 import { MdDesignServices, MdSmartToy } from "react-icons/md";
 import { IoMdHelpCircle } from "react-icons/io";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Feature {
     id: number;
     title: string;
     description: string;
     buttonText: string;
+    buttonLink: string;
     image: string;
     icon: React.ComponentType<{ className?: string; size?: number }>;
     gradient: string;
@@ -25,6 +27,7 @@ const features: Feature[] = [
         description:
             "Pass through Applicant Tracking Systems effortlessly with our professionally designed, ATS-optimized resume templates. Each template is carefully structured to highlight your skills, experience, and achievements while ensuring maximum readability for automated systems. This increases your chances of getting noticed by recruiters and landing interviews faster.",
         buttonText: "Explore Templates",
+        buttonLink:"/create-resume/experience-level/template-selection",
         image: "https://i.ibb.co.com/zHLfd8cz/Gray-Simple-Digital-Marketing-Resume.png",
         icon: FaShieldAlt,
         gradient: "from-emerald-500 to-emerald-600", // Updated
@@ -37,6 +40,7 @@ const features: Feature[] = [
         description:
             "Choose from hundreds of professionally designed resume templates created by career experts and graphic designers. Our templates are modern, elegant, and tailored for various industries. They help you make a strong first impression and effectively communicate your expertise to potential employers, ensuring your resume stands out from the competition.",
         buttonText: "Browse Designs",
+        buttonLink:"/create-resume/experience-level/template-selection",
         image: "https://i.ibb.co.com/ZzXMx3Lj/Blue-and-Brown-Clean-Modern-High-School-Resume.png",
         icon: MdDesignServices,
         gradient: "from-emerald-600 to-teal-600", // Updated
@@ -49,6 +53,7 @@ const features: Feature[] = [
         description:
             "Leverage advanced AI technology to create the perfect resume effortlessly. Our AI analyzes your target job description and suggests personalized content, keywords, and formatting to maximize your chances of getting noticed. It eliminates writer's block, saves time, and ensures your resume is optimized for each specific role.",
         buttonText: "Start Building",
+        buttonLink:"/create-resume",
         image: "https://i.ibb.co.com/cS7vJYjX/Paster-Purple-and-Blue-Cute-Modern-Content-Writer-CV-Resume.png",
         icon: MdSmartToy,
         gradient: "from-emerald-500 to-teal-500", // Updated
@@ -61,6 +66,7 @@ const features: Feature[] = [
         description:
             "Get actionable career advice from industry experts to enhance your resume, LinkedIn profile, and interview performance. Our tips include insights on structuring your experience, highlighting key achievements, and using the right language to impress recruiters. Stay ahead of the competition with personalized guidance tailored to your career goals.",
         buttonText: "Learn More",
+        buttonLink:"/Career",
         image: "https://i.ibb.co.com/XfM9GxcD/Blue-and-White-Nurse-Resume.png",
         icon: FaUsers,
         gradient: "from-emerald-600 to-emerald-700", // Updated
@@ -73,6 +79,7 @@ const features: Feature[] = [
         description:
             "Prepare for real-world interviews with our AI-powered mock interview simulator. Practice answering industry-specific questions, receive instant feedback, and improve your communication and confidence. This tool allows you to identify strengths and weaknesses, ensuring you are fully prepared for any interview scenario.",
         buttonText: "Practice Now",
+        buttonLink:"/mock-interview",
         image: "https://i.ibb.co.com/TMnJN5vW/White-Yellow-and-Black-Modern-Professional-Resume.png",
         icon: FaBolt,
         gradient: "from-emerald-500 to-teal-600", // Updated
@@ -85,6 +92,7 @@ const features: Feature[] = [
         description:
             "Easily customize your resume with our intuitive tools, allowing you to adjust layouts, colors, fonts, and sections to reflect your unique personal brand. Once complete, download your resume in multiple formats like PDF, Word, or plain text. Every resume is optimized for online applications, ensuring maximum compatibility and ATS-readiness.",
         buttonText: "Download Options",
+        buttonLink:"/",
         image: "https://i.ibb.co.com/50GtT0G/White-and-Black-Modern-New-Graduate-Professional-Resume-1.png",
         icon: FaDownload,
         gradient: "from-emerald-600 to-emerald-700", // Updated
@@ -97,6 +105,7 @@ const features: Feature[] = [
         description:
             "Get round-the-clock AI assistance to answer your career questions, provide instant feedback, and guide you through resume building and interview preparation. No matter when you need support, our intelligent AI assistant is available 24/7 to ensure you always have the help you need to advance your career.",
         buttonText: "Get Help",
+        buttonLink:"/",
         image: "https://i.ibb.co.com/50GtT0G/White-and-Black-Modern-New-Graduate-Professional-Resume-1.png",
         icon: IoMdHelpCircle,
         gradient: "from-emerald-500 to-teal-600",
@@ -304,7 +313,7 @@ const HighlightFeature: React.FC = () => {
                                         ))}
                                     </div>
                                     <div className="pl-20 pt-4">
-                                        <button
+                                        <Link href={feature.buttonLink}
                                             className={`group/btn inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r ${feature.gradient} text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300`}
                                             style={{ fontFamily: 'Inter, sans-serif' }}
                                         >
@@ -313,7 +322,7 @@ const HighlightFeature: React.FC = () => {
                                                 size={20}
                                                 className="group-hover/btn:translate-x-1 transition-transform duration-300"
                                             />
-                                        </button>
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -417,7 +426,7 @@ const HighlightFeature: React.FC = () => {
                             className="group relative inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold text-xl rounded-full shadow-2xl hover:shadow-emerald-500/50 transition-all duration-300"
                             style={{ fontFamily: 'Inter, sans-serif' }}
                         >
-                            <span>Start Building Today</span>
+                            <Link href="/ai">Start Building Today</Link>
                             <FaArrowRight 
                                 size={24} 
                                 className="group-hover:translate-x-2 transition-transform duration-300" 

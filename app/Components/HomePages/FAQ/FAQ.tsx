@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -139,9 +140,9 @@ const FAQ: React.FC = () => {
               <p className="text-blue-100 text-sm sm:text-base mb-4">
                 Our support team is here to help you 24/7
               </p>
-              <button className="bg-white text-blue-600 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200">
+              <Link href="/contact" className="bg-white text-blue-600 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200">
                 Contact Support
-              </button>
+              </Link>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { motion, type Variants } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 const easeBezier = [0.45, 0.05, 0.55, 0.95] as const;
@@ -194,9 +195,9 @@ export default function Hero() {
           custom={2}
           className="mt-0 sm:mt-2 flex flex-col sm:flex-row gap-3 sm:gap-4 z-30 relative"
         >
-          <button className="rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold px-7 sm:px-8 py-2 shadow-[0_8px_20px_rgba(34,165,91,0.18)] transition-transform duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-emerald-400">
+          <Link href="/create-resume" className="rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold px-7 sm:px-8 py-2 shadow-[0_8px_20px_rgba(34,165,91,0.18)] transition-transform duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-emerald-400">
             Get Started
-          </button>
+          </Link>
           <button className="rounded-xl bg-slate-900 text-white font-medium px-6 py-3 flex items-center justify-center gap-2 transition-transform duration-200 hover:scale-105">
             ▶ Try Demo
           </button>

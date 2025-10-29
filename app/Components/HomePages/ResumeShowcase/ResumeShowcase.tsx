@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import Image from "next/image";
+import Link from "next/link";
 
 const resumeData = [
     { id: 1, sector: "Nursing", resume: "https://i.ibb.co.com/8nTbfBFL/Black-and-White-Simple-Bordered-Nurse-Resume.png" },
@@ -183,7 +184,7 @@ const ResumeShowcase: React.FC = () => {
 
                                         {/* Overlay Button */}
                                         <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                                            <button
+                                            <Link href="/create-resume/experience-level/template-selection"
                                                 // Updated: emerald gradient button
                                                 className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300
                                                          bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 
@@ -195,7 +196,7 @@ const ResumeShowcase: React.FC = () => {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
                                                 Use this template
-                                            </button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </>
@@ -226,13 +227,13 @@ const ResumeShowcase: React.FC = () => {
                 {/* Bottom CTA Button */}
                 <div className="flex justify-center mt-6 sm:mt-8">
                     {/* Updated: emerald CTA button */}
-                    <button className="group px-6 sm:px-8 py-3 sm:py-4 border-2 border-emerald-600 hover:bg-emerald-600 hover:text-white text-emerald-600 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                    <Link href="/create-resume/experience-level/template-selection" className="group px-6 sm:px-8 py-3 sm:py-4 border-2 border-emerald-600 hover:bg-emerald-600 hover:text-white text-emerald-600 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                         <svg className="w-5 h-5 mr-2 inline-block group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                         View All Resume Templates
-                    </button>
+                    </Link>
                 </div>
             </div>
         </section>
