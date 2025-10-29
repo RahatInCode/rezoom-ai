@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Check, X, Sparkles, Zap, Crown } from "lucide-react";
-import { handleStripeCheckout } from "../lib/stripe-checkout";
+import { handleStripeCheckout } from "../../../lib/stripe-checkout";
 import Link from "next/link";
 
 type Plan = {
