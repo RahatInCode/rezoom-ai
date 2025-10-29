@@ -65,54 +65,220 @@ export default function ContactPage() {
   return (
     // Updated: Light sage to white gradient background
     <div className="min-h-screen bg-gradient-to-br from-[#f0fdf4] via-white to-[#f8fafc]">
-{/* Hero Section - Enhanced with Modern Effects */}
-<div className="relative overflow-hidden bg-gradient-to-br from-[#10b981] via-[#059669] to-[#047857]">
-  {/* Animated Background Pattern */}
-  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30 animate-pulse"></div>
-  
-  {/* Floating Shapes */}
+{/* Hero Section - Ultra Modern with Light Background */}
+<div className="relative overflow-hidden bg-gradient-to-br from-white via-emerald-50/30 to-slate-50">
+  {/* Animated Gradient Orbs */}
   <div className="absolute inset-0 overflow-hidden">
-    <div className="absolute top-20 left-10 w-72 h-72 bg-white opacity-5 rounded-full blur-3xl animate-float"></div>
-    <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-200 opacity-10 rounded-full blur-3xl animate-float-delayed"></div>
-    <div className="absolute top-40 right-1/4 w-64 h-64 bg-teal-300 opacity-5 rounded-full blur-2xl animate-float-slow"></div>
+    <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl animate-blob"></div>
+    <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-emerald-300/20 to-green-300/20 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-300/10 to-emerald-300/10 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
   </div>
-  
-  <div className="relative max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+
+  {/* Geometric Grid Pattern */}
+  <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+
+  {/* Floating Particles */}
+  <div className="absolute inset-0">
+    <div className="absolute top-20 left-[10%] w-2 h-2 bg-emerald-400 rounded-full animate-float-particle opacity-60"></div>
+    <div className="absolute top-40 right-[15%] w-3 h-3 bg-teal-400 rounded-full animate-float-particle animation-delay-1000 opacity-40"></div>
+    <div className="absolute bottom-32 left-[20%] w-2 h-2 bg-green-400 rounded-full animate-float-particle animation-delay-2000 opacity-50"></div>
+    <div className="absolute top-60 right-[30%] w-2 h-2 bg-emerald-500 rounded-full animate-float-particle animation-delay-3000 opacity-60"></div>
+  </div>
+
+  <div className="relative max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
     <div className="text-center">
-      {/* Badge */}
-      <div className="inline-flex items-center gap-2 bg-white bg-opacity-20 backdrop-blur-md border border-white border-opacity-30 text-white px-6 py-2 rounded-full mb-8 font-semibold text-sm shadow-xl animate-fade-in">
-        <div className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse"></div>
-        Available 24/7
+      {/* Glassmorphic Badge with Pulse Effect */}
+      <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-xl border border-emerald-200/50 shadow-lg shadow-emerald-100/50 px-6 py-3 rounded-full mb-10 font-bold text-sm animate-fade-in group hover:scale-105 transition-transform duration-300">
+        <div className="relative">
+          <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping absolute"></div>
+          <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+        </div>
+        <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">24/7 Support Available</span>
       </div>
       
-      {/* Main Heading with Gradient Text Effect */}
-      <h1 className="text-5xl md:text-7xl font-extrabold mb-6 text-white tracking-tight animate-slide-down">
-        Let&apos;s <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-100 to-white">Connect</span>
-      </h1>
+      {/* Ultra Modern Heading with Mixed Typography */}
+      <div className="mb-8 animate-slide-down">
+        <h1 className="text-6xl md:text-8xl font-extrabold text-[#0f172a] tracking-tight mb-4 relative inline-block">
+          Let&apos;s{' '}
+          <span className="relative inline-block">
+            <span className="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 bg-clip-text text-transparent animate-gradient-x">
+              Connect
+            </span>
+            {/* Animated Underline */}
+            <svg className="absolute -bottom-2 left-0 w-full" height="12" viewBox="0 0 200 12" xmlns="http://www.w3.org/2000/svg">
+              <path 
+                d="M2 7 Q50 2, 100 7 T198 7" 
+                fill="none" 
+                stroke="url(#gradient)" 
+                strokeWidth="3" 
+                strokeLinecap="round"
+                className="animate-draw-line"
+              />
+              <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style={{stopColor: '#10b981', stopOpacity: 1}} />
+                  <stop offset="100%" style={{stopColor: '#14b8a6', stopOpacity: 1}} />
+                </linearGradient>
+              </defs>
+            </svg>
+          </span>
+        </h1>
+        
+        {/* Rotating Words Effect */}
+        <div className="text-2xl md:text-3xl font-bold text-emerald-600 mt-6 h-10 relative overflow-hidden">
+          <div className="animate-word-slide">
+            <span className="block">Build Your Future</span>
+            <span className="block">Get Expert Help</span>
+            <span className="block">Transform Your Career</span>
+          </div>
+        </div>
+      </div>
       
-      {/* Subheading */}
-      <p className="text-xl md:text-2xl text-emerald-50 max-w-3xl mx-auto font-medium leading-relaxed mb-12 animate-slide-up">
-        Have questions about building your perfect resume? Our Head Hunters team is here to help you succeed.
+      {/* Enhanced Subheading */}
+      <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto font-medium leading-relaxed mb-12 animate-slide-up">
+        Have questions about building your perfect resume? Our <span className="text-emerald-600 font-bold">Head Hunters</span> team is ready to guide you every step of the way.
       </p>
       
-      {/* Stats Row */}
-      <div className="flex flex-wrap justify-center gap-8 md:gap-12 animate-fade-in-up" style={{animationDelay: '0.4s'}}>
-        <div className="text-center">
-          <div className="text-4xl md:text-5xl font-extrabold text-white mb-2">24/7</div>
-          <div className="text-emerald-100 text-sm md:text-base font-medium">Support Available</div>
+      {/* Interactive Stats Cards */}
+      <div className="flex flex-wrap justify-center gap-6 animate-fade-in-up" style={{animationDelay: '0.3s'}}>
+        {[
+          { icon: '⚡', stat: '24/7', label: 'Support Available', color: 'from-emerald-500 to-teal-500' },
+          { icon: '🚀', stat: '<24h', label: 'Response Time', color: 'from-teal-500 to-cyan-500' },
+          { icon: '🎯', stat: '10K+', label: 'Happy Users', color: 'from-emerald-500 to-green-500' },
+        ].map((item, idx) => (
+          <div 
+            key={idx}
+            className="group relative bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-300 hover:-translate-y-2 min-w-[160px]"
+            style={{animationDelay: `${0.4 + idx * 0.1}s`}}
+          >
+            {/* Gradient Border on Hover */}
+            <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl`}></div>
+            
+            <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300">{item.icon}</div>
+            <div className={`text-4xl md:text-5xl font-extrabold mb-2 bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>
+              {item.stat}
+            </div>
+            <div className="text-slate-600 text-sm font-semibold">{item.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Decorative Floating Elements */}
+      <div className="absolute top-1/4 left-10 hidden lg:block">
+        <div className="relative w-20 h-20 animate-spin-slow">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-2xl opacity-20 rotate-12"></div>
+          <div className="absolute inset-2 bg-white rounded-xl"></div>
         </div>
-        <div className="text-center">
-          <div className="text-4xl md:text-5xl font-extrabold text-white mb-2">&lt;24h</div>
-          <div className="text-emerald-100 text-sm md:text-base font-medium">Response Time</div>
-        </div>
-        <div className="text-center">
-          <div className="text-4xl md:text-5xl font-extrabold text-white mb-2">10K+</div>
-          <div className="text-emerald-100 text-sm md:text-base font-medium">Happy Users</div>
+      </div>
+      
+      <div className="absolute bottom-1/4 right-10 hidden lg:block">
+        <div className="relative w-16 h-16 animate-bounce-slow">
+          <div className="absolute inset-0 bg-gradient-to-br from-teal-400 to-emerald-400 rounded-full opacity-20"></div>
+          <div className="absolute inset-2 bg-white rounded-full"></div>
         </div>
       </div>
     </div>
   </div>
+
+  {/* Bottom Wave Separator */}
+  <div className="absolute bottom-0 left-0 right-0">
+    <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white" fillOpacity="0.5"/>
+      <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
+    </svg>
+  </div>
 </div>
+
+{/* Additional Keyframe Animations */}
+<style jsx>{`
+  @keyframes blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(20px, -50px) scale(1.1); }
+    50% { transform: translate(-20px, 20px) scale(0.9); }
+    75% { transform: translate(50px, 50px) scale(1.05); }
+  }
+  
+  @keyframes float-particle {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100px) translateX(20px); opacity: 0; }
+  }
+  
+  @keyframes gradient-x {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  @keyframes draw-line {
+    0% { stroke-dasharray: 0 200; }
+    100% { stroke-dasharray: 200 0; }
+  }
+  
+  @keyframes word-slide {
+    0%, 33% { transform: translateY(0); }
+    34%, 66% { transform: translateY(-100%); }
+    67%, 100% { transform: translateY(-200%); }
+  }
+  
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+  
+  .animate-float-particle {
+    animation: float-particle 6s infinite;
+  }
+  
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 3s ease infinite;
+  }
+  
+  .animate-draw-line {
+    stroke-dasharray: 200;
+    animation: draw-line 2s ease-out forwards;
+  }
+  
+  .animate-word-slide {
+    animation: word-slide 6s infinite;
+  }
+  
+  .animate-spin-slow {
+    animation: spin-slow 20s linear infinite;
+  }
+  
+  .animate-bounce-slow {
+    animation: bounce-slow 3s ease-in-out infinite;
+  }
+  
+  .animation-delay-1000 {
+    animation-delay: 1s;
+  }
+  
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  
+  .animation-delay-3000 {
+    animation-delay: 3s;
+  }
+  
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+`}</style>
+
+
 
       <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
         {/* Contact Methods Grid */}
