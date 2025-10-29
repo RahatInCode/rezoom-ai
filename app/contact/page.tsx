@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from 'react';
-import { Mail, MessageSquare, Send, CheckCircle2, MapPin, Clock, Users, Github, Linkedin, Twitter, Phone, Headphones } from 'lucide-react';
+import { Mail, Send, CheckCircle2, MapPin, Clock, Users, Github, Linkedin, Twitter, Phone, Headphones } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -14,11 +16,11 @@ export default function ContactPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const teamMembers = [
-    { name: 'Sarah Johnson', role: 'Lead Developer', image: '👩‍💻', color: 'from-blue-400 to-blue-600' },
-    { name: 'Michael Chen', role: 'Full Stack Engineer', image: '👨‍💻', color: 'from-purple-400 to-purple-600' },
-    { name: 'Emily Rodriguez', role: 'UI/UX Designer', image: '👩‍🎨', color: 'from-pink-400 to-pink-600' },
-    { name: 'David Kim', role: 'Backend Specialist', image: '👨‍💼', color: 'from-green-400 to-green-600' },
-    { name: 'Lisa Thompson', role: 'Product Manager', image: '👩‍💼', color: 'from-orange-400 to-orange-600' }
+    { name: 'Ahmed Rahat', role: 'Team Leader', image: "https://i.ibb.co.com/XxMTQDtD/557454921-1196579695839906-8771704890222554294-n.jpg", color: 'from-blue-400 to-blue-600' },
+    { name: 'Suprotik Chowdhury', role: 'Backend Developer', image: '👨‍💼', color: 'from-green-400 to-green-600' },
+    { name: 'Fouzia Rahman', role: 'UI/UX Designer', image: "https://i.ibb.co.com/MDpgRT1P/532218142-2205663219948056-9166397322869593699-n.jpg", color: 'from-pink-400 to-pink-600' },
+    { name: 'Ibrahim', role: 'Frontend Developer', image:  "https://i.ibb.co.com/rRZGQN66/472221860-952996390079219-3885647675502620921-n.jpg", color: 'from-orange-400 to-orange-600' },
+    { name: 'Abir Hasan', role: 'Full Stack Developer', image: "https://i.ibb.co.com/5gqtnBpr/1674161393535.jpg", color: 'from-purple-400 to-purple-600' },
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -31,7 +33,7 @@ export default function ContactPage() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
@@ -40,14 +42,14 @@ export default function ContactPage() {
     }
     if (!formData.subject.trim()) newErrors.subject = 'Subject is required';
     if (!formData.message.trim()) newErrors.message = 'Message is required';
-    
+
     return newErrors;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = validateForm();
-    
+
     if (Object.keys(newErrors).length === 0) {
       console.log('Form submitted:', formData);
       setSubmitted(true);
@@ -68,7 +70,7 @@ export default function ContactPage() {
         <div className="relative max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
           <div className="text-center animate-fade-in">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-slide-down">
-              Let's Connect
+              Let&apos;s Connect
             </h1>
             <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto animate-slide-up">
               Have questions about building your perfect resume? Our Head Hunters team is here to help you succeed.
@@ -80,7 +82,7 @@ export default function ContactPage() {
       <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         {/* Contact Methods Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 -mt-20 relative z-10">
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
+          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl mb-4 shadow-lg">
               <Mail className="w-7 h-7 text-white" />
             </div>
@@ -89,7 +91,7 @@ export default function ContactPage() {
             <p className="text-gray-500 text-xs">We reply within 24 hours</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl mb-4 shadow-lg">
               <Phone className="w-7 h-7 text-white" />
             </div>
@@ -98,7 +100,7 @@ export default function ContactPage() {
             <p className="text-gray-500 text-xs">Mon-Fri, 9AM-6PM EST</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{animationDelay: '0.3s'}}>
+          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl mb-4 shadow-lg">
               <Headphones className="w-7 h-7 text-white" />
             </div>
@@ -107,13 +109,13 @@ export default function ContactPage() {
             <p className="text-gray-500 text-xs">Available 24/7</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{animationDelay: '0.4s'}}>
+          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl mb-4 shadow-lg">
               <MapPin className="w-7 h-7 text-white" />
             </div>
             <h3 className="font-bold text-gray-900 mb-2 text-lg">Visit Us</h3>
-            <p className="text-gray-600 text-sm mb-1">123 Innovation Drive</p>
-            <p className="text-gray-500 text-xs">San Francisco, CA 94105</p>
+            <p className="text-gray-600 text-sm mb-1">Dhaka, Bangladesh</p>
+            <p className="text-gray-500 text-xs">Uttara sector-18 </p>
           </div>
         </div>
 
@@ -123,8 +125,8 @@ export default function ContactPage() {
           <div className="animate-fade-in-left">
             <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10 border border-gray-100">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">Send us a Message</h2>
-              <p className="text-gray-600 mb-8">Fill out the form below and we'll get back to you as soon as possible.</p>
-              
+              <p className="text-gray-600 mb-8">Fill out the form below and we&apos;ll get back to you as soon as possible.</p>
+
               {submitted ? (
                 <div className="text-center py-12 animate-scale-in">
                   <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mx-auto mb-6 animate-bounce">
@@ -310,15 +312,15 @@ export default function ContactPage() {
             <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Follow Us</h2>
               <div className="flex gap-4">
-                <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
+                <Link href="https:///www.twitter.com" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
                   <Twitter className="w-6 h-6 mx-auto" />
-                </button>
-                <button className="flex-1 bg-blue-700 hover:bg-blue-800 text-white p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
+                </Link>
+                <Link href="https://www.linkedin.com/feed/" className="flex-1 bg-blue-700 hover:bg-blue-800 text-white p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
                   <Linkedin className="w-6 h-6 mx-auto" />
-                </button>
-                <button className="flex-1 bg-gray-900 hover:bg-gray-800 text-white p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
+                </Link>
+                <Link href="https:///www.github.com" className="flex-1 bg-gray-900 hover:bg-gray-800 text-white p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
                   <Github className="w-6 h-6 mx-auto" />
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -339,23 +341,33 @@ export default function ContactPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
             {teamMembers.map((member, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up"
-                style={{animationDelay: `${index * 0.1}s`}}
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={`w-20 h-20 bg-gradient-to-br ${member.color} rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg`}>
-                  {member.image}
-                </div>
+                {typeof member.image === 'string' && member.image.startsWith('http') ? (
+                  <Image
+                    src={member.image}
+                    alt={member.name}
+                    width={80}
+                    height={80}
+                    className={`w-20 h-20 rounded-2xl object-cover mx-auto mb-4 shadow-lg`}
+                  />
+                ) : (
+                  <div className={`w-20 h-20 bg-gradient-to-br ${member.color} rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg`}>
+                    {member.image}
+                  </div>
+                )}
                 <h3 className="font-bold text-gray-900 text-center mb-1 text-lg">{member.name}</h3>
                 <p className="text-gray-600 text-center text-sm mb-4">{member.role}</p>
                 <div className="flex justify-center gap-2">
-                  <button className="w-8 h-8 bg-gray-100 hover:bg-blue-100 rounded-lg flex items-center justify-center transition-colors">
+                  <Link href="https:///www.linkedin.com" className="w-8 h-8 bg-gray-100 hover:bg-blue-100 rounded-lg flex items-center justify-center transition-colors">
                     <Linkedin className="w-4 h-4 text-gray-600" />
-                  </button>
-                  <button className="w-8 h-8 bg-gray-100 hover:bg-gray-900 hover:text-white rounded-lg flex items-center justify-center transition-colors">
+                  </Link>
+                  <Link href="https:///www.github.com" className="w-8 h-8 bg-gray-100 hover:bg-gray-900 hover:text-white rounded-lg flex items-center justify-center transition-colors">
                     <Github className="w-4 h-4" />
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -372,11 +384,11 @@ export default function ContactPage() {
             </div>
             <div>
               <h3 className="font-bold text-gray-900 mb-2 text-lg">Can I request a custom feature?</h3>
-              <p className="text-gray-600">Absolutely! We love hearing from our users. Select "Feature Request" in the category dropdown and tell us your ideas.</p>
+              <p className="text-gray-600">Absolutely! We love hearing from our users. Select &quot;Feature Request&quot; in the category dropdown and tell us your ideas.</p>
             </div>
             <div>
               <h3 className="font-bold text-gray-900 mb-2 text-lg">Do you offer phone consultations?</h3>
-              <p className="text-gray-600">Yes! Schedule a call with our team by mentioning it in your message, and we'll arrange a convenient time.</p>
+              <p className="text-gray-600">Yes! Schedule a call with our team by mentioning it in your message, and we&apos;ll arrange a convenient time.</p>
             </div>
             <div>
               <h3 className="font-bold text-gray-900 mb-2 text-lg">Is technical support free?</h3>
