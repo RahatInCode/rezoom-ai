@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import BuildButton from '../../Elements/BuildButton';
 import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { app } from '../../utils/firebaseConfig';
-import { h } from 'framer-motion/dist/types.d-DsEeKk6G';
 
 
 
@@ -62,10 +61,10 @@ function Navbar() {
   const navigationLinks = [
     { href: "/resume-templates", label: "Resume Templates" },
     { href: "/Career", label: "Career Center" },
-    { href: "/contact", label: "Contact Us" },
     { href: "/mock-interview", label: "Mock Interview" },
     { href: "/ats-checker", label: "ATS Checker" },
     { href: "/ai", label: "CV Generator" },
+    { href: "/contact", label: "Contact Us" },
   ];
 
   if (user) navigationLinks.push({ href: "/user-dashboard", label: "My Account" });

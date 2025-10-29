@@ -16,11 +16,11 @@ export default function ContactPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const teamMembers = [
-    { name: 'Ahmed Rahat', role: 'Team Leader', image: "https://i.ibb.co.com/XxMTQDtD/557454921-1196579695839906-8771704890222554294-n.jpg", color: 'from-blue-400 to-blue-600' },
-    { name: 'Suprotik Chowdhury', role: 'Backend Developer', image: '👨‍💼', color: 'from-green-400 to-green-600' },
-    { name: 'Fouzia Rahman', role: 'UI/UX Designer', image: "https://i.ibb.co.com/MDpgRT1P/532218142-2205663219948056-9166397322869593699-n.jpg", color: 'from-pink-400 to-pink-600' },
-    { name: 'Ibrahim', role: 'Frontend Developer', image:  "https://i.ibb.co.com/rRZGQN66/472221860-952996390079219-3885647675502620921-n.jpg", color: 'from-orange-400 to-orange-600' },
-    { name: 'Abir Hasan', role: 'Full Stack Developer', image: "https://i.ibb.co.com/5gqtnBpr/1674161393535.jpg", color: 'from-purple-400 to-purple-600' },
+    { name: 'Ahmed Rahat', role: 'Team Leader', image: "https://i.ibb.co.com/XxMTQDtD/557454921-1196579695839906-8771704890222554294-n.jpg", color: 'from-emerald-400 to-emerald-600' },
+    { name: 'Suprotik Chowdhury', role: 'Backend Developer', image: '👨‍💼', color: 'from-teal-400 to-teal-600' },
+    { name: 'Fouzia Rahman', role: 'UI/UX Designer', image: "https://i.ibb.co.com/MDpgRT1P/532218142-2205663219948056-9166397322869593699-n.jpg", color: 'from-green-400 to-green-600' },
+    { name: 'Ibrahim', role: 'Frontend Developer', image:  "https://i.ibb.co.com/rRZGQN66/472221860-952996390079219-3885647675502620921-n.jpg", color: 'from-emerald-500 to-green-600' },
+    { name: 'Abir Hasan', role: 'Full Stack Developer', image: "https://i.ibb.co.com/5gqtnBpr/1674161393535.jpg", color: 'from-teal-500 to-emerald-600' },
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -63,99 +63,118 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    // Updated: Light sage to white gradient background
+    <div className="min-h-screen bg-gradient-to-br from-[#f0fdf4] via-white to-[#f8fafc]">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
+      {/* Updated: Emerald gradient hero with enhanced overlay */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-[#10b981] to-[#059669]">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30"></div>
+        {/* Updated: Generous padding and better spacing */}
+        <div className="relative max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
           <div className="text-center animate-fade-in">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-slide-down">
+            {/* Updated: Larger hero text, white color, extrabold weight */}
+            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 text-white tracking-tight animate-slide-down">
               Let&apos;s Connect
             </h1>
-            <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto animate-slide-up">
+            {/* Updated: Improved text size and emerald-50 color */}
+            <p className="text-xl md:text-2xl text-emerald-50 max-w-3xl mx-auto font-medium leading-relaxed animate-slide-up">
               Have questions about building your perfect resume? Our Head Hunters team is here to help you succeed.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
         {/* Contact Methods Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 -mt-20 relative z-10">
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl mb-4 shadow-lg">
-              <Mail className="w-7 h-7 text-white" />
+        {/* Updated: Increased negative margin for better overlap effect */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20 -mt-24 relative z-10">
+          {/* Updated: Enhanced card with emerald accent border, better shadows */}
+          <div className="bg-white rounded-2xl shadow-2xl p-8 border-t-4 border-[#10b981] hover:shadow-emerald-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            {/* Updated: Emerald gradient icon background */}
+            <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#10b981] to-[#059669] rounded-2xl mb-5 shadow-lg">
+              <Mail className="w-8 h-8 text-white" />
             </div>
-            <h3 className="font-bold text-gray-900 mb-2 text-lg">Email Us</h3>
-            <p className="text-gray-600 text-sm mb-1">support@headhunters.com</p>
-            <p className="text-gray-500 text-xs">We reply within 24 hours</p>
+            {/* Updated: Navy headings, medium weight body text */}
+            <h3 className="font-bold text-[#0f172a] mb-3 text-xl">Email Us</h3>
+            <p className="text-[#1e293b] text-base mb-2 font-medium">support@headhunters.com</p>
+            <p className="text-[#64748b] text-sm">We reply within 24 hours</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl mb-4 shadow-lg">
-              <Phone className="w-7 h-7 text-white" />
+          <div className="bg-white rounded-2xl shadow-2xl p-8 border-t-4 border-[#10b981] hover:shadow-emerald-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            {/* Updated: Teal to emerald gradient */}
+            <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#14b8a6] to-[#10b981] rounded-2xl mb-5 shadow-lg">
+              <Phone className="w-8 h-8 text-white" />
             </div>
-            <h3 className="font-bold text-gray-900 mb-2 text-lg">Call Us</h3>
-            <p className="text-gray-600 text-sm mb-1">(+88)01639-448792</p>
-            <p className="text-gray-500 text-xs">Mon-Fri, 9AM-6PM EST</p>
+            <h3 className="font-bold text-[#0f172a] mb-3 text-xl">Call Us</h3>
+            <p className="text-[#1e293b] text-base mb-2 font-medium">(+88)01639-448792</p>
+            <p className="text-[#64748b] text-sm">Mon-Fri, 9AM-6PM EST</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl mb-4 shadow-lg">
-              <Headphones className="w-7 h-7 text-white" />
+          <div className="bg-white rounded-2xl shadow-2xl p-8 border-t-4 border-[#10b981] hover:shadow-emerald-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            {/* Updated: Emerald variant gradient */}
+            <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#059669] to-[#047857] rounded-2xl mb-5 shadow-lg">
+              <Headphones className="w-8 h-8 text-white" />
             </div>
-            <h3 className="font-bold text-gray-900 mb-2 text-lg">Live Chat</h3>
-            <p className="text-gray-600 text-sm mb-1">Instant Support</p>
-            <p className="text-gray-500 text-xs">Available 24/7</p>
+            <h3 className="font-bold text-[#0f172a] mb-3 text-xl">Live Chat</h3>
+            <p className="text-[#1e293b] text-base mb-2 font-medium">Instant Support</p>
+            <p className="text-[#64748b] text-sm">Available 24/7</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl mb-4 shadow-lg">
-              <MapPin className="w-7 h-7 text-white" />
+          <div className="bg-white rounded-2xl shadow-2xl p-8 border-t-4 border-[#10b981] hover:shadow-emerald-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            {/* Updated: Dark emerald gradient */}
+            <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#10b981] to-[#047857] rounded-2xl mb-5 shadow-lg">
+              <MapPin className="w-8 h-8 text-white" />
             </div>
-            <h3 className="font-bold text-gray-900 mb-2 text-lg">Visit Us</h3>
-            <p className="text-gray-600 text-sm mb-1">Dhaka, Bangladesh</p>
-            <p className="text-gray-500 text-xs">Uttara sector-18 </p>
+            <h3 className="font-bold text-[#0f172a] mb-3 text-xl">Visit Us</h3>
+            <p className="text-[#1e293b] text-base mb-2 font-medium">Dhaka, Bangladesh</p>
+            <p className="text-[#64748b] text-sm">Uttara sector-18</p>
           </div>
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-2 gap-12 mb-16">
+        <div className="grid lg:grid-cols-2 gap-12 mb-20">
           {/* Contact Form */}
           <div className="animate-fade-in-left">
-            <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10 border border-gray-100">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Send us a Message</h2>
-              <p className="text-gray-600 mb-8">Fill out the form below and we&apos;ll get back to you as soon as possible.</p>
+            {/* Updated: Enhanced border radius, better shadow */}
+            <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100 hover:shadow-emerald-50 hover:shadow-2xl transition-all duration-300">
+              {/* Updated: Navy heading, extrabold */}
+              <h2 className="text-4xl font-extrabold text-[#0f172a] mb-3 tracking-tight">Send us a Message</h2>
+              {/* Updated: Medium gray text */}
+              <p className="text-[#64748b] text-lg mb-10 leading-relaxed">Fill out the form below and we&apos;ll get back to you as soon as possible.</p>
 
               {submitted ? (
-                <div className="text-center py-12 animate-scale-in">
-                  <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mx-auto mb-6 animate-bounce">
-                    <CheckCircle2 className="w-10 h-10 text-green-600" />
+                <div className="text-center py-16 animate-scale-in">
+                  {/* Updated: Emerald success state */}
+                  <div className="flex items-center justify-center w-24 h-24 bg-emerald-50 border-4 border-emerald-200 rounded-full mx-auto mb-6 animate-bounce">
+                    <CheckCircle2 className="w-12 h-12 text-[#10b981]" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">Message Sent Successfully!</h3>
-                  <p className="text-gray-600">Thank you for reaching out. Our team will respond within 24 hours.</p>
+                  {/* Updated: Navy heading */}
+                  <h3 className="text-3xl font-bold text-[#0f172a] mb-4">Message Sent Successfully!</h3>
+                  <p className="text-[#64748b] text-lg">Thank you for reaching out. Our team will respond within 24 hours.</p>
                 </div>
               ) : (
                 <div className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                      {/* Updated: Navy labels, semibold */}
+                      <label htmlFor="name" className="block text-sm font-bold text-[#0f172a] mb-3">
                         Full Name *
                       </label>
+                      {/* Updated: Emerald focus ring, better border radius */}
                       <input
                         type="text"
                         id="name"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        className={`w-full px-4 py-3 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all`}
+                        className={`w-full px-5 py-4 border-2 ${errors.name ? 'border-red-500' : 'border-gray-200'} rounded-xl focus:ring-4 focus:ring-emerald-100 focus:border-[#10b981] outline-none transition-all text-[#1e293b] font-medium`}
                         placeholder="John Doe"
                       />
-                      {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+                      {errors.name && <p className="mt-2 text-sm text-red-600 font-medium">{errors.name}</p>}
                     </div>
 
                     <div>
-                      <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label htmlFor="email" className="block text-sm font-bold text-[#0f172a] mb-3">
                         Email Address *
                       </label>
                       <input
@@ -164,15 +183,15 @@ export default function ContactPage() {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className={`w-full px-4 py-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all`}
+                        className={`w-full px-5 py-4 border-2 ${errors.email ? 'border-red-500' : 'border-gray-200'} rounded-xl focus:ring-4 focus:ring-emerald-100 focus:border-[#10b981] outline-none transition-all text-[#1e293b] font-medium`}
                         placeholder="john@example.com"
                       />
-                      {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                      {errors.email && <p className="mt-2 text-sm text-red-600 font-medium">{errors.email}</p>}
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="category" className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="category" className="block text-sm font-bold text-[#0f172a] mb-3">
                       Category
                     </label>
                     <select
@@ -180,7 +199,7 @@ export default function ContactPage() {
                       name="category"
                       value={formData.category}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white"
+                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-emerald-100 focus:border-[#10b981] outline-none transition-all bg-white text-[#1e293b] font-medium"
                     >
                       <option value="general">General Inquiry</option>
                       <option value="technical">Technical Support</option>
@@ -191,7 +210,7 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="subject" className="block text-sm font-bold text-[#0f172a] mb-3">
                       Subject *
                     </label>
                     <input
@@ -200,14 +219,14 @@ export default function ContactPage() {
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border ${errors.subject ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all`}
+                      className={`w-full px-5 py-4 border-2 ${errors.subject ? 'border-red-500' : 'border-gray-200'} rounded-xl focus:ring-4 focus:ring-emerald-100 focus:border-[#10b981] outline-none transition-all text-[#1e293b] font-medium`}
                       placeholder="How can we help you?"
                     />
-                    {errors.subject && <p className="mt-1 text-sm text-red-600">{errors.subject}</p>}
+                    {errors.subject && <p className="mt-2 text-sm text-red-600 font-medium">{errors.subject}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="message" className="block text-sm font-bold text-[#0f172a] mb-3">
                       Message *
                     </label>
                     <textarea
@@ -216,17 +235,18 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={handleChange}
                       rows={5}
-                      className={`w-full px-4 py-3 border ${errors.message ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none`}
+                      className={`w-full px-5 py-4 border-2 ${errors.message ? 'border-red-500' : 'border-gray-200'} rounded-xl focus:ring-4 focus:ring-emerald-100 focus:border-[#10b981] outline-none transition-all resize-none text-[#1e293b] font-medium leading-relaxed`}
                       placeholder="Tell us more about your inquiry..."
                     />
-                    {errors.message && <p className="mt-1 text-sm text-red-600">{errors.message}</p>}
+                    {errors.message && <p className="mt-2 text-sm text-red-600 font-medium">{errors.message}</p>}
                   </div>
 
+                  {/* Updated: Full Rezoom.AI button style - emerald, rounded-full, hover:scale-105 */}
                   <button
                     onClick={handleSubmit}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    className="w-full bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-bold text-lg py-5 px-8 rounded-full transition-all duration-300 flex items-center justify-center gap-3 shadow-xl hover:shadow-2xl transform hover:scale-105 group"
                   >
-                    <Send className="w-5 h-5" />
+                    <Send className="w-6 h-6 group-hover:translate-x-1 transition-transform duration-300" />
                     Send Message
                   </button>
                 </div>
@@ -237,89 +257,76 @@ export default function ContactPage() {
           {/* Info Section */}
           <div className="space-y-8 animate-fade-in-right">
             {/* Why Contact Us */}
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl shadow-2xl p-8 text-white">
-              <h2 className="text-2xl font-bold mb-6">Why Contact Us?</h2>
-              <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <CheckCircle2 className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Expert Guidance</h3>
-                    <p className="text-blue-100 text-sm">Get personalized advice on creating the perfect resume</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <CheckCircle2 className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Quick Response</h3>
-                    <p className="text-blue-100 text-sm">We respond to all inquiries within 24 hours</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <CheckCircle2 className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Technical Support</h3>
-                    <p className="text-blue-100 text-sm">Get help with any technical issues or questions</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <CheckCircle2 className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Feature Requests</h3>
-                    <p className="text-blue-100 text-sm">Share your ideas to help us improve</p>
-                  </div>
+            {/* Updated: Emerald gradient background */}
+            <div className="bg-gradient-to-br from-[#10b981] to-[#059669] rounded-3xl shadow-2xl p-10 text-white relative overflow-hidden">
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-20"></div>
+              <div className="relative z-10">
+                <h2 className="text-3xl font-extrabold mb-8">Why Contact Us?</h2>
+                <div className="space-y-6">
+                  {[
+                    { title: 'Expert Guidance', desc: 'Get personalized advice on creating the perfect resume' },
+                    { title: 'Quick Response', desc: 'We respond to all inquiries within 24 hours' },
+                    { title: 'Technical Support', desc: 'Get help with any technical issues or questions' },
+                    { title: 'Feature Requests', desc: 'Share your ideas to help us improve' }
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                        <CheckCircle2 className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                        <p className="text-emerald-50 leading-relaxed">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
             {/* Office Hours */}
-            <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-white" />
+            <div className="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100 hover:shadow-emerald-50 hover:shadow-2xl transition-all duration-300">
+              <div className="flex items-center gap-4 mb-8">
+                {/* Updated: Emerald icon background */}
+                <div className="w-14 h-14 bg-gradient-to-br from-[#10b981] to-[#059669] rounded-2xl flex items-center justify-center shadow-lg">
+                  <Clock className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Office Hours</h2>
+                <h2 className="text-3xl font-extrabold text-[#0f172a]">Office Hours</h2>
               </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-700 font-medium">Monday - Friday</span>
-                  <span className="text-gray-600">9:00 AM - 6:00 PM</span>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-3 border-b-2 border-gray-100">
+                  <span className="text-[#1e293b] font-bold">Monday - Friday</span>
+                  <span className="text-[#64748b] font-medium">9:00 AM - 6:00 PM</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-700 font-medium">Saturday</span>
-                  <span className="text-gray-600">10:00 AM - 4:00 PM</span>
+                <div className="flex justify-between items-center py-3 border-b-2 border-gray-100">
+                  <span className="text-[#1e293b] font-bold">Saturday</span>
+                  <span className="text-[#64748b] font-medium">10:00 AM - 4:00 PM</span>
                 </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-700 font-medium">Sunday</span>
-                  <span className="text-gray-600">Closed</span>
+                <div className="flex justify-between items-center py-3">
+                  <span className="text-[#1e293b] font-bold">Sunday</span>
+                  <span className="text-[#64748b] font-medium">Closed</span>
                 </div>
               </div>
-              <div className="mt-6 p-4 bg-blue-50 rounded-xl">
-                <p className="text-sm text-blue-800">
-                  <strong>Note:</strong> Live chat support is available 24/7 for urgent inquiries.
+              {/* Updated: Emerald background for note */}
+              <div className="mt-8 p-5 bg-emerald-50 border-l-4 border-[#10b981] rounded-xl">
+                <p className="text-sm text-[#047857] leading-relaxed">
+                  <strong className="font-bold">Note:</strong> Live chat support is available 24/7 for urgent inquiries.
                 </p>
               </div>
             </div>
 
             {/* Social Links */}
-            <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Follow Us</h2>
+            <div className="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100 hover:shadow-emerald-50 hover:shadow-2xl transition-all duration-300">
+              <h2 className="text-3xl font-extrabold text-[#0f172a] mb-8">Follow Us</h2>
               <div className="flex gap-4">
-                <Link href="https:///www.twitter.com" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
-                  <Twitter className="w-6 h-6 mx-auto" />
+                {/* Updated: Emerald social buttons with rounded-xl */}
+                <Link href="https://www.twitter.com" className="flex-1 bg-gradient-to-br from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white p-5 rounded-2xl transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-2xl">
+                  <Twitter className="w-7 h-7 mx-auto" />
                 </Link>
-                <Link href="https://www.linkedin.com/feed/" className="flex-1 bg-blue-700 hover:bg-blue-800 text-white p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
-                  <Linkedin className="w-6 h-6 mx-auto" />
+                <Link href="https://www.linkedin.com/feed/" className="flex-1 bg-gradient-to-br from-[#0891b2] to-[#0e7490] hover:from-[#0e7490] hover:to-[#155e75] text-white p-5 rounded-2xl transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-2xl">
+                  <Linkedin className="w-7 h-7 mx-auto" />
                 </Link>
-                <Link href="https:///www.github.com" className="flex-1 bg-gray-900 hover:bg-gray-800 text-white p-4 rounded-xl transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
-                  <Github className="w-6 h-6 mx-auto" />
+                <Link href="https://www.github.com" className="flex-1 bg-gradient-to-br from-[#1e293b] to-[#0f172a] hover:from-[#0f172a] hover:to-black text-white p-5 rounded-2xl transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-2xl">
+                  <Github className="w-7 h-7 mx-auto" />
                 </Link>
               </div>
             </div>
@@ -327,46 +334,53 @@ export default function ContactPage() {
         </div>
 
         {/* Team Section */}
-        <div className="animate-fade-in-up">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-6 py-2 rounded-full mb-4 font-semibold">
-              <Users className="w-5 h-5" />
+        <div className="animate-fade-in-up mb-20">
+          <div className="text-center mb-16">
+            {/* Updated: Emerald badge */}
+            <div className="inline-flex items-center gap-3 bg-emerald-50 border-2 border-emerald-200 text-[#047857] px-8 py-3 rounded-full mb-6 font-bold text-base shadow-md">
+              <Users className="w-6 h-6" />
               Our Team
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Meet the Head Hunters</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            {/* Updated: Navy heading, extrabold */}
+            <h2 className="text-4xl md:text-6xl font-extrabold text-[#0f172a] mb-6 tracking-tight">Meet the Head Hunters</h2>
+            <p className="text-xl text-[#64748b] max-w-2xl mx-auto leading-relaxed font-medium">
               A passionate team of developers and designers dedicated to helping you build the perfect resume.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
             {teamMembers.map((member, index) => (
               <div
                 key={index}
-                className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-fade-in-up"
+                // Updated: Enhanced card with emerald accent, better hover
+                className="bg-white rounded-3xl shadow-xl p-8 border-2 border-gray-100 hover:border-emerald-200 hover:shadow-2xl transition-all duration-300 hover:-translate-y-3 animate-fade-in-up group"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {typeof member.image === 'string' && member.image.startsWith('http') ? (
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    width={80}
-                    height={80}
-                    className={`w-20 h-20 rounded-2xl object-cover mx-auto mb-4 shadow-lg`}
-                  />
+                  <div className="relative mb-6">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#10b981] to-[#059669] rounded-3xl transform rotate-6 group-hover:rotate-12 transition-transform duration-300 opacity-20"></div>
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      width={100}
+                      height={100}
+                      className="w-24 h-24 rounded-3xl object-cover mx-auto shadow-2xl relative z-10 ring-4 ring-white"
+                    />
+                  </div>
                 ) : (
-                  <div className={`w-20 h-20 bg-gradient-to-br ${member.color} rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg`}>
+                  <div className={`w-24 h-24 bg-gradient-to-br ${member.color} rounded-3xl flex items-center justify-center text-5xl mx-auto mb-6 shadow-2xl ring-4 ring-white`}>
                     {member.image}
                   </div>
                 )}
-                <h3 className="font-bold text-gray-900 text-center mb-1 text-lg">{member.name}</h3>
-                <p className="text-gray-600 text-center text-sm mb-4">{member.role}</p>
-                <div className="flex justify-center gap-2">
-                  <Link href="https:///www.linkedin.com" className="w-8 h-8 bg-gray-100 hover:bg-blue-100 rounded-lg flex items-center justify-center transition-colors">
-                    <Linkedin className="w-4 h-4 text-gray-600" />
+                <h3 className="font-bold text-[#0f172a] text-center mb-2 text-xl">{member.name}</h3>
+                <p className="text-[#64748b] text-center mb-6 font-medium">{member.role}</p>
+                <div className="flex justify-center gap-3">
+                  {/* Updated: Emerald hover states */}
+                  <Link href="https://www.linkedin.com" className="w-10 h-10 bg-gray-50 hover:bg-emerald-50 border-2 border-gray-200 hover:border-[#10b981] rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-sm hover:shadow-md">
+                    <Linkedin className="w-5 h-5 text-gray-600 group-hover:text-[#10b981]" />
                   </Link>
-                  <Link href="https:///www.github.com" className="w-8 h-8 bg-gray-100 hover:bg-gray-900 hover:text-white rounded-lg flex items-center justify-center transition-colors">
-                    <Github className="w-4 h-4" />
+                  <Link href="https://www.github.com" className="w-10 h-10 bg-gray-50 hover:bg-gray-900 border-2 border-gray-200 hover:border-gray-900 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-sm hover:shadow-md group">
+                    <Github className="w-5 h-5 text-gray-600 group-hover:text-white" />
                   </Link>
                 </div>
               </div>
@@ -375,25 +389,21 @@ export default function ContactPage() {
         </div>
 
         {/* FAQ Section */}
-        <div className="mt-16 bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100 animate-fade-in">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Frequently Asked Questions</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="font-bold text-gray-900 mb-2 text-lg">How quickly will I receive a response?</h3>
-              <p className="text-gray-600">We typically respond to all inquiries within 24 hours during business days. For urgent matters, please use our live chat feature.</p>
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900 mb-2 text-lg">Can I request a custom feature?</h3>
-              <p className="text-gray-600">Absolutely! We love hearing from our users. Select &quot;Feature Request&quot; in the category dropdown and tell us your ideas.</p>
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900 mb-2 text-lg">Do you offer phone consultations?</h3>
-              <p className="text-gray-600">Yes! Schedule a call with our team by mentioning it in your message, and we&apos;ll arrange a convenient time.</p>
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900 mb-2 text-lg">Is technical support free?</h3>
-              <p className="text-gray-600">Yes, all our support services are completely free for all users, regardless of your subscription plan.</p>
-            </div>
+        <div className="bg-white rounded-3xl shadow-2xl p-10 md:p-16 border border-gray-100 animate-fade-in">
+          {/* Updated: Navy heading */}
+          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0f172a] mb-12 text-center tracking-tight">Frequently Asked Questions</h2>
+          <div className="grid md:grid-cols-2 gap-10">
+            {[
+              { q: 'How quickly will I receive a response?', a: 'We typically respond to all inquiries within 24 hours during business days. For urgent matters, please use our live chat feature.' },
+              { q: 'Can I request a custom feature?', a: 'Absolutely! We love hearing from our users. Select "Feature Request" in the category dropdown and tell us your ideas.' },
+              { q: 'Do you offer phone consultations?', a: 'Yes! Schedule a call with our team by mentioning it in your message, and we\'ll arrange a convenient time.' },
+              { q: 'Is technical support free?', a: 'Yes, all our support services are completely free for all users, regardless of your subscription plan.' }
+            ].map((faq, idx) => (
+              <div key={idx} className="p-6 bg-gradient-to-br from-emerald-50 to-white rounded-2xl border-l-4 border-[#10b981] hover:shadow-lg transition-all duration-300">
+                <h3 className="font-bold text-[#0f172a] mb-3 text-xl">{faq.q}</h3>
+                <p className="text-[#64748b] leading-relaxed font-medium">{faq.a}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
