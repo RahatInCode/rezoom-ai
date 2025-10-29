@@ -11,6 +11,16 @@ import { connectDB } from "./config/db";
 
 
 
+// n8n
+
+interface ChatRequestBody {
+  message: string;
+}
+
+interface N8nResponse {
+  reply?: string;
+  
+}
 
 
 // ----------------------------------------------
@@ -176,23 +186,30 @@ app.get("/stats", async (req: Request, res: Response) => {
 });
 
 // chat
-app.post("/chat", async (req, res) => {
+app.post("/chat", async (req: Request<{}, {}, ChatRequestBody>, res: Response) => {
   try {
     const { message } = req.body;
-    const reply = await fetch(process.env.N8N_WEBHOOK_URL, {
+    if (!message?.trim()) {
+      return res.status(400).json({ error: "Message is required" });
+    }
+
+    const response = await fetch(process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL  as string, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-rezoom-secret": process.env.REZ_SECRET
+        "x-rezoom-secret": process.env.REZ_SECRET as string,
       },
       body: JSON.stringify({ message }),
-    }).then(r => r.json());
-    res.json({ reply: reply.reply ?? reply });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Chatbot error" });
+    });
+
+    const data: N8nResponse = await response.json();
+    res.json({ reply: data.reply ?? data });
+  } catch (error) {
+    console.error("Chatbot error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 // ✅ Protected route example
 app.get("/protected", verifyToken, (req: AuthenticatedRequest, res: Response) => {

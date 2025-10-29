@@ -1,22 +1,35 @@
+import { NextResponse } from "next/server";
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
-
+export async function POST(req: Request) {
   try {
-    const { message } = req.body;
-    const N8N_WEBHOOK = process.env.N8N_WEBHOOK_URL; 
+    const body = await req.json();
+    const { message } = body;
+
+    if (!message?.trim()) {
+      return NextResponse.json({ error: "Message is required" }, { status: 400 });
+    }
+
+    const N8N_WEBHOOK = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL !;
     const resp = await fetch(N8N_WEBHOOK, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-rezoom-secret": process.env.REZ_SECRET // optional
+        // "x-rezoom-secret": process.env.REZ_SECRET!,
       },
       body: JSON.stringify({ message }),
     });
-    const data = await resp.json();
-    return res.status(200).json({ reply: data.reply ?? data });
+
+    const text = await resp.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { reply: text };
+    }
+
+    return NextResponse.json({ reply: data.reply ?? data });
   } catch (err) {
     console.error("Chat API error:", err);
-    return res.status(500).json({ error: "Chatbot error" });
+    return NextResponse.json({ error: "Chatbot error" }, { status: 500 });
   }
 }
