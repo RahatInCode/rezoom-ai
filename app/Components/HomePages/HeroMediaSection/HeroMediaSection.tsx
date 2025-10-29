@@ -20,6 +20,7 @@ import {
 } from 'react-icons/fa';
 import { LuTarget } from "react-icons/lu";
 import Image from "next/image";
+import Link from "next/link";
 
 const logos = [
     { name: "Wired", src: "https://i.ibb.co.com/Mk09sjXM/wired-logo-png-seeklogo-153317.png" },
@@ -231,7 +232,7 @@ const HeroMediaSection: React.FC = () => {
                         className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 sm:mb-8 leading-tight"
                     >
                         <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400">
-                            Land Your Dream Job
+                            Make Your CV Now
                         </span>
                         <span className="block text-gray-900 dark:text-white">
                             With AI-Powered Tools
@@ -252,17 +253,17 @@ const HeroMediaSection: React.FC = () => {
                             ref={buttonRef}
                             className="group relative bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 transform hover:scale-105 min-w-[200px]"
                         >
-                            <span className="flex items-center justify-center">
+                            <Link href="/ai" className="flex items-center justify-center">
                                 <FaRocket className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-                                Start Your Resume Now
-                            </span>
+                                Start Your CV Now
+                            </Link>
                         </button>
-                        <button className="group text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 px-6 py-3 rounded-xl font-medium transition-all duration-300 border border-gray-300 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500">
+                        <Link href="/mock-interview" className="group text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 px-6 py-3 rounded-xl font-medium transition-all duration-300 border border-gray-300 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500">
                             <span className="flex items-center justify-center">
                                 <FaPlay className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                                 Try Mock Interview
                             </span>
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
@@ -309,10 +310,10 @@ const HeroMediaSection: React.FC = () => {
                     {/* Interview CTA */}
                     <div className="text-center mt-8">
                         <button className="group bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 transform hover:scale-105">
-                            <span className="flex items-center justify-center">
+                            <Link href="/mock-interview" className="flex items-center justify-center">
                                 <FaVideo className="w-5 h-5 mr-2 group-hover:rotate-6 transition-transform duration-300" />
                                 Start Free Mock Interview
-                            </span>
+                            </Link>
                         </button>
                     </div>
                 </div>

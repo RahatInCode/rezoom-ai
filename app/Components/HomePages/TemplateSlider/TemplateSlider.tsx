@@ -11,6 +11,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-coverflow';
 import Image from 'next/image';
+import Link from 'next/link';
 
 // Register GSAP plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -214,15 +215,15 @@ const TemplateCard: React.FC<{ template: Template; onPreview: (template: Templat
                 </div>
 
                 {/* Stats */}
-                <div className="flex items-center justify-between text-sm text-gray-500">
+                <div  className="flex items-center justify-between text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                         <FaDownload size={14} />
                         <span>{template.downloads} downloads</span>
                     </div>
-                    <button className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700 font-medium">
+                    <Link href='/create-resume/experience-level/template-selection' className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700 font-medium">
                         <span>Try Now</span>
                         <FaArrowRight size={14} />
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>
@@ -344,10 +345,10 @@ const TemplateSlider: React.FC = () => {
                         <span>•</span>
                         <span>50,000+ downloads</span>
                     </div>
-                    <button className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    <Link href="/resume-templates" className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                         Browse All Templates
                         <FaArrowRight size={18} />
-                    </button>
+                    </Link>
                 </div>
             </div>
 
@@ -386,9 +387,9 @@ const TemplateSlider: React.FC = () => {
                             unoptimized
                          />
                         <p className="text-gray-600 mb-4">{selectedTemplate.description}</p>
-                        <button className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors duration-200">
+                        <Link href="/resume-templates" className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors duration-200">
                             Use This Template
-                        </button>
+                        </Link>
                     </div>
                 </div>
             )}

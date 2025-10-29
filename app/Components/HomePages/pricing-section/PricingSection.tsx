@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { Check, X, Sparkles, Zap, Crown } from "lucide-react";
-import { handleStripeCheckout } from "../lib/stripe-checkout";
+import { handleStripeCheckout } from "../../../lib/stripe-checkout";
+import Link from "next/link";
 
 type Plan = {
   name: string;
@@ -270,12 +271,12 @@ export default function PricingSection() {
         <div className="text-center mt-16">
           <p className="text-[#64748b]">
             Need a custom plan for your team?{" "}
-            <a
+            <Link
               href="/contact"
               className="text-[#10b981] hover:text-[#047857] font-semibold underline underline-offset-4"
             >
               Contact us
-            </a>
+            </Link>
           </p>
         </div>
       </div>

@@ -11,6 +11,16 @@ import { connectDB } from "./config/db";
 
 
 
+// n8n
+
+interface ChatRequestBody {
+  message: string;
+}
+
+interface N8nResponse {
+  reply?: string;
+  
+}
 
 
 // ----------------------------------------------
@@ -175,6 +185,30 @@ app.get("/stats", async (req: Request, res: Response) => {
   }
 });
 
+// chat
+app.post("/chat", async (req: Request<{}, {}, ChatRequestBody>, res: Response) => {
+  try {
+    const { message } = req.body;
+    if (!message?.trim()) {
+      return res.status(400).json({ error: "Message is required" });
+    }
+
+    const response = await fetch(process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL  as string, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-rezoom-secret": process.env.REZ_SECRET as string,
+      },
+      body: JSON.stringify({ message }),
+    });
+
+    const data: N8nResponse = await response.json();
+    res.json({ reply: data.reply ?? data });
+  } catch (error) {
+    console.error("Chatbot error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 // ✅ Protected route example

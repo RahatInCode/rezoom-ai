@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation"; // App Router
+import Image from "next/image";
 import toast, { Toaster } from "react-hot-toast";
 import { ArrowRight } from "lucide-react";
 
@@ -138,11 +139,14 @@ const TemplateSelector: React.FC = () => {
               className={`cursor-pointer border-4 rounded-lg overflow-hidden transition-transform hover:scale-105
                 ${selectedTemplateId === template.id ? "border-blue-500" : "border-transparent"}`}
             >
-              <img
+              {/* <img
                 src={template.image}
                 alt={template.name}
                 className="w-full h-64 object-contain"
-              />
+              /> */}
+              <Image src={template.image}
+                alt={template.name}
+                className="w-full h-64 object-contain" />
               <div className="p-1 md:p-2 text-center font-medium">{template.name}</div>
             </div>
           ))}

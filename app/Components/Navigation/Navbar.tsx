@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import BuildButton from '../../Elements/BuildButton';
 import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { app } from '../../utils/firebaseConfig';
+import { h } from 'framer-motion/dist/types.d-DsEeKk6G';
 
 
 
@@ -61,6 +62,7 @@ function Navbar() {
   const navigationLinks = [
     { href: "/resume-templates", label: "Resume Templates" },
     { href: "/Career", label: "Career Center" },
+    { href: "/contact", label: "Contact Us" },
     { href: "/mock-interview", label: "Mock Interview" },
     { href: "/ats-checker", label: "ATS Checker" },
     { href: "/ai", label: "CV Generator" },
@@ -69,7 +71,7 @@ function Navbar() {
   if (user) navigationLinks.push({ href: "/user-dashboard", label: "My Account" });
 
   return (
-    <header className="rounded-2xl w-full backdrop-blur-xl bg-white/80 dark:bg-black/80 border-b border-gray-200 dark:border-gray-700 shadow-2xl">
+    <header className="rounded-2xl w-full backdrop-blur-xl bg-white/80 dark:bg-black/80 border-b border-gray-200 dark:border-gray-700 shadow-2xl  sticky top-0 z-50 ">
       <div className="max-w-7xl mx-auto px-2  sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Logo />
