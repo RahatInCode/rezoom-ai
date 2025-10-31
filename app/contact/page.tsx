@@ -24,6 +24,7 @@ export default function ContactPage() {
       name: 'Ahmed Rahat',
       role: 'Team Leader',
       image: "https://i.ibb.co.com/XxMTQDtD/557454921-1196579695839906-8771704890222554294-n.jpg",
+      backgroundImage: "https://ibb.co.com/N68bQ5fX",
       color: 'from-emerald-400 to-emerald-600',
       bio: 'Visionary leader with 8+ years of experience in building scalable AI-powered solutions. Passionate about transforming career development through technology.',
       skills: ['Leadership', 'AI/ML', 'Product Strategy', 'Team Building', 'Agile Development'],
@@ -605,7 +606,17 @@ export default function ContactPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header with Gradient Background */}
-            <div className={`relative bg-gradient-to-br ${teamMembers[selectedMember].color} p-8 md:p-12 text-white rounded-t-3xl`}>
+            <div 
+  className="relative p-8 md:p-12 text-white rounded-t-3xl overflow-hidden"
+  style={{
+    backgroundImage: `url(${teamMembers[selectedMember].backgroundImage})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
+  }}
+>
+  {/* Overlay for better text readability */}
+  <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40 rounded-t-3xl"></div>
               {/* Close Button */}
               <button
                 onClick={() => setSelectedMember(null)}
