@@ -43,7 +43,7 @@ export default function ContactPage() {
     {
       name: 'Suprotik Chowdhury',
       role: 'Backend Developer',
-      image: '👨‍💼',
+      image: 'https://ibb.co.com/ccvT3cCg',
       color: 'from-teal-400 to-teal-600',
       bio: 'Backend wizard specializing in microservices architecture and database optimization. Building robust systems that power thousands of resumes daily.',
       skills: ['Node.js', 'Python', 'PostgreSQL', 'Redis', 'AWS', 'Docker'],
@@ -63,7 +63,7 @@ export default function ContactPage() {
     {
       name: 'Fouzia Rahman',
       role: 'UI/UX Designer',
-      image: "https://i.ibb.co.com/MDpgRT1P/532218142-2205663219948056-9166397322869593699-n.jpg",
+      image: "https://ibb.co.com/zhbjCXXk",
       color: 'from-green-400 to-green-600',
       bio: 'Creative designer with an eye for detail and user-centric approach. Crafting beautiful, intuitive interfaces that users love.',
       skills: ['Figma', 'Adobe XD', 'User Research', 'Prototyping', 'Design Systems'],
