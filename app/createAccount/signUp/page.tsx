@@ -116,7 +116,7 @@ export default function SignUp() {
         },
       });
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/user-dashboard");
       }, 1000);
     } catch (error) {
       setIsLoading(false);
