@@ -10,7 +10,7 @@ const MenuIcon: React.FC = () => (
   <svg
     className="pointer-events-none"
     width={16}
-    height={16}
+    height={14}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
