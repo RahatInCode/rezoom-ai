@@ -41,7 +41,7 @@ export default function SignIn() {
 
       // Redirect after 1 second
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/user-dashboard");
       }, 1000);
     } catch (error) {
       setIsLoading(false);
