@@ -204,7 +204,7 @@ function Navbar() {
     { href: "/Career", label: "Career Center" },
     { href: "/mock-interview", label: "Mock Interview" },
     { href: "/ats-checker", label: "ATS Checker" },
-    { href: "/Cover Letter", label: "CV Generator" },
+    { href: "/Cover-Letter", label: "CV Generator" },
     { href: "/contact", label: "Contact Us" },
   ];
 
